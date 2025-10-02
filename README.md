@@ -43,6 +43,7 @@ This repository serves as the collaborative workspace for Team 24 in the MLOps c
 - [List team members here, e.g., Juan Rebull (jrebull)]
 - Sandra Luz Cervantes Espinoza - Luz026
 - Javier Augusto Rebull Saucedo - jrebull
+- Mauricio Torres Baena - Maotb66
 - [Add additional members with GitHub usernames]
 
 ## License
