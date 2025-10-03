@@ -1,0 +1,14 @@
+artifact_uri: mlflow-artifacts:/288635096223926413/ade7edb130d3480cb0a9c13e183c9743/artifacts
+end_time: 1759514027067
+entry_point_name: ''
+experiment_id: '288635096223926413'
+lifecycle_stage: active
+run_id: ade7edb130d3480cb0a9c13e183c9743
+run_name: rf-baseline
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1759514026842
+status: 3
+tags: []
+user_id: haowei
