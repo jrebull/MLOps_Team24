@@ -1,0 +1,3 @@
+[pyinstaller40]
+hook-dirs = pydrive2.__pyinstaller:get_hook_dirs
+tests = pydrive2.__pyinstaller:get_PyInstaller_tests
