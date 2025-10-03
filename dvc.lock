@@ -9,8 +9,8 @@ stages:
       size: 172389
     - path: scripts/train_baseline.py
       hash: md5
-      md5: 2efaaeeac7d4e983242bfe3b3f50e333
-      size: 1840
+      md5: 34c3b2f008987704d926b600fbb89366
+      size: 2410
     outs:
     - path: metrics/metrics.json
       hash: md5
