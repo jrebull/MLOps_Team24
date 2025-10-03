@@ -1,0 +1,10 @@
+stages:
+  train:
+    cmd: python scripts/train_baseline.py
+    deps:
+      - scripts/train_baseline.py
+      - data/raw/acoustic_features.csv
+    outs:
+      - models/baseline_model.pkl
+    metrics:
+      - metrics/metrics.json
