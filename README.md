@@ -1,12 +1,43 @@
-MLOps Equipo 24 – Music Emotion Recognition
+# MLOps Equipo 24 – Music Emotion Recognition
 
-Este repositorio contiene notebooks, scripts y artefactos de MLflow relacionados con el proyecto. Los datos y modelos están versionados con DVC y almacenados en un bucket de S3.
+---
 
-⸻
+## 📚 Información académica
 
-🚀 Setup inicial
-	1.	Clona el repositorio
+**Instituto Tecnológico y de Estudios Superiores de Monterrey**  
+**Maestría en Inteligencia Artificial Aplicada (MNA)**  
+**Curso:** Operaciones de aprendizaje automático  
+**Actividad:** Asistir a Sesión de Integración de tu equipo de proyecto  
+**Tema:** *Uso de Discord para comunicaciones del curso*  
 
+**Integrantes del equipo N° 24:**
+- A01796937 – Sandra Luz Cervantes Espinoza  
+- A01226881 – Héctor Jesús López Meza  
+- A01796697 – Mauricio Torres Baena  
+- A01360416 – David Cruz Beltrán  
+- A01795838 – Javier Augusto Rebull Saucedo  
+
+**Profesores:**  
+- Profesor Titular: Dr. Gerardo Rodríguez Hernández  
+- Profesor Titular: Maestro Ricardo Valdez Hernández  
+- Profesor Asistente: Maestra María Mylen Treviño Elizondo  
+- Profesor Tutor: José Ángel Martínez Navarro  
+
+📅 **Periodo:** Septiembre a Diciembre 2025  
+
+---
+
+## 📦 Proyecto
+
+Este repositorio contiene notebooks, scripts y artefactos de MLflow relacionados con el proyecto.  
+Los datos y modelos están versionados con DVC y almacenados en un bucket de S3.
+
+---
+
+## 🚀 Setup inicial
+1. Clona el repositorio
+
+```bash
 git clone https://github.com/jrebull/MLOps_Team24.git
 cd MLOps_Team24
 
@@ -58,6 +89,20 @@ mlflow ui --port 5001
 
 ⸻
 
+🔄 Reproducir el pipeline
+
+Para ejecutar el pipeline y generar métricas:
+
+# Ejecuta todas las etapas definidas en dvc.yaml
+dvc repro
+
+# Compara métricas actuales contra la última versión en Git
+dvc metrics diff
+
+Esto permite ver cómo evolucionan las métricas (accuracy, F1, etc.) entre corridas y commits.
+
+⸻
+
 👩‍💻 Flujo de contribución
 	1.	Crea una nueva rama para tu contribución:
 
@@ -73,3 +118,5 @@ git push origin feat/<nombre-de-tu-rama>
 dvc push
 
 	4.	Haz un Pull Request a main.
+
+---
