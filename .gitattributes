@@ -1,5 +1,5 @@
-# Normalización por defecto
+# Normalización general
 * text=auto eol=lf
 
-# Notebooks: NO tocar como texto (sin EOL conversion ni filtros)
-*.ipynb -text
+# Notebooks: no tratarlos como texto ni pasar por filtros ni diffs text
+*.ipynb -text -filter -diff
