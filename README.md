@@ -4,7 +4,7 @@
 
 **Proyecto de reconocimiento de emociones musicales utilizando MLOps**
 
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/downloads/)
 [![MLflow](https://img.shields.io/badge/MLflow-Tracking-0194E2?logo=mlflow)](https://mlflow.org/)
 [![DVC](https://img.shields.io/badge/DVC-Data%20Versioning-945DD6?logo=dvc)](https://dvc.org/)
 [![AWS S3](https://img.shields.io/badge/AWS-S3-FF9900?logo=amazon-aws)](https://aws.amazon.com/s3/)
@@ -20,6 +20,10 @@
 - [Requisitos Previos](#-requisitos-previos)
 - [Instalación](#-instalación)
 - [Uso](#-uso)
+  - [Usando el Makefile](#%EF%B8%8F-usando-el-makefile)
+  - [Trabajar con Notebooks](#trabajar-con-notebooks)
+  - [Tracking de Experimentos](#tracking-de-experimentos)
+  - [Pipeline DVC](#pipeline-dvc)
 - [Arquitectura del Pipeline](#-arquitectura-del-pipeline)
 - [Contribución](#-contribución)
 - [Equipo](#-equipo)
@@ -62,10 +66,10 @@ Este repositorio contiene la implementación completa de un sistema MLOps para r
 
 Antes de comenzar, asegúrate de tener instalado:
 
-- Python 3.8 o superior
+- Python 3.12
 - Git
+- Make (incluido en macOS/Linux; en Windows usar Git Bash)
 - Credenciales de AWS configuradas
-- pip y virtualenv
 
 ---
 
@@ -107,11 +111,51 @@ dvc pull
 
 ## 💻 Uso
 
+### 🛠️ Usando el Makefile
+
+Este repo incluye un `Makefile` con comandos cortos para las tareas comunes.
+
+#### Requisitos
+- Python 3.12
+- `make` (viene en macOS/Linux; en Windows usar Git Bash)
+
+#### Comandos disponibles
+
+```bash
+# 1) Configurar entorno y dependencias
+make setup
+
+# 2) Abrir Jupyter Lab
+make jupyter
+
+# 3) Levantar MLflow en http://127.0.0.1:5001
+make mlflow
+
+# 4) Reproducir pipeline (solo si hubo cambios)
+make reproduce
+
+# 5) Forzar etapa de entrenamiento (nuevo run en MLflow)
+make train
+
+# 6) Ver métricas actuales y diferencias
+make metrics
+make diff
+
+# 7) Sincronizar artefactos con el remoto DVC (S3)
+make pull
+make push
+
+# 8) Limpiar el entorno local
+make clean
+```
+
 ### Trabajar con Notebooks
 
 **Jupyter Lab:**
 ```bash
 jupyter-lab
+# o usando make:
+make jupyter
 ```
 
 **VSCode:**
@@ -125,6 +169,8 @@ Inicia el servidor MLflow:
 
 ```bash
 mlflow ui --port 5001
+# o usando make:
+make mlflow
 ```
 
 Accede a la interfaz en: **http://127.0.0.1:5001**
@@ -134,16 +180,22 @@ Accede a la interfaz en: **http://127.0.0.1:5001**
 **Ejecutar el pipeline completo:**
 ```bash
 dvc repro
+# o usando make:
+make reproduce
 ```
 
 **Ver métricas actuales:**
 ```bash
 dvc metrics show
+# o usando make:
+make metrics
 ```
 
 **Comparar métricas entre commits:**
 ```bash
 dvc metrics diff
+# o usando make:
+make diff
 ```
 
 ---
@@ -195,17 +247,18 @@ flowchart TD
 3. **Subir cambios:**
    ```bash
    git push origin feat/nombre-descriptivo
-   dvc push
+   dvc push  # o: make push
    ```
 
 4. **Crear Pull Request** a la rama `main`
 
 ### Buenas prácticas
 
-- ✅ Ejecuta `dvc repro` antes de hacer commit
+- ✅ Ejecuta `make reproduce` antes de hacer commit
 - ✅ Documenta tus experimentos en MLflow
 - ✅ Escribe mensajes de commit descriptivos
 - ✅ Mantén el código limpio y comentado
+- ✅ Usa `make` para comandos comunes
 
 ---
 
