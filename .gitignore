@@ -4,3 +4,29 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 .env
+# Entornos y cachés
+.venv/
+.venv_reqtest/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# MLflow (experimentos y artefactos locales)
+mlruns/
+mlartifacts/
+
+# SO y varios
+.DS_Store
+.env
+
+.venv/
+.venv_reqtest/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+mlruns/
+mlartifacts/
+
+.DS_Store
+.env
