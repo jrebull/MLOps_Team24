@@ -1,4 +1,5 @@
+# Normalización por defecto
+* text=auto eol=lf
 
-*.ipynb	diff=jupyternotebook
-
-*.ipynb	merge=jupyternotebook
+# Notebooks: NO tocar como texto (sin EOL conversion ni filtros)
+*.ipynb -text
