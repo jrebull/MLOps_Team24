@@ -9,6 +9,11 @@
 [![DVC](https://img.shields.io/badge/DVC-Data%20Versioning-945DD6?logo=dvc)](https://dvc.org/)
 [![AWS S3](https://img.shields.io/badge/AWS-S3-FF9900?logo=amazon-aws)](https://aws.amazon.com/s3/)
 
+<!-- Badges -->
+[![verify-sync](https://img.shields.io/badge/verify--sync-make-blue?logo=gnu&logoColor=white)](#verificación-rápida-antes-de-trabajar)
+[![dependencies](https://img.shields.io/badge/deps-requirements.txt-informational?logo=python&logoColor=white)](#reproducibilidad-de-entornos)
+[![notebooks](https://img.shields.io/badge/notebooks-clean%20outputs-success?logo=jupyter&logoColor=white)](#buenas-prácticas-con-notebooks)
+
 </div>
 
 ---
@@ -24,6 +29,10 @@
   - [Trabajar con Notebooks](#trabajar-con-notebooks)
   - [Tracking de Experimentos](#tracking-de-experimentos)
   - [Pipeline DVC](#pipeline-dvc)
+- [Verificación Rápida antes de Trabajar](#-verificación-rápida-antes-de-trabajar)
+- [Reproducibilidad de Entornos](#-reproducibilidad-de-entornos)
+- [Buenas Prácticas con Notebooks](#-buenas-prácticas-con-notebooks)
+- [Limpieza Local](#-limpieza-local)
 - [Arquitectura del Pipeline](#-arquitectura-del-pipeline)
 - [Contribución](#-contribución)
 - [Equipo](#-equipo)
@@ -200,6 +209,73 @@ make diff
 
 ---
 
+## ✅ Verificación Rápida antes de Trabajar
+
+> Usa el `Makefile` para confirmar que tu repo está **limpio**, **sincronizado** y que el notebook principal **no tiene diffs**.
+
+```bash
+make verify-sync
+# o, si trabajas con otro notebook:
+make verify-sync NOTEBOOK=path/a/tu_notebook.ipynb
+```
+
+**Qué valida:**
+- ✓ Árbol de trabajo limpio (sin cambios sin commit)
+- ✓ HEAD == origin/<rama> (sin ahead/behind)
+- ✓ El notebook indicado no tiene diferencias locales
+
+Si algo falla, el comando te dirá exactamente qué corregir (pull/push/diff).
+
+---
+
+## 🔄 Reproducibilidad de Entornos
+
+Exporta dependencias después de instalar paquetes nuevos:
+
+```bash
+make freeze
+# luego:
+git commit -m "chore: update dependencies" && git push
+```
+
+Reconstrucción rápida en cualquier máquina:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+---
+
+## 📓 Buenas Prácticas con Notebooks
+
+Instala hooks para limpiar outputs y tener diffs legibles:
+
+```bash
+make nb-hooks
+```
+
+**Beneficios:**
+- `nbstripout` limpia salidas/celdas ejecutadas al commitear
+- `nbdime` muestra diffs de `.ipynb` de forma amigable
+
+**Tip:** Antes de commitear, puedes correr `make verify-sync` para asegurarte de que todo está en orden.
+
+---
+
+## 🧹 Limpieza Local
+
+Si necesitas borrar cachés locales (sin afectar Git):
+
+```bash
+make clean-caches
+```
+
+Esto elimina `__pycache__` y `.ipynb_checkpoints` solo en tu máquina (no toca el historial git).
+
+---
+
 ## 🏗 Arquitectura del Pipeline
 
 ```mermaid
@@ -232,32 +308,46 @@ flowchart TD
 
 ### Flujo de trabajo
 
-1. **Crear una nueva rama:**
+1. **Verificar sincronización:**
+   ```bash
+   make verify-sync
+   ```
+
+2. **Crear una nueva rama:**
    ```bash
    git checkout -b feat/nombre-descriptivo
    ```
 
-2. **Realizar cambios y versionar con DVC (si aplica):**
+3. **Realizar cambios y versionar con DVC (si aplica):**
    ```bash
    dvc add <ruta-al-archivo>
    git add <ruta-al-archivo>.dvc .gitignore
    git commit -m "Descripción clara del cambio"
    ```
 
-3. **Subir cambios:**
+4. **Actualizar dependencias (si instalaste paquetes):**
+   ```bash
+   make freeze
+   git add requirements.txt
+   git commit -m "chore: update dependencies"
+   ```
+
+5. **Subir cambios:**
    ```bash
    git push origin feat/nombre-descriptivo
    dvc push  # o: make push
    ```
 
-4. **Crear Pull Request** a la rama `main`
+6. **Crear Pull Request** a la rama `main`
 
 ### Buenas prácticas
 
+- ✅ Ejecuta `make verify-sync` antes de comenzar a trabajar
 - ✅ Ejecuta `make reproduce` antes de hacer commit
 - ✅ Documenta tus experimentos en MLflow
 - ✅ Escribe mensajes de commit descriptivos
 - ✅ Mantén el código limpio y comentado
+- ✅ Usa `make nb-hooks` para configurar hooks de notebooks
 - ✅ Usa `make` para comandos comunes
 
 ---
@@ -295,6 +385,12 @@ flowchart TD
 ---
 
 <div align="center">
+
+**⭐ Si este proyecto te resulta útil, considera darle una estrella**
+
+Desarrollado con ❤️ por el Equipo 24
+
+</div>
 
 **⭐ Si este proyecto te resulta útil, considera darle una estrella**
 

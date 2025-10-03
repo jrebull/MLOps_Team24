@@ -1,0 +1,78 @@
+# ============================
+# Makefile — Equipo 24 (Fase 1)
+# ============================
+# Uso:
+#   make verify-sync                # Verifica limpieza, sincronía y notebook sin cambios
+#   make verify-sync NOTEBOOK=otro.ipynb
+#   make freeze                     # Congela dependencias a requirements.txt
+#   make nb-hooks                   # Instala hooks para notebooks (nbstripout y nbdime)
+#   make clean-caches               # Limpia __pycache__ y .ipynb_checkpoints (local)
+# ============================
+
+SHELL := /bin/sh
+NOTEBOOK ?= Fase1_equipo24.ipynb
+
+.PHONY: verify-sync freeze nb-hooks clean-caches _assert_clean _assert_synced _assert_nb_clean
+
+verify-sync: _assert_clean _assert_synced _assert_nb_clean
+	@echo "✅ Todo OK: repo limpio, sincronizado y '$(NOTEBOOK)' sin diferencias."
+
+_assert_clean:
+	@echo "→ Verificando que el árbol de trabajo esté limpio..."
+	@if [ -n "$$(git status --porcelain)" ]; then \
+		echo "❌ Hay cambios sin commit o archivos sin trackear."; \
+		git status --short; \
+		exit 1; \
+	fi
+	@echo "   ✓ Árbol limpio."
+
+_assert_synced:
+	@echo "→ Verificando sincronización con origin..."
+	@git fetch origin --quiet
+	@BRANCH=$$(git rev-parse --abbrev-ref HEAD); \
+	HEAD_HASH=$$(git rev-parse HEAD); \
+	ORIGIN_HASH=$$(git rev-parse origin/$$BRANCH 2>/dev/null || echo ""); \
+	if [ -z "$$ORIGIN_HASH" ]; then \
+		echo "❌ No existe origin/$$BRANCH. ¿Subiste la rama?"; \
+		exit 1; \
+	fi; \
+	if [ "$$HEAD_HASH" != "$$ORIGIN_HASH" ]; then \
+		echo "❌ HEAD y origin/$$BRANCH no coinciden."; \
+		git status -sb; \
+		echo "   Sugerencia: 'git pull --ff-only' si estás detrás, o 'git push' si vas adelante."; \
+		exit 1; \
+	fi
+	@echo "   ✓ HEAD coincide con origin."
+
+_assert_nb_clean:
+	@echo "→ Verificando diferencias en '$(NOTEBOOK)'..."
+	@if [ ! -f "$(NOTEBOOK)" ]; then \
+		echo "❌ No se encontró el archivo '$(NOTEBOOK)'"; \
+		echo "   Pásalo con NOTEBOOK=<ruta/archivo.ipynb> si tiene otro nombre."; \
+		exit 1; \
+	fi
+	@git diff --exit-code -- "$(NOTEBOOK)" >/dev/null 2>&1 || { \
+		echo "❌ Hay diferencias locales en '$(NOTEBOOK)' respecto a lo commiteado."; \
+		echo "   Revisa con: git diff -- $(NOTEBOOK)"; \
+		exit 1; \
+	}
+	@echo "   ✓ Notebook sin diferencias locales."
+
+freeze:
+	@echo "→ Congelando dependencias a requirements.txt..."
+	@python -m pip freeze > requirements.txt
+	@git add requirements.txt
+	@echo "   ✓ requirements.txt actualizado. Recuerda commitear: git commit -m 'chore: update deps'"
+
+nb-hooks:
+	@echo "→ Instalando nbstripout y configurando nbdime..."
+	@python -m pip install --quiet nbstripout nbdime
+	@nbstripout --install
+	@nbdime config-git --enable
+	@echo "   ✓ Hooks listos (outputs limpios y diffs amigables de notebooks)."
+
+clean-caches:
+	@echo "→ Limpiando cachés locales (__pycache__, .ipynb_checkpoints)..."
+	@find . -type d -name "__pycache__" -prune -print -exec rm -rf {} \; 2>/dev/null || true
+	@find . -type d -name ".ipynb_checkpoints" -prune -print -exec rm -rf {} \; 2>/dev/null || true
+	@echo "   ✓ Cachés locales limpiadas (no afecta Git)."
