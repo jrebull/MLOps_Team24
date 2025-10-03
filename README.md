@@ -1,145 +1,250 @@
-⸻
+# 🎵 MLOps Equipo 24 – Music Emotion Recognition
 
-🎵 MLOps Equipo 24 – Music Emotion Recognition
+<div align="center">
 
-Este repositorio contiene notebooks, scripts y artefactos de MLflow relacionados con el proyecto.
-Los datos y modelos están versionados con DVC y almacenados en un bucket de S3.
+**Proyecto de reconocimiento de emociones musicales utilizando MLOps**
 
-⸻
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![MLflow](https://img.shields.io/badge/MLflow-Tracking-0194E2?logo=mlflow)](https://mlflow.org/)
+[![DVC](https://img.shields.io/badge/DVC-Data%20Versioning-945DD6?logo=dvc)](https://dvc.org/)
+[![AWS S3](https://img.shields.io/badge/AWS-S3-FF9900?logo=amazon-aws)](https://aws.amazon.com/s3/)
 
-📘 Información académica
+</div>
 
-Instituto Tecnológico y de Estudios Superiores de Monterrey
-Maestría en Inteligencia Artificial Aplicada (MNA)
-Curso: Operaciones de Aprendizaje Automático
-Actividad: Asistir a Sesión de Integración de tu equipo de proyecto
+---
 
-Tema: Uso de Discord para comunicaciones del curso
+## 📋 Tabla de Contenidos
 
-Integrantes del equipo N° 24:
-	•	A01796937 - Sandra Luz Cervantes Espinoza
-	•	A01226881 - Héctor Jesús López Meza
-	•	A01796697 - Mauricio Torres Baena
-	•	A01360416 - David Cruz Beltrán
-	•	A01795838 - Javier Augusto Rebull Saucedo
+- [Sobre el Proyecto](#-sobre-el-proyecto)
+- [Información Académica](#-información-académica)
+- [Requisitos Previos](#-requisitos-previos)
+- [Instalación](#-instalación)
+- [Uso](#-uso)
+- [Arquitectura del Pipeline](#-arquitectura-del-pipeline)
+- [Contribución](#-contribución)
+- [Equipo](#-equipo)
 
-Profesores:
-	•	Dr. Gerardo Rodríguez Hernández (Titular)
-	•	Maestro Ricardo Valdez Hernández (Titular)
-	•	Maestra María Mylen Treviño Elizondo (Asistente)
-	•	José Ángel Martínez Navarro (Tutor)
+---
 
-📅 Septiembre – Diciembre 2025
+## 🎯 Sobre el Proyecto
 
-⸻
+Este repositorio contiene la implementación completa de un sistema MLOps para reconocimiento de emociones en música. El proyecto integra:
 
-🚀 Setup inicial
-	1.	Clona el repositorio
+- 📊 **Versionado de datos** con DVC
+- 🔄 **Pipelines reproducibles** automatizados
+- 📈 **Tracking de experimentos** con MLflow
+- ☁️ **Almacenamiento en la nube** (AWS S3)
+- 🤖 **Modelos de Machine Learning** versionados
 
+---
+
+## 📘 Información Académica
+
+**Instituto Tecnológico y de Estudios Superiores de Monterrey**  
+*Maestría en Inteligencia Artificial Aplicada (MNA)*
+
+- **Curso:** Operaciones de Aprendizaje Automático
+- **Periodo:** Septiembre – Diciembre 2025
+- **Equipo:** N° 24
+
+### 👨‍🏫 Profesores
+
+| Rol | Nombre |
+|-----|--------|
+| Titular | Dr. Gerardo Rodríguez Hernández |
+| Titular | Mtro. Ricardo Valdez Hernández |
+| Asistente | Mtra. María Mylen Treviño Elizondo |
+| Tutor | José Ángel Martínez Navarro |
+
+---
+
+## 🛠 Requisitos Previos
+
+Antes de comenzar, asegúrate de tener instalado:
+
+- Python 3.8 o superior
+- Git
+- Credenciales de AWS configuradas
+- pip y virtualenv
+
+---
+
+## 🚀 Instalación
+
+### 1. Clonar el repositorio
+
+```bash
 git clone https://github.com/jrebull/MLOps_Team24.git
 cd MLOps_Team24
+```
 
-	2.	Crea un entorno virtual e instala dependencias
+### 2. Configurar entorno virtual
 
+```bash
 python -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate  # En Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+```
 
-	3.	Configura tus credenciales de AWS (solo la primera vez)
+### 3. Configurar AWS
 
-Debes tener un archivo ~/.aws/credentials con este formato:
+Crea o edita el archivo `~/.aws/credentials`:
 
+```ini
 [default]
 aws_access_key_id = TU_ACCESS_KEY_ID
 aws_secret_access_key = TU_SECRET_ACCESS_KEY
 region = us-east-1
+```
 
+### 4. Descargar datos y modelos
 
-⸻
-
-📦 Descargar datasets y modelos
-
-Para obtener los datos desde el bucket S3:
-
+```bash
 dvc pull
+```
 
-Esto descargará Acoustic Features.csv y cualquier otro artefacto versionado.
+---
 
-⸻
+## 💻 Uso
 
-📒 Trabajar con notebooks
-	•	Con Jupyter Lab:
+### Trabajar con Notebooks
 
+**Jupyter Lab:**
+```bash
 jupyter-lab
+```
 
-	•	Con VSCode:
-
+**VSCode:**
+```bash
 code .
+```
 
+### Tracking de Experimentos
 
-⸻
+Inicia el servidor MLflow:
 
-📈 Tracking de experimentos con MLflow
-	1.	Levanta el servidor MLflow en local:
-
+```bash
 mlflow ui --port 5001
+```
 
-	2.	Abre en tu navegador: http://127.0.0.1:5001
+Accede a la interfaz en: **http://127.0.0.1:5001**
 
-Ahí verás los runs del experimento Equipo24-MER con sus métricas.
+### Pipeline DVC
 
-⸻
-
-🔄 Reproducir el pipeline con DVC
-
-El pipeline está definido en dvc.yaml.
-Para ejecutarlo y regenerar métricas/modelos:
-
+**Ejecutar el pipeline completo:**
+```bash
 dvc repro
+```
 
-Para ver las métricas actuales:
-
+**Ver métricas actuales:**
+```bash
 dvc metrics show
+```
 
-Para comparar métricas entre commits:
-
+**Comparar métricas entre commits:**
+```bash
 dvc metrics diff
+```
 
+---
 
-⸻
+## 🏗 Arquitectura del Pipeline
 
-📊 Diagrama del flujo de trabajo
-
+```mermaid
 flowchart TD
     A[📂 Dataset: Acoustic Features.csv] -->|dvc add| B[DVC Tracking]
-    B -->|almacenado en| C[S3 Bucket]
+    B -->|almacenado en| C[☁️ S3 Bucket]
     A --> D[⚙️ train_baseline.py]
     D --> E[🤖 Modelo entrenado]
     D --> F[📈 metrics.json]
     E -->|log_model| G[MLflow Tracking]
     F -->|log_metrics| G
-    G --> H[MLflow UI http://127.0.0.1:5001]
+    G --> H[🖥 MLflow UI]
+    
+    style A fill:#e1f5ff
+    style C fill:#fff4e1
+    style E fill:#e8f5e9
+    style H fill:#f3e5f5
+```
 
-Este diagrama muestra cómo:
-	•	Los datos se versionan con DVC y se guardan en S3.
-	•	El script train_baseline.py entrena el modelo y genera métricas.
-	•	Las métricas y modelos se registran en MLflow, accesibles desde la UI local.
+**Flujo de trabajo:**
 
-⸻
+1. Los datos se versionan con DVC y se almacenan en S3
+2. El script `train_baseline.py` entrena modelos y genera métricas
+3. Experimentos y artefactos se registran en MLflow
+4. Todo es reproducible y trazable
 
-👩‍💻 Flujo de contribución
-	1.	Crea una nueva rama para tu contribución:
+---
 
-git checkout -b feat/<nombre-de-tu-rama>
+## 🤝 Contribución
 
-	2.	Asegúrate de correr MLflow en tu máquina.
-	3.	Realiza cambios y, si generas datos/modelos, súbelos a DVC:
+### Flujo de trabajo
 
-dvc add <ruta-al-archivo>
-git add <ruta-al-archivo>.dvc
-git commit -m "Agrega datos/modelos a DVC"
-git push origin feat/<nombre-de-tu-rama>
-dvc push
+1. **Crear una nueva rama:**
+   ```bash
+   git checkout -b feat/nombre-descriptivo
+   ```
 
-	4.	Haz un Pull Request a main.
+2. **Realizar cambios y versionar con DVC (si aplica):**
+   ```bash
+   dvc add <ruta-al-archivo>
+   git add <ruta-al-archivo>.dvc .gitignore
+   git commit -m "Descripción clara del cambio"
+   ```
 
+3. **Subir cambios:**
+   ```bash
+   git push origin feat/nombre-descriptivo
+   dvc push
+   ```
+
+4. **Crear Pull Request** a la rama `main`
+
+### Buenas prácticas
+
+- ✅ Ejecuta `dvc repro` antes de hacer commit
+- ✅ Documenta tus experimentos en MLflow
+- ✅ Escribe mensajes de commit descriptivos
+- ✅ Mantén el código limpio y comentado
+
+---
+
+## 👥 Equipo
+
+<table>
+  <tr>
+    <td align="center">
+      <strong>Sandra Luz Cervantes Espinoza</strong><br>
+      <sub>A01796937</sub>
+    </td>
+    <td align="center">
+      <strong>Héctor Jesús López Meza</strong><br>
+      <sub>A01226881</sub>
+    </td>
+    <td align="center">
+      <strong>Mauricio Torres Baena</strong><br>
+      <sub>A01796697</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <strong>David Cruz Beltrán</strong><br>
+      <sub>A01360416</sub>
+    </td>
+    <td align="center">
+      <strong>Javier Augusto Rebull Saucedo</strong><br>
+      <sub>A01795838</sub>
+    </td>
+    <td></td>
+  </tr>
+</table>
+
+---
+
+<div align="center">
+
+**⭐ Si este proyecto te resulta útil, considera darle una estrella**
+
+Desarrollado con ❤️ por el Equipo 24
+
+</div>
