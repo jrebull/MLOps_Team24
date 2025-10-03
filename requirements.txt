@@ -1,34 +1,30 @@
-# ---------- Core ML ----------
-numpy>=1.24,<2
-pandas>=2.0
-scikit-learn>=1.3
-scipy>=1.10,<2
+# --- Core ML ---
+numpy==1.26.4
+pandas==2.3.3
+scikit-learn==1.7.2
+scipy==1.16.2
 
-# ---------- Visualizacion ----------
-matplotlib>=3.7
-seaborn>=0.12
+# --- Visualización ---
+matplotlib==3.10.6
+seaborn==0.13.2
 
-# ---------- Tracking de experimentos ----------
-mlflow>=2.9
+# --- MLflow ---
+mlflow==3.4.0
 
-# ---------- DVC + Remotos ----------
-# S3 (si usan bucket en AWS)
-dvc[s3]>=3.30
-boto3>=1.28
-# Google Drive como remoto (si se usa)
-dvc[gdrive]>=3.30
+# --- DVC + remotos (rangos relajados para evitar conflictos) ---
+dvc==3.48.4
+dvc-s3>=3.2,<3.3
+dvc-gdrive>=3.0,<3.1
 
-# ---------- Notebooks ----------
-jupyterlab>=4.0
-ipykernel>=6.25
+# --- AWS SDK (compatible con dvc-s3) ---
+boto3>=1.34,<1.41
 
-# ---------- Utilidades ----------
-tqdm>=4.65
+# --- Notebooks ---
+jupyterlab==4.4.9
+ipykernel==6.30.1
 
-# ---------- Calidad / Evaluacion / Serving ----------
-pytest>=7.4
-evidently
-deepchecks
-sdv
-onnxruntime
-fastapi
+# --- Utilidades ---
+tqdm==4.67.1
+
+# --- Testing ---
+pytest==8.4.2
