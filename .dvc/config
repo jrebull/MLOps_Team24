@@ -1,4 +1,6 @@
 [core]
-    remote = localstore
+    remote = s3store
 ['remote "localstore"']
     url = ../dvcstore
+['remote "s3store"']
+    url = s3://mlops24-haowei-bucket
