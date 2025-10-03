@@ -1,43 +1,41 @@
-# MLOps Equipo 24 – Music Emotion Recognition
+⸻
 
----
+🎵 MLOps Equipo 24 – Music Emotion Recognition
 
-## 📚 Información académica
-
-**Instituto Tecnológico y de Estudios Superiores de Monterrey**  
-**Maestría en Inteligencia Artificial Aplicada (MNA)**  
-**Curso:** Operaciones de aprendizaje automático  
-**Actividad:** Asistir a Sesión de Integración de tu equipo de proyecto  
-**Tema:** *Uso de Discord para comunicaciones del curso*  
-
-**Integrantes del equipo N° 24:**
-- A01796937 – Sandra Luz Cervantes Espinoza  
-- A01226881 – Héctor Jesús López Meza  
-- A01796697 – Mauricio Torres Baena  
-- A01360416 – David Cruz Beltrán  
-- A01795838 – Javier Augusto Rebull Saucedo  
-
-**Profesores:**  
-- Profesor Titular: Dr. Gerardo Rodríguez Hernández  
-- Profesor Titular: Maestro Ricardo Valdez Hernández  
-- Profesor Asistente: Maestra María Mylen Treviño Elizondo  
-- Profesor Tutor: José Ángel Martínez Navarro  
-
-📅 **Periodo:** Septiembre a Diciembre 2025  
-
----
-
-## 📦 Proyecto
-
-Este repositorio contiene notebooks, scripts y artefactos de MLflow relacionados con el proyecto.  
+Este repositorio contiene notebooks, scripts y artefactos de MLflow relacionados con el proyecto.
 Los datos y modelos están versionados con DVC y almacenados en un bucket de S3.
 
----
+⸻
 
-## 🚀 Setup inicial
-1. Clona el repositorio
+📘 Información académica
 
-```bash
+Instituto Tecnológico y de Estudios Superiores de Monterrey
+Maestría en Inteligencia Artificial Aplicada (MNA)
+Curso: Operaciones de Aprendizaje Automático
+Actividad: Asistir a Sesión de Integración de tu equipo de proyecto
+
+Tema: Uso de Discord para comunicaciones del curso
+
+Integrantes del equipo N° 24:
+	•	A01796937 - Sandra Luz Cervantes Espinoza
+	•	A01226881 - Héctor Jesús López Meza
+	•	A01796697 - Mauricio Torres Baena
+	•	A01360416 - David Cruz Beltrán
+	•	A01795838 - Javier Augusto Rebull Saucedo
+
+Profesores:
+	•	Dr. Gerardo Rodríguez Hernández (Titular)
+	•	Maestro Ricardo Valdez Hernández (Titular)
+	•	Maestra María Mylen Treviño Elizondo (Asistente)
+	•	José Ángel Martínez Navarro (Tutor)
+
+📅 Septiembre – Diciembre 2025
+
+⸻
+
+🚀 Setup inicial
+	1.	Clona el repositorio
+
 git clone https://github.com/jrebull/MLOps_Team24.git
 cd MLOps_Team24
 
@@ -48,6 +46,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 	3.	Configura tus credenciales de AWS (solo la primera vez)
+
 Debes tener un archivo ~/.aws/credentials con este formato:
 
 [default]
@@ -87,19 +86,44 @@ mlflow ui --port 5001
 
 	2.	Abre en tu navegador: http://127.0.0.1:5001
 
+Ahí verás los runs del experimento Equipo24-MER con sus métricas.
+
 ⸻
 
-🔄 Reproducir el pipeline
+🔄 Reproducir el pipeline con DVC
 
-Para ejecutar el pipeline y generar métricas:
+El pipeline está definido en dvc.yaml.
+Para ejecutarlo y regenerar métricas/modelos:
 
-# Ejecuta todas las etapas definidas en dvc.yaml
 dvc repro
 
-# Compara métricas actuales contra la última versión en Git
+Para ver las métricas actuales:
+
+dvc metrics show
+
+Para comparar métricas entre commits:
+
 dvc metrics diff
 
-Esto permite ver cómo evolucionan las métricas (accuracy, F1, etc.) entre corridas y commits.
+
+⸻
+
+📊 Diagrama del flujo de trabajo
+
+flowchart TD
+    A[📂 Dataset: Acoustic Features.csv] -->|dvc add| B[DVC Tracking]
+    B -->|almacenado en| C[S3 Bucket]
+    A --> D[⚙️ train_baseline.py]
+    D --> E[🤖 Modelo entrenado]
+    D --> F[📈 metrics.json]
+    E -->|log_model| G[MLflow Tracking]
+    F -->|log_metrics| G
+    G --> H[MLflow UI http://127.0.0.1:5001]
+
+Este diagrama muestra cómo:
+	•	Los datos se versionan con DVC y se guardan en S3.
+	•	El script train_baseline.py entrena el modelo y genera métricas.
+	•	Las métricas y modelos se registran en MLflow, accesibles desde la UI local.
 
 ⸻
 
@@ -119,4 +143,3 @@ dvc push
 
 	4.	Haz un Pull Request a main.
 
----
