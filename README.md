@@ -1,55 +1,75 @@
-# MLOps Team 24 - Tec de Monterrey
+MLOps Equipo 24 – Music Emotion Recognition
 
-## Overview
-This repository serves as the collaborative workspace for Team 24 in the MLOps course at Tecnológico de Monterrey, commencing in September 2025. It is designed to host code, documentation, and resources related to machine learning operations, including model development, deployment, monitoring, and automation pipelines.
+Este repositorio contiene notebooks, scripts y artefactos de MLflow relacionados con el proyecto. Los datos y modelos están versionados con DVC y almacenados en un bucket de S3.
 
-## Objectives
-- Implement best practices in MLOps for efficient model lifecycle management.
-- Develop scalable solutions for data processing, model training, and inference.
-- Foster collaboration among team members through version control and shared workflows.
+⸻
 
-## Getting Started
-### Prerequisites
-- Python 3.8 or higher
-- Git installed on your local machine
-- Familiarity with virtual environments (e.g., venv or conda)
+🚀 Setup inicial
+	1.	Clona el repositorio
 
-### Installation
-1. Clone the repository:
-   ```
-   git clone https://github.com/jrebull/MLOps_Team24.git
-   ```
-2. Navigate to the project directory:
-   ```
-   cd MLOps_Team24
-   ```
-3. Create and activate a virtual environment:
-   ```
-   python -m venv env
-   source env/bin/activate  # On Unix-based systems
-   env\Scripts\activate     # On Windows
-   ```
-4. Install dependencies (if any are specified in `requirements.txt`):
-   ```
-   pip install -r requirements.txt
-   ```
+git clone https://github.com/jrebull/MLOps_Team24.git
+cd MLOps_Team24
 
-## Usage
-- **Contributing Code**: Create a feature branch, commit changes, and submit a pull request for review.
-- **Running Scripts**: Execute Python scripts or Jupyter notebooks within the virtual environment.
-- **Documentation**: Update this README or add markdown files in the `docs/` directory as needed.
+	2.	Crea un entorno virtual e instala dependencias
 
-## Team Members
-- [List team members here, e.g., Juan Rebull (jrebull)]
-- Sandra Luz Cervantes Espinoza - Luz026
-- Javier Augusto Rebull Saucedo - jrebull
-- Mauricio Torres Baena - Maotb66
-- [Add additional members with GitHub usernames]
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 
-## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+	3.	Configura tus credenciales de AWS (solo la primera vez)
+Debes tener un archivo ~/.aws/credentials con este formato:
 
-## Contact
-For inquiries, please reach out to the team lead or open an issue in the repository.
+[default]
+aws_access_key_id = TU_ACCESS_KEY_ID
+aws_secret_access_key = TU_SECRET_ACCESS_KEY
+region = us-east-1
 
-*Last updated: September 2025*
+
+⸻
+
+📦 Descargar datasets y modelos
+
+Para obtener los datos desde el bucket S3:
+
+dvc pull
+
+Esto descargará Acoustic Features.csv y cualquier otro artefacto versionado.
+
+⸻
+
+📒 Trabajar con notebooks
+	•	Con Jupyter Lab:
+
+jupyter-lab
+
+	•	Con VSCode:
+
+code .
+
+
+⸻
+
+📈 Tracking de experimentos con MLflow
+	1.	Levanta el servidor MLflow en local:
+
+mlflow ui --port 5001
+
+	2.	Abre en tu navegador: http://127.0.0.1:5001
+
+⸻
+
+👩‍💻 Flujo de contribución
+	1.	Crea una nueva rama para tu contribución:
+
+git checkout -b feat/<nombre-de-tu-rama>
+
+	2.	Asegúrate de correr MLflow en tu máquina.
+	3.	Realiza cambios y, si generas datos/modelos, súbelos a DVC:
+
+dvc add <ruta-al-archivo>
+git add <ruta-al-archivo>.dvc
+git commit -m "Agrega datos/modelos a DVC"
+git push origin feat/<nombre-de-tu-rama>
+dvc push
+
+	4.	Haz un Pull Request a main.
