@@ -30,3 +30,44 @@ mlartifacts/
 
 .DS_Store
 .env
+
+# Datos procesados
+data/processed/*
+data/interim/*
+data/external/*
+!data/processed/.gitkeep
+!data/interim/.gitkeep
+!data/external/.gitkeep
+
+# Notebooks checkpoints
+notebooks/.ipynb_checkpoints/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
