@@ -33,11 +33,11 @@ class DataExplorer:
 
     def describe_data(self):
         print("Estadísticas descriptivas:")
-        display(self.df.describe())
+        print(self.df.describe())
         print("\nValores únicos por columna:")
-        display(self.df.nunique())
+        print(self.df.nunique())
         print("\nValores faltantes por columna:")
-        display(self.df.isnull().sum())
+        print(self.df.isnull().sum())
 
     def plot_class_distribution(self):
         sns.countplot(x='Class', data=self.df)
@@ -52,7 +52,7 @@ class DataExplorer:
     def cross_tabs(self):
         for column in self.df.select_dtypes(include=['object', 'bool']).columns:
             print(f"\nCrosstab para columna: {column}")
-            display(pd.crosstab(index=self.df[column], columns='% observaciones', normalize='columns') * 100)
+            print(pd.crosstab(index=self.df[column], columns='% observaciones', normalize='columns') * 100)
 
 
 class Preprocessor:
@@ -183,18 +183,18 @@ def save_datasets(raw_df, cleaned_df, X_train, X_test, Y_train, Y_test):
 
 if __name__ == "__main__":
  
-    loader = DataLoader("data/acoustic_features.csv")
+    loader = DataLoader("data/raw/acoustic_features.csv")
     df = loader.load_csv()
 
     # Exploración
-    explorer = DataExplorer(df_raw)
+    explorer = DataExplorer(df)
     explorer.describe_data()
     explorer.plot_class_distribution()
     explorer.plot_histograms()
     explorer.cross_tabs()
 
     # Preprocesamiento
-    prep = Preprocessor(df_raw)
+    prep = Preprocessor(df)
     prep.encode_labels()
     prep.drop_duplicates()
     prep.drop_constant_columns()
@@ -217,4 +217,4 @@ if __name__ == "__main__":
 
     # Guardado para DVC
     X_train, X_test, Y_train, Y_test = trainer.get_split_data()
-    save_datasets(df_raw, df_clean, X_train, X_test, Y_train, Y_test)
+    save_datasets(df, df_clean, X_train, X_test, Y_train, Y_test)
