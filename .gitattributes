@@ -3,3 +3,7 @@
 
 # Notebooks: no tratarlos como texto ni pasar por filtros ni diffs text
 *.ipynb -text -filter -diff
+
+*.ipynb	diff=jupyternotebook
+
+*.ipynb	merge=jupyternotebook
