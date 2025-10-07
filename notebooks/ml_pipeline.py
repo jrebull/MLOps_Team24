@@ -42,12 +42,12 @@ class DataExplorer:
     def plot_class_distribution(self):
         sns.countplot(x='Class', data=self.df)
         plt.title("Distribución de clases")
-        plt.show()
+        plt.savefig("reports/figures/plot_class_distribution.png")
 
     def plot_histograms(self):
         self.df.hist(bins=30, sharey=True, figsize=(16, 12))
         plt.tight_layout(pad=3.0)
-        plt.show()
+        plt.savefig("reports/figures/plot_histograms.png")
 
     def cross_tabs(self):
         for column in self.df.select_dtypes(include=['object', 'bool']).columns:
@@ -113,7 +113,7 @@ class Visualizer:
         plt.figure(figsize=(18, 12))
         sns.heatmap(corr, annot=True, linewidths=0.5)
         plt.title("Mapa de calor de correlaciones")
-        plt.show()
+        plt.savefig("reports/figures/plot_correlations.png")
 
     def plot_boxplots(self):
         if 'Class' not in self.df.columns:
@@ -126,7 +126,7 @@ class Visualizer:
             sns.boxplot(x='Class', y=col, data=self.df)
             plt.title(f"Boxplot de {col} por clase")
             plt.tight_layout()
-            plt.show()
+            plt.savefig(f"reports/figures/plot_boxplots{col}.png")
 
     def plot_densities(self):
         numeric_cols = self.df.select_dtypes(include=[np.number]).columns.drop('Class', errors='ignore')
@@ -135,7 +135,7 @@ class Visualizer:
             sns.kdeplot(data=self.df, x=col, hue="Class", fill=True)
             plt.title(f"Densidad de {col}")
             plt.tight_layout()
-            plt.show()
+            plt.savefig(f"reports/figures/plot_densities{col}.png")
 
 
 class ModelTrainer:
