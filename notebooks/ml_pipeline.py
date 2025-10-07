@@ -5,11 +5,13 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy import stats
+from scipy.stats import skew
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import PowerTransformer
 
 
 class DataLoader:
@@ -98,6 +100,16 @@ class Preprocessor:
             outliers = ((self.df[col] < (Q1 - 1.5 * IQR)) | (self.df[col] > (Q3 + 1.5 * IQR))).sum()
             print(f"Columna '{col}': {outliers} outliers detectados (IQR)")
 
+    def normalize_skewed(self, threshold=0.5):
+
+        numeric_cols = [c for c in self.df.columns if pd.api.types.is_numeric_dtype(self.df[c])]
+        skewed = [c for c in numeric_cols if abs(skew(self.df[c].dropna())) > threshold]
+        
+        print(f"Columnas transformadas (|skew| > {threshold}): {skewed}")
+        if skewed:
+            pt = PowerTransformer(method='yeo-johnson')
+            self.df[skewed] = pt.fit_transform(self.df[skewed])
+        return skewed
 
     def get_clean_df(self):
         return self.df
