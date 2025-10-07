@@ -184,6 +184,7 @@ pydantic-settings==2.11.0
 pydantic_core==2.33.2
 pydot==4.0.1
 pygit2==1.18.2
+pytest==8.4.2
 Pygments==2.19.2
 pygtrie==2.5.0
 pyparsing==3.2.5
