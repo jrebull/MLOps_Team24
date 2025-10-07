@@ -42,12 +42,12 @@ class DataExplorer:
     def plot_class_distribution(self):
         sns.countplot(x='Class', data=self.df)
         plt.title("Distribución de clases")
-        plt.show()
+        plt.savefig("reports/figures/plot_class_distribution.png")
 
     def plot_histograms(self):
         self.df.hist(bins=30, sharey=True, figsize=(16, 12))
         plt.tight_layout(pad=3.0)
-        plt.show()
+        plt.savefig("reports/figures/plot_histograms.png")
 
     def cross_tabs(self):
         for column in self.df.select_dtypes(include=['object', 'bool']).columns:
@@ -81,17 +81,23 @@ class Preprocessor:
         self.numeric_cols = self.df.select_dtypes(include=[np.number]).columns.drop('Class', errors='ignore')
         z_scores = np.abs(stats.zscore(self.df[self.numeric_cols], nan_policy='omit'))
         outlier_counts = (z_scores > 3).sum(axis=0)
+        
+        # Convertimos el arreglo numpy a pd.Series para poder usar sort_values
+        outlier_counts = pd.Series(outlier_counts, index=self.numeric_cols)
+        
         print("Conteo de outliers por columna (z-score > 3):")
         print(outlier_counts.sort_values(ascending=False).head(10))
 
     def iqr_outliers(self):
-        Q1 = self.df[self.numeric_cols].quantile(0.25)
-        Q3 = self.df[self.numeric_cols].quantile(0.75)
-        IQR = Q3 - Q1
-        is_outlier = ((self.df[self.numeric_cols] < (Q1 - 1.5 * IQR)) |
-                      (self.df[self.numeric_cols] > (Q3 + 1.5 * IQR)))
-        print("Conteo de outliers por columna (IQR method):")
-        print(is_outlier.sum().sort_values(ascending=False).head(10))
+        # Detect outliers using the IQR method for each numeric column except 'Class'
+        self.numeric_cols = self.df.select_dtypes(include=[np.number]).columns.drop('Class', errors='ignore')
+        for col in self.numeric_cols:
+            Q1 = self.df[col].quantile(0.25)
+            Q3 = self.df[col].quantile(0.75)
+            IQR = Q3 - Q1
+            outliers = ((self.df[col] < (Q1 - 1.5 * IQR)) | (self.df[col] > (Q3 + 1.5 * IQR))).sum()
+            print(f"Columna '{col}': {outliers} outliers detectados (IQR)")
+
 
     def get_clean_df(self):
         return self.df
@@ -107,7 +113,7 @@ class Visualizer:
         plt.figure(figsize=(18, 12))
         sns.heatmap(corr, annot=True, linewidths=0.5)
         plt.title("Mapa de calor de correlaciones")
-        plt.show()
+        plt.savefig("reports/figures/plot_correlations.png")
 
     def plot_boxplots(self):
         if 'Class' not in self.df.columns:
@@ -120,7 +126,7 @@ class Visualizer:
             sns.boxplot(x='Class', y=col, data=self.df)
             plt.title(f"Boxplot de {col} por clase")
             plt.tight_layout()
-            plt.show()
+            plt.savefig(f"reports/figures/plot_boxplots{col}.png")
 
     def plot_densities(self):
         numeric_cols = self.df.select_dtypes(include=[np.number]).columns.drop('Class', errors='ignore')
@@ -129,7 +135,7 @@ class Visualizer:
             sns.kdeplot(data=self.df, x=col, hue="Class", fill=True)
             plt.title(f"Densidad de {col}")
             plt.tight_layout()
-            plt.show()
+            plt.savefig(f"reports/figures/plot_densities{col}.png")
 
 
 class ModelTrainer:
@@ -172,12 +178,12 @@ def save_datasets(raw_df, cleaned_df, X_train, X_test, Y_train, Y_test):
     os.makedirs("data", exist_ok=True)
 
     raw_df.to_csv("data/turkish_music_emotion_raw.csv", index=False)
-    cleaned_df.to_csv("data/raw/clean/data/turkish_music_emotion_cleaned.csv", index=False)
+    cleaned_df.to_csv("data/interim/turkish_music_emotion_cleaned.csv", index=False)
 
-    pd.DataFrame(X_train).to_csv("data/interim/train/data/X_train.csv", index=False)
-    pd.DataFrame(X_test).to_csv("data/processed/test/data/X_test.csv", index=False)
-    pd.DataFrame(Y_train).to_csv("data/interim/train/data/Y_train.csv", index=False)
-    pd.DataFrame(Y_test).to_csv("data/processed/train/data/Y_test.csv", index=False)
+    pd.DataFrame(X_train).to_csv("data/interim/X_train.csv", index=False)
+    pd.DataFrame(X_test).to_csv("data/processed//X_test.csv", index=False)
+    pd.DataFrame(Y_train).to_csv("data/interim/Y_train.csv", index=False)
+    pd.DataFrame(Y_test).to_csv("data/processed/Y_test.csv", index=False)
     print("Datasets guardados en la carpeta 'data/' para DVC.")
 
 
