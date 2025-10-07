@@ -412,6 +412,42 @@ pip install -e .  # Instalar módulo acoustic_ml
 
 ---
 
+## 🐳 Docker compose
+
+```
+
+├── docker-compose.yml
+├── config.env
+├── mlartifacts/           # Almacena los artefactos de MLflow 
+├── ml_pipeline.py
+├── requirements.txt
+├── acoustic_ml/           # Módulo del proyecto
+├── .venv/                 # Entorno virtual local
+
+```
+--- 
+⚙️ Archivos requeridos
+✅ config.env
+
+⚙️ Comandos de uso
+
+🔧 Levantar servicios
+
+```bash
+docker-compose --env-file config.env up -d --build
+```
+
+MinIO (Consola): http://localhost:9001
+
+🛑 Detener los servicios
+```bash
+docker-compose down
+```
+🔁 Reiniciar 
+```bash
+docker-compose --env-file config.env up -d --build
+```
+
 ## 📓 Buenas Prácticas con Notebooks
 
 Instala hooks para limpiar outputs y tener diffs legibles:
