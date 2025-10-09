@@ -51,6 +51,9 @@ metrics:
 diff:
 	. $(VENV)/bin/activate && dvc metrics diff
 
+status:
+	. $(VENV)/bin/activate && dvc status
+
 # ========================
 # Limpieza
 # ========================
