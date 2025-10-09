@@ -243,6 +243,9 @@ make freeze
 
 # 10) Verificar sincronización antes de trabajar
 make verify-sync
+
+# 11) Muestra si hay datos desactualizados
+make status
 ```
 
 ### 🐍 Usando el Módulo acoustic_ml

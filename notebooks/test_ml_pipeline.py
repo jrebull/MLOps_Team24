@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 import pytest
+from scipy.stats import skew
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from ml_pipeline import DataLoader, Preprocessor, ModelTrainer
@@ -67,6 +68,27 @@ def test_iqr_outliers_does_not_crash(sample_df):
     """Verifica que la detección de outliers por IQR no lanza errores"""
     preprocessor = Preprocessor(sample_df)
     preprocessor.iqr_outliers()  # No hace falta un assert, solo que no crashee
+
+def test_normalize_skewed_runs():
+    """Verifica que normalize_skewed transforma columnas sesgadas correctamente."""
+    # Crea un DataFrame con una variable muy sesgada
+    df = pd.DataFrame({
+        "x1": np.random.exponential(scale=5, size=200),  # sesgo positivo
+        "x2": np.random.normal(0, 1, 200),               # casi normal
+        "Class": np.random.choice(["happy", "sad"], 200)
+    })
+    pre = Preprocessor(df)
+    cols_trans = pre.normalize_skewed(threshold=0.5)
+
+    # Verifica que devolvió una lista
+    assert isinstance(cols_trans, list)
+    # Verifica que haya al menos una columna transformada
+    assert len(cols_trans) > 0
+
+    # Y que el sesgo absoluto haya disminuido
+    before = abs(skew(df[cols_trans[0]]))
+    after = abs(skew(pre.df[cols_trans[0]]))
+    assert after < before
 
 
 def test_split_and_scale_shapes(sample_df):
