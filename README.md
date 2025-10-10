@@ -25,6 +25,7 @@
 - [Estructura del Proyecto](#-estructura-del-proyecto)
 - [Requisitos Previos](#-requisitos-previos)
 - [Instalación](#-instalación)
+- [Gestión de Datos (DVC + S3)](#-gestión-de-datos-dvc--s3)
 - [Uso](#-uso)
   - [Usando el Makefile](#%EF%B8%8F-usando-el-makefile)
   - [Usando el Módulo acoustic_ml](#-usando-el-módulo-acoustic_ml)
@@ -50,7 +51,7 @@ Este repositorio contiene la implementación completa de un sistema MLOps para r
 - 📈 **Tracking de experimentos** con MLflow
 - ☁️ **Almacenamiento en la nube** (AWS S3)
 - 🤖 **Modelos de Machine Learning** versionados
-- 🏗️ **Estructura modular** siguiendo estándares de la industria
+- 🗂️ **Estructura modular** siguiendo estándares de la industria
 
 ---
 
@@ -74,7 +75,7 @@ Este repositorio contiene la implementación completa de un sistema MLOps para r
 
 ---
 
-## 🏗️ Estructura del Proyecto
+## 🗂️ Estructura del Proyecto
 
 Organizado siguiendo **Cookiecutter Data Science** para máxima reproducibilidad y claridad:
 
@@ -89,8 +90,9 @@ Organizado siguiendo **Cookiecutter Data Science** para máxima reproducibilidad
 │   ├── interim            <- Datos intermedios transformados
 │   ├── processed          <- Datasets finales para modelado
 │   └── raw                <- Datos originales inmutables (versionados con DVC)
-│       ├── acoustic_features.csv
-│       └── acoustic_features.csv.dvc
+│       ├── turkis_music_emotion_original.csv      (125 KB)
+│       ├── turkish_music_emotion_modified.csv     (130 KB)
+│       └── .gitignore                             (Git ignora los CSV)
 │
 ├── models                 <- Modelos entrenados y serializados
 │   └── baseline_model.pkl
@@ -134,6 +136,7 @@ Organizado siguiendo **Cookiecutter Data Science** para máxima reproducibilidad
 ├── .dvc                   <- Configuración de DVC
 ├── dvc.yaml               <- Definición del pipeline DVC
 ├── dvc.lock               <- Lock file del pipeline
+├── data.dvc               <- Metadatos de tracking (versionado en Git)
 │
 ├── .git                   <- Control de versiones Git
 └── .venv                  <- Entorno virtual de Python
@@ -202,6 +205,230 @@ make pull
 
 ---
 
+## 📦 Gestión de Datos (DVC + S3)
+
+### 🎯 ¿Dónde están los datos?
+
+Los datasets **NO** están en Git (buena práctica de MLOps). Están versionados con **DVC** y almacenados en **AWS S3**.
+
+**Estructura de almacenamiento:**
+
+```
+📁 Local (tu máquina):
+MLOps_Team24/
+├── data/
+│   └── raw/
+│       ├── turkis_music_emotion_original.csv   (125 KB)
+│       ├── turkish_music_emotion_modified.csv  (130 KB)
+│       └── .gitignore  ← Git ignora los CSV
+└── data.dvc  ← Metadatos de tracking
+
+☁️ AWS S3 (mlops24-haowei-bucket):
+s3://mlops24-haowei-bucket/
+└── files/md5/
+    ├── ae/5f16bc9e...  ← turkish_music_emotion_modified.csv (130 KB)
+    ├── fe/09496b4b...  ← turkis_music_emotion_original.csv (125 KB)
+    └── aa/a8c3e8fe...  ← Metadatos de DVC (642 Bytes)
+
+🙂 GitHub:
+MLOps_Team24/
+└── data.dvc  ← Solo metadatos (~100 bytes, NO los CSV)
+```
+
+### 📥 Descargar los datos (Primera vez)
+
+Si acabas de clonar el repositorio:
+
+```bash
+# 1. Configura AWS (solo la primera vez)
+aws configure
+# Ingresa: Access Key, Secret Key, Region (us-east-1)
+
+# 2. Verifica conexión a S3
+aws s3 ls s3://mlops24-haowei-bucket/
+
+# 3. Descarga los datos desde S3
+dvc pull
+# o usando make:
+make pull
+
+# 4. Verifica que llegaron
+ls -lh data/raw/
+# Deberías ver:
+# turkis_music_emotion_original.csv   (125 KB)
+# turkish_music_emotion_modified.csv  (130 KB)
+```
+
+### 📤 Agregar nuevos datos
+
+Si tienes un nuevo dataset:
+
+```bash
+# 1. Coloca tu archivo en data/raw/
+cp ~/Downloads/nuevo_dataset.csv data/raw/
+
+# 2. Actualiza el tracking de DVC
+dvc add data
+
+# 3. Sube a S3
+dvc push
+# o: make push
+
+# 4. Commitea los metadatos a Git (NO los CSV)
+git add data.dvc data/.gitignore
+git commit -m "feat: add nuevo_dataset.csv"
+git push
+```
+
+### 🔄 Actualizar un dataset existente
+
+Si modificaste un archivo de datos:
+
+```bash
+# 1. Edita tu archivo
+vim data/raw/turkish_music_emotion_modified.csv
+
+# 2. Actualiza DVC (detecta el cambio automáticamente)
+dvc add data
+
+# 3. Sube la nueva versión a S3
+dvc push
+
+# 4. Commitea el cambio de metadatos
+git add data.dvc
+git commit -m "feat: update turkish dataset with new features"
+git push
+```
+
+### ⏮️ Volver a una versión anterior
+
+```bash
+# 1. Encuentra el commit donde estaba la versión que quieres
+git log --oneline data.dvc
+
+# Ejemplo de output:
+# a1b2c3d feat: update turkish dataset with new features
+# e4f5g6h feat: add nuevo_dataset.csv
+# i7j8k9l Initial data setup
+
+# 2. Vuelve a ese commit
+git checkout i7j8k9l data.dvc
+
+# 3. Descarga esa versión desde S3
+dvc checkout
+
+# 4. Si quieres quedarte con esta versión:
+git add data.dvc
+git commit -m "revert: rollback to previous dataset version"
+git push
+```
+
+### 🔍 Verificar estado de los datos
+
+```bash
+# Ver si tus datos están sincronizados con S3
+dvc status
+# Output esperado: "Data and pipelines are up to date."
+
+# Ver configuración de remotes
+dvc remote list
+# Output: 
+# localstore  /Users/haowei/Documents/MLOps/.../dvcstore
+# s3store     s3://mlops24-haowei-bucket (default)
+
+# Ver qué archivos trackea DVC
+cat data.dvc
+# Output:
+# outs:
+# - md5: e2614136020a8d97866fd4bd562ca328.dir
+#   size: 172458
+#   nfiles: 5
+#   path: data
+```
+
+### 🌐 Ver datos en AWS Console
+
+Accede visualmente a tus datos:
+
+1. Ve a: **https://s3.console.aws.amazon.com/s3/buckets/mlops24-haowei-bucket**
+2. Navega a: `files/` → `md5/`
+3. Verás carpetas con tus datasets (almacenados por hash MD5)
+
+**Ejemplos de lo que verás:**
+- `ae/5f16bc9e319aa4323f8d08e3306e70` → turkish_music_emotion_modified.csv (130 KB)
+- `fe/09496b4b8025ad634778901b8db3cb` → turkis_music_emotion_original.csv (125 KB)
+
+### 🚨 Problemas comunes
+
+**Problema:** `dvc pull` falla con error de AWS
+```bash
+# Solución: Verifica tus credenciales
+aws s3 ls s3://mlops24-haowei-bucket/
+# Si falla, reconfigura:
+aws configure
+```
+
+**Problema:** "Cache is missing" o archivos no se descargan
+```bash
+# Solución: Fuerza la descarga
+dvc pull -f
+```
+
+**Problema:** Cambios en datos pero DVC no los detecta
+```bash
+# Solución: Re-trackea forzando
+dvc add data --force
+dvc push
+```
+
+**Problema:** "Data and pipelines are up to date" pero no tengo archivos localmente
+```bash
+# Solución: Fuerza checkout
+dvc checkout
+# Si persiste:
+rm -rf .dvc/cache
+dvc pull
+```
+
+### 📋 Comandos de referencia rápida
+
+```bash
+# Descargar datos desde S3
+dvc pull          # Usando DVC
+make pull         # Usando Makefile
+
+# Subir datos a S3
+dvc push          # Usando DVC
+make push         # Usando Makefile
+
+# Ver estado de sincronización
+dvc status        # Estado actual
+make status       # Usando Makefile
+
+# Verificar configuración
+dvc remote list   # Lista remotes configurados
+dvc config --list # Configuración completa de DVC
+
+# Ver qué está trackeado
+cat data.dvc      # Metadatos de tracking
+
+# Ver contenido en S3 (via CLI)
+aws s3 ls s3://mlops24-haowei-bucket/files/md5/ --recursive --human-readable
+```
+
+### 🎓 ¿Por qué esta arquitectura?
+
+**Ventajas del enfoque DVC + S3:**
+
+✅ **Separación clara:** Código en Git, Datos en S3  
+✅ **Versionado:** Cada cambio en datos se versiona  
+✅ **Colaboración:** Todo el equipo accede a los mismos datos  
+✅ **Reproducibilidad:** Cualquiera puede `dvc pull` y obtener los datos exactos  
+✅ **Eficiencia:** Git no se satura con archivos grandes  
+✅ **Trazabilidad:** Sabes exactamente qué versión de datos usó cada experimento
+
+---
+
 ## 💻 Uso
 
 ### 🛠️ Usando el Makefile
@@ -258,7 +485,7 @@ El proyecto está organizado como un módulo Python instalable. Ejemplos de uso:
 from acoustic_ml.dataset import load_raw_data, save_processed_data
 
 # Cargar datos crudos
-df = load_raw_data("acoustic_features.csv")
+df = load_raw_data("turkish_music_emotion_original.csv")
 
 # Procesar y guardar
 df_processed = process_data(df)
@@ -384,9 +611,9 @@ make verify-sync NOTEBOOK=notebooks/tu_notebook.ipynb
 ```
 
 **Qué valida:**
-- ✓ Árbol de trabajo limpio (sin cambios sin commit)
-- ✓ HEAD == origin/<rama> (sin ahead/behind)
-- ✓ El notebook indicado no tiene diferencias locales
+- ✔ Árbol de trabajo limpio (sin cambios sin commit)
+- ✔ HEAD == origin/<rama> (sin ahead/behind)
+- ✔ El notebook indicado no tiene diferencias locales
 
 Si algo falla, el comando te dirá exactamente qué corregir (pull/push/diff).
 
@@ -498,8 +725,8 @@ make clean
 
 ```mermaid
 flowchart TD
-    A[📂 data/raw/acoustic_features.csv] -->|dvc add| B[DVC Tracking]
-    B -->|almacenado en| C[☁️ S3 Bucket]
+    A[📂 data/raw/*.csv] -->|dvc add| B[DVC Tracking]
+    B -->|almacenado en| C[☁️ S3: mlops24-haowei-bucket]
     A --> D[⚙️ acoustic_ml/modeling/train.py]
     D --> E[🤖 models/baseline_model.pkl]
     D --> F[📈 metrics/metrics.json]
@@ -516,7 +743,7 @@ flowchart TD
 **Flujo de trabajo:**
 
 1. Los datos crudos viven en `data/raw/` y se versionan con DVC
-2. Se almacenan en S3 para colaboración
+2. Se almacenan en S3 (`mlops24-haowei-bucket`) para colaboración
 3. El módulo `acoustic_ml` procesa datos y entrena modelos
 4. Modelos entrenados se guardan en `models/`
 5. Experimentos y artefactos se registran en MLflow
@@ -551,8 +778,9 @@ flowchart TD
 
    **Si modificas datos:**
    ```bash
-   dvc add data/raw/nuevo_dataset.csv
-   git add data/raw/nuevo_dataset.csv.dvc .gitignore
+   dvc add data
+   git add data.dvc data/.gitignore
+   dvc push
    ```
 
    **Si instalaste paquetes:**
@@ -578,6 +806,7 @@ flowchart TD
 ### Buenas prácticas
 
 - ✅ Ejecuta `make verify-sync` antes de comenzar a trabajar
+- ✅ Ejecuta `dvc status` para verificar estado de datos
 - ✅ Ejecuta `make reproduce` antes de hacer commit
 - ✅ Documenta tus experimentos en MLflow
 - ✅ Escribe mensajes de commit descriptivos ([Conventional Commits](https://www.conventionalcommits.org/))
@@ -585,38 +814,43 @@ flowchart TD
 - ✅ Usa `make nb-hooks` para configurar hooks de notebooks
 - ✅ Escribe código en el módulo `acoustic_ml/`, no en notebooks
 - ✅ Los notebooks son para exploración, el código productivo va en el módulo
+- ✅ Siempre haz `dvc push` después de modificar datos
 
 ---
 
 ## 👥 Equipo
 
+<div align="center">
+
+### **Equipo de Desarrollo**
+
 <table>
   <tr>
-    <td align="center">
-      <strong>Sandra Luz Cervantes Espinoza</strong><br>
-      <sub>A01796937</sub>
+    <td align="center" style="padding: 20px;">
+      <img src="https://iili.io/Kw90kmB.png" alt="David Cruz Beltrán" width="150" style="border-radius: 50%; border: 4px solid #667eea;"/>
+      <h3>David Cruz Beltrán</h3>
+      <img src="https://img.shields.io/badge/ID-A01360416-667eea?style=for-the-badge" alt="Matrícula"/>
+      <p><strong>🔧 Software Engineer</strong></p>
+      <p><em>Data Pipeline & Versioning</em></p>
     </td>
-    <td align="center">
-      <strong>Héctor Jesús López Meza</strong><br>
-      <sub>A01226881</sub>
+    <td align="center" style="padding: 20px;">
+      <img src="https://iili.io/KuvsGKx.png" alt="Javier Augusto Rebull Saucedo" width="150" style="border-radius: 50%; border: 4px solid #764ba2;"/>
+      <h3>Javier Augusto Rebull Saucedo</h3>
+      <img src="https://img.shields.io/badge/ID-A01795838-764ba2?style=for-the-badge" alt="Matrícula"/>
+      <p><strong>⚙️ SRE / Data Engineer</strong></p>
+      <p><em>DevOps & Infrastructure</em></p>
     </td>
-    <td align="center">
-      <strong>Mauricio Torres Baena</strong><br>
-      <sub>A01796697</sub>
+    <td align="center" style="padding: 20px;">
+      <img src="https://iili.io/Kw91d74.png" alt="Sandra Luz Cervantes Espinoza" width="150" style="border-radius: 50%; border: 4px solid #f093fb;"/>
+      <h3>Sandra Luz Cervantes Espinoza</h3>
+      <img src="https://img.shields.io/badge/ID-A01796937-f093fb?style=for-the-badge" alt="Matrícula"/>
+      <p><strong>🤖 ML Engineer / Data Scientist</strong></p>
+      <p><em>Model Development & Analysis</em></p>
     </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <strong>David Cruz Beltrán</strong><br>
-      <sub>A01360416</sub>
-    </td>
-    <td align="center">
-      <strong>Javier Augusto Rebull Saucedo</strong><br>
-      <sub>A01795838</sub>
-    </td>
-    <td></td>
   </tr>
 </table>
+
+</div>
 
 ---
 
@@ -624,6 +858,6 @@ flowchart TD
 
 **⭐ Si este proyecto te resulta útil, considera darle una estrella**
 
-Desarrollado con ❤️ por el Equipo 24 | Estructura basada en [Cookiecutter Data Science](https://drivendata.github.io/cookiecutter-data-science/)
+Desarrollado con ❤️ por el Equipo 24 | Estructura basada en [Cookiecutter Data Science](https://drivendata.github.io/cookiecookie-data-science/)
 
 </div>
