@@ -3,10 +3,6 @@ stages:
   train:
     cmd: python scripts/train_baseline.py
     deps:
-    - path: data/raw/acoustic_features.csv
-      hash: md5
-      md5: faaf0331df63821398fcf7fe59ce11b5
-      size: 172389
     - path: scripts/train_baseline.py
       hash: md5
       md5: 34c3b2f008987704d926b600fbb89366
