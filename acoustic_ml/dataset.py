@@ -36,20 +36,6 @@ def load_turkish_modified():
     print(f"✅ Dataset cargado: {df.shape[0]:,} filas × {df.shape[1]} columnas")
     return df
 
-def get_dataset_info(df: pd.DataFrame) -> None:
-    """Muestra información resumida del dataset"""
-    print("📊 Información del Dataset")
-    print("=" * 60)
-    print(f"Shape: {df.shape[0]:,} filas × {df.shape[1]} columnas")
-    print(f"Memoria: {df.memory_usage(deep=True).sum() / 1024 / 1024:.2f} MB")
-    print(f"Valores nulos: {df.isnull().sum().sum():,}")
-    print(f"\n📋 Columnas ({len(df.columns)}):")
-    for col in df.columns:
-        dtype = df[col].dtype
-        nulls = df[col].isnull().sum()
-        print(f"   • {col:30s} | {str(dtype):10s} | Nulls: {nulls:,}")
-
-
 def load_turkish_cleaned():
     """
     Carga el dataset LIMPIO de música turca desde data/processed/
@@ -70,3 +56,42 @@ def load_turkish_cleaned():
     print(f"✅ Dataset cargado: {df.shape[0]:,} filas × {df.shape[1]} columnas")
     
     return df
+
+def load_processed_data(version: str = "v2") -> pd.DataFrame:
+    """
+    Carga el dataset procesado y versionado desde data/processed/
+    
+    Args:
+        version (str): Versión del dataset a cargar (default: "v2")
+    
+    Returns:
+        pd.DataFrame: Dataset procesado y limpio con la versión especificada
+    """
+    filename = f"turkish_music_emotion_{version}_cleaned_full.csv"
+    filepath = PROCESSED_DATA_DIR / filename
+    
+    if not filepath.exists():
+        raise FileNotFoundError(
+            f"❌ Dataset no encontrado: {filepath}\n"
+            f"💡 Asegúrate de haber ejecutado el notebook de limpieza y versionado primero.\n"
+            f"   Luego ejecuta: dvc pull"
+        )
+    
+    print(f"📂 Cargando dataset procesado ({version}): {filepath.name}")
+    df = pd.read_csv(filepath)
+    print(f"✅ Dataset cargado: {df.shape[0]:,} filas × {df.shape[1]} columnas")
+    
+    return df
+
+def get_dataset_info(df: pd.DataFrame) -> None:
+    """Muestra información resumida del dataset"""
+    print("📊 Información del Dataset")
+    print("=" * 60)
+    print(f"Shape: {df.shape[0]:,} filas × {df.shape[1]} columnas")
+    print(f"Memoria: {df.memory_usage(deep=True).sum() / 1024 / 1024:.2f} MB")
+    print(f"Valores nulos: {df.isnull().sum().sum():,}")
+    print(f"\n📋 Columnas ({len(df.columns)}):")
+    for col in df.columns:
+        dtype = df[col].dtype
+        nulls = df[col].isnull().sum()
+        print(f"   • {col:30s} | {str(dtype):10s} | Nulls: {nulls:,}")
