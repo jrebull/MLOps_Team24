@@ -23,3 +23,10 @@ MLFLOW_EXPERIMENT_NAME = "acoustic_ml_experiments"
 # Configuración de DVC
 DVC_REMOTE_NAME = "local"
 DVC_REMOTE_URL = str(PROJECT_DIR / "dvcstore")
+
+# Datasets Turcos
+TURKISH_ORIGINAL = "turkis_music_emotion_original.csv"
+TURKISH_MODIFIED = "turkish_music_emotion_modified.csv"
+
+# Seed para reproducibilidad
+RANDOM_STATE = 42
