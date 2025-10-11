@@ -184,7 +184,7 @@ from acoustic_ml.dataset import load_raw_data
 from acoustic_ml.modeling.train import train_model
 ```
 
-### 4. Configurar AWS
+### 4. Configurar AWS (CRÍTICO)
 
 Crea o edita el archivo `~/.aws/credentials`:
 
@@ -195,12 +195,30 @@ aws_secret_access_key = TU_SECRET_ACCESS_KEY
 region = us-east-1
 ```
 
+**Verificar configuración:**
+```bash
+aws s3 ls s3://mlops24-haowei-bucket/
+```
+
 ### 5. Descargar datos y modelos
 
 ```bash
 dvc pull
 # o usando make:
 make pull
+```
+
+### 6. Verificar instalación
+
+```bash
+# Verificar módulo
+python -c "import acoustic_ml; print(acoustic_ml.__version__)"
+
+# Verificar datos
+ls -lh data/raw/
+
+# Verificar DVC
+dvc status
 ```
 
 ---
