@@ -26,7 +26,6 @@
 - [Requisitos Previos](#-requisitos-previos)
 - [Instalación](#-instalación)
 - [Gestión de Datos (DVC + S3)](#-gestión-de-datos-dvc--s3)
-- [Uso del Módulo en Notebooks](#-uso-del-módulo-en-notebooks)
 - [Uso](#-uso)
   - [Usando el Makefile](#%EF%B8%8F-usando-el-makefile)
   - [Usando el Módulo acoustic_ml](#-usando-el-módulo-acoustic_ml)
@@ -52,7 +51,7 @@ Este repositorio contiene la implementación completa de un sistema MLOps para r
 - 📈 **Tracking de experimentos** con MLflow
 - ☁️ **Almacenamiento en la nube** (AWS S3)
 - 🤖 **Modelos de Machine Learning** versionados
-- 🏗️ **Estructura modular** siguiendo estándares de la industria
+- 🗂️ **Estructura modular** siguiendo estándares de la industria
 
 ---
 
@@ -76,7 +75,7 @@ Este repositorio contiene la implementación completa de un sistema MLOps para r
 
 ---
 
-## 🏗️ Estructura del Proyecto
+## 🗂️ Estructura del Proyecto
 
 Organizado siguiendo **Cookiecutter Data Science** para máxima reproducibilidad y claridad:
 
@@ -181,7 +180,7 @@ pip install -e .
 
 Esto permite importar el módulo desde cualquier lugar:
 ```python
-from acoustic_ml import load_turkish_modified
+from acoustic_ml.dataset import load_raw_data
 from acoustic_ml.modeling.train import train_model
 ```
 
@@ -215,7 +214,7 @@ Los datasets **NO** están en Git (buena práctica de MLOps). Están versionados
 **Estructura de almacenamiento:**
 
 ```
-📍 Local (tu máquina):
+📁 Local (tu máquina):
 MLOps_Team24/
 ├── data/
 │   └── raw/
@@ -231,7 +230,7 @@ s3://mlops24-haowei-bucket/
     ├── fe/09496b4b...  ← turkis_music_emotion_original.csv (125 KB)
     └── aa/a8c3e8fe...  ← Metadatos de DVC (642 Bytes)
 
-🐙 GitHub:
+🙂 GitHub:
 MLOps_Team24/
 └── data.dvc  ← Solo metadatos (~100 bytes, NO los CSV)
 ```
@@ -307,8 +306,13 @@ git push
 # 1. Encuentra el commit donde estaba la versión que quieres
 git log --oneline data.dvc
 
+# Ejemplo de output:
+# a1b2c3d feat: update turkish dataset with new features
+# e4f5g6h feat: add nuevo_dataset.csv
+# i7j8k9l Initial data setup
+
 # 2. Vuelve a ese commit
-git checkout <commit-hash> data.dvc
+git checkout i7j8k9l data.dvc
 
 # 3. Descarga esa versión desde S3
 dvc checkout
@@ -328,10 +332,18 @@ dvc status
 
 # Ver configuración de remotes
 dvc remote list
-# Output: s3store  s3://mlops24-haowei-bucket (default)
+# Output: 
+# localstore  /Users/haowei/Documents/MLOps/.../dvcstore
+# s3store     s3://mlops24-haowei-bucket (default)
 
 # Ver qué archivos trackea DVC
 cat data.dvc
+# Output:
+# outs:
+# - md5: e2614136020a8d97866fd4bd562ca328.dir
+#   size: 172458
+#   nfiles: 5
+#   path: data
 ```
 
 ### 🌐 Ver datos en AWS Console
@@ -341,6 +353,42 @@ Accede visualmente a tus datos:
 1. Ve a: **https://s3.console.aws.amazon.com/s3/buckets/mlops24-haowei-bucket**
 2. Navega a: `files/` → `md5/`
 3. Verás carpetas con tus datasets (almacenados por hash MD5)
+
+**Ejemplos de lo que verás:**
+- `ae/5f16bc9e319aa4323f8d08e3306e70` → turkish_music_emotion_modified.csv (130 KB)
+- `fe/09496b4b8025ad634778901b8db3cb` → turkis_music_emotion_original.csv (125 KB)
+
+### 🚨 Problemas comunes
+
+**Problema:** `dvc pull` falla con error de AWS
+```bash
+# Solución: Verifica tus credenciales
+aws s3 ls s3://mlops24-haowei-bucket/
+# Si falla, reconfigura:
+aws configure
+```
+
+**Problema:** "Cache is missing" o archivos no se descargan
+```bash
+# Solución: Fuerza la descarga
+dvc pull -f
+```
+
+**Problema:** Cambios en datos pero DVC no los detecta
+```bash
+# Solución: Re-trackea forzando
+dvc add data --force
+dvc push
+```
+
+**Problema:** "Data and pipelines are up to date" pero no tengo archivos localmente
+```bash
+# Solución: Fuerza checkout
+dvc checkout
+# Si persiste:
+rm -rf .dvc/cache
+dvc pull
+```
 
 ### 📋 Comandos de referencia rápida
 
@@ -360,168 +408,24 @@ make status       # Usando Makefile
 # Verificar configuración
 dvc remote list   # Lista remotes configurados
 dvc config --list # Configuración completa de DVC
+
+# Ver qué está trackeado
+cat data.dvc      # Metadatos de tracking
+
+# Ver contenido en S3 (via CLI)
+aws s3 ls s3://mlops24-haowei-bucket/files/md5/ --recursive --human-readable
 ```
 
----
+### 🎓 ¿Por qué esta arquitectura?
 
-## 📓 Uso del Módulo en Notebooks
+**Ventajas del enfoque DVC + S3:**
 
-El módulo `acoustic_ml` proporciona funciones listas para usar en tus notebooks, siguiendo las mejores prácticas de MLOps.
-
-### 🎯 Funciones Disponibles
-
-```python
-from acoustic_ml import (
-    # Cargar datos
-    load_turkish_original,      # Dataset original
-    load_turkish_modified,      # Dataset modificado
-    load_raw_data,              # Cargar cualquier CSV de data/raw/
-    
-    # Guardar datos
-    save_processed_data,        # Guardar en data/processed/
-    
-    # Utilidades
-    get_dataset_info,           # Info detallada del dataset
-    
-    # Configuración
-    RAW_DATA_DIR,               # Path a data/raw/
-    PROCESSED_DATA_DIR,         # Path a data/processed/
-    MODELS_DIR,                 # Path a models/
-    RANDOM_STATE,               # Seed (42) para reproducibilidad
-)
-```
-
-### 📝 Template para Notebooks
-
-Usa este template en tus notebooks de Jupyter/VSCode:
-
-#### **CELDA 1: Setup e Imports**
-
-```python
-# ============================================
-# SETUP: Imports y Configuración
-# ============================================
-import subprocess
-import pandas as pd
-import numpy as np
-
-# Importar módulo del proyecto
-from acoustic_ml import (
-    load_turkish_modified,
-    get_dataset_info,
-    RAW_DATA_DIR,
-    RANDOM_STATE
-)
-
-# Configuración
-np.random.seed(RANDOM_STATE)
-pd.set_option('display.max_columns', None)
-
-print(f"📁 Directorio de datos: {RAW_DATA_DIR}")
-print(f"🎲 Random state: {RANDOM_STATE}")
-```
-
-#### **CELDA 2: Descarga de Datos**
-
-```python
-# ============================================
-# DESCARGA: Sincronizar datos desde S3
-# ============================================
-print("📥 Sincronizando datos desde S3 con DVC...")
-print("=" * 60)
-
-try:
-    result = subprocess.run(
-        ['dvc', 'pull'],
-        check=True,
-        capture_output=True,
-        text=True
-    )
-    
-    if result.stdout:
-        print(result.stdout)
-    
-    print("✅ Datos sincronizados correctamente")
-    
-except subprocess.CalledProcessError as e:
-    print("⚠️  Error al ejecutar DVC pull:")
-    print(e.stderr if e.stderr else str(e))
-    print("\n💡 Ejecuta en terminal: dvc pull")
-```
-
-#### **CELDA 3: Cargar y Explorar Datos**
-
-```python
-# ============================================
-# CARGA: Cargar dataset
-# ============================================
-# Cargar dataset usando el módulo
-df = load_turkish_modified()
-
-# Mostrar información detallada
-get_dataset_info(df)
-
-# Primeras filas
-print("\n📊 Primeras 5 filas:")
-display(df.head())
-```
-
-### ✨ Ejemplo Completo
-
-```python
-# ============================================
-# EJEMPLO: Pipeline completo de carga
-# ============================================
-import subprocess
-from acoustic_ml import load_turkish_modified, get_dataset_info, save_processed_data
-
-# 1. Descargar datos
-subprocess.run(['dvc', 'pull'], check=True)
-
-# 2. Cargar
-df = load_turkish_modified()
-get_dataset_info(df)
-
-# 3. Procesar (ejemplo)
-df_processed = df.dropna()
-df_processed = df_processed.reset_index(drop=True)
-
-# 4. Guardar procesado
-save_processed_data(df_processed, 'turkish_cleaned.csv')
-
-print(f"✅ Pipeline completado: {df_processed.shape}")
-```
-
-### 🎓 Ventajas de usar el módulo
-
-| Sin módulo | Con módulo `acoustic_ml` |
-|-----------|-------------------------|
-| `pd.read_csv('../../data/raw/file.csv')` | `load_turkish_modified()` |
-| Rutas hardcodeadas | Rutas centralizadas |
-| Sin validación | Valida que archivo existe |
-| Sin información | Muestra shape, nulls, etc. |
-| Código repetitivo | Reutilizable |
-| Difícil de testear | Fácil de testear |
-
-### 🚨 Troubleshooting
-
-**Error: `ModuleNotFoundError: No module named 'acoustic_ml'`**
-```bash
-# Solución: Instala el módulo
-pip install -e .
-```
-
-**Error: `FileNotFoundError: Dataset no encontrado`**
-```bash
-# Solución: Descarga los datos
-dvc pull
-```
-
-**Error: `ModuleNotFoundError: No module named 'pandas'`**
-```bash
-# Solución: Instala dependencias
-pip install -r requirements.txt
-```
+✅ **Separación clara:** Código en Git, Datos en S3  
+✅ **Versionado:** Cada cambio en datos se versiona  
+✅ **Colaboración:** Todo el equipo accede a los mismos datos  
+✅ **Reproducibilidad:** Cualquiera puede `dvc pull` y obtener los datos exactos  
+✅ **Eficiencia:** Git no se satura con archivos grandes  
+✅ **Trazabilidad:** Sabes exactamente qué versión de datos usó cada experimento
 
 ---
 
@@ -578,10 +482,10 @@ El proyecto está organizado como un módulo Python instalable. Ejemplos de uso:
 #### Cargar datos
 
 ```python
-from acoustic_ml import load_turkish_modified, save_processed_data
+from acoustic_ml.dataset import load_raw_data, save_processed_data
 
-# Cargar dataset
-df = load_turkish_modified()
+# Cargar datos crudos
+df = load_raw_data("turkish_music_emotion_original.csv")
 
 # Procesar y guardar
 df_processed = process_data(df)
@@ -648,6 +552,17 @@ make jupyter
 code .
 ```
 
+**Importar módulo en notebooks:**
+```python
+# En tus notebooks ahora puedes hacer:
+from acoustic_ml.dataset import load_raw_data
+from acoustic_ml.config import RAW_DATA_DIR, MODELS_DIR
+
+# Cargar datos
+df = load_raw_data()
+print(f"Datos cargados desde: {RAW_DATA_DIR}")
+```
+
 ### Tracking de Experimentos
 
 Inicia el servidor MLflow:
@@ -696,9 +611,9 @@ make verify-sync NOTEBOOK=notebooks/tu_notebook.ipynb
 ```
 
 **Qué valida:**
-- ✓ Árbol de trabajo limpio (sin cambios sin commit)
-- ✓ HEAD == origin/<rama> (sin ahead/behind)
-- ✓ El notebook indicado no tiene diferencias locales
+- ✔ Árbol de trabajo limpio (sin cambios sin commit)
+- ✔ HEAD == origin/<rama> (sin ahead/behind)
+- ✔ El notebook indicado no tiene diferencias locales
 
 Si algo falla, el comando te dirá exactamente qué corregir (pull/push/diff).
 
@@ -892,7 +807,6 @@ flowchart TD
 
 - ✅ Ejecuta `make verify-sync` antes de comenzar a trabajar
 - ✅ Ejecuta `dvc status` para verificar estado de datos
-- ✅ Usa el módulo `acoustic_ml` en lugar de código hardcodeado
 - ✅ Ejecuta `make reproduce` antes de hacer commit
 - ✅ Documenta tus experimentos en MLflow
 - ✅ Escribe mensajes de commit descriptivos ([Conventional Commits](https://www.conventionalcommits.org/))
@@ -904,35 +818,37 @@ flowchart TD
 
 ---
 
-## 👥 Equipo
+## 👥 **Equipo de Desarrollo**
 
-<table>
+<div align="center">
+
+<table style="width:100%; border:none;">
   <tr>
-    <td align="center">
-      <strong>Sandra Luz Cervantes Espinoza</strong><br>
-      <sub>A01796937</sub>
+    <td align="center" style="border:none; padding:20px 10px;">
+      <img src="https://iili.io/Kw90kmB.png" alt="David Cruz Beltrán" width="160" style="border-radius: 50%; border: 5px solid #667eea; box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);"/>
+      <h3>David Cruz Beltrán</h3>
+      <img src="https://img.shields.io/badge/ID-A01360416-667eea?style=for-the-badge" alt="Matrícula"/>
+      <p><strong>🔧 Software Engineer</strong><br/>
+      <em>Data Pipeline & Versioning</em></p>
     </td>
-    <td align="center">
-      <strong>Héctor Jesús López Meza</strong><br>
-      <sub>A01226881</sub>
+    <td align="center" style="border:none; padding:20px 10px;">
+      <img src="https://iili.io/KuvsGKx.png" alt="Javier Augusto Rebull Saucedo" width="160" style="border-radius: 50%; border: 5px solid #764ba2; box-shadow: 0 8px 16px rgba(118, 75, 162, 0.4);"/>
+      <h3>Javier Augusto Rebull Saucedo</h3>
+      <img src="https://img.shields.io/badge/ID-A01795838-764ba2?style=for-the-badge" alt="Matrícula"/>
+      <p><strong>⚙️ SRE / Data Engineer</strong><br/>
+      <em>DevOps & Infrastructure</em></p>
     </td>
-    <td align="center">
-      <strong>Mauricio Torres Baena</strong><br>
-      <sub>A01796697</sub>
+    <td align="center" style="border:none; padding:20px 10px;">
+      <img src="https://iili.io/Kw91d74.png" alt="Sandra Luz Cervantes Espinoza" width="160" style="border-radius: 50%; border: 5px solid #f093fb; box-shadow: 0 8px 16px rgba(240, 147, 251, 0.4);"/>
+      <h3>Sandra Luz Cervantes Espinoza</h3>
+      <img src="https://img.shields.io/badge/ID-A01796937-f093fb?style=for-the-badge" alt="Matrícula"/>
+      <p><strong>🤖 ML Engineer / Data Scientist</strong><br/>
+      <em>Model Development & Analysis</em></p>
     </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <strong>David Cruz Beltrán</strong><br>
-      <sub>A01360416</sub>
-    </td>
-    <td align="center">
-      <strong>Javier Augusto Rebull Saucedo</strong><br>
-      <sub>A01795838</sub>
-    </td>
-    <td></td>
   </tr>
 </table>
+
+</div>
 
 ---
 
