@@ -3,3 +3,17 @@
 # https://dvc.org/doc/user-guide/dvcignore
 # Documentation files (managed by Git, not DVC)
 data/README.md
+# Documentation files (managed by Git, not DVC)
+data/README.md
+
+# System files (macOS, Windows, Linux)
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
