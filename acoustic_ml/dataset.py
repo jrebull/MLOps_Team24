@@ -95,3 +95,42 @@ def get_dataset_info(df: pd.DataFrame) -> None:
         dtype = df[col].dtype
         nulls = df[col].isnull().sum()
         print(f"   • {col:30s} | {str(dtype):10s} | Nulls: {nulls:,}")
+
+# --- Nueva Función ---
+def load_train_test_split():
+    """
+    Carga los conjuntos de entrenamiento y prueba procesados.
+    
+    Returns:
+        tuple: Una tupla conteniendo (X_train, X_test, y_train, y_test)
+    """
+    # Definir rutas a los archivos usando la constante del directorio de datos procesados
+    X_train_path = PROCESSED_DATA_DIR / "X_train.csv"
+    X_test_path = PROCESSED_DATA_DIR / "X_test.csv"
+    y_train_path = PROCESSED_DATA_DIR / "y_train.csv"
+    y_test_path = PROCESSED_DATA_DIR / "y_test.csv"
+    
+    # Comprobar si los archivos existen antes de intentar cargarlos
+    required_files = [X_train_path, X_test_path, y_train_path, y_test_path]
+    if not all(f.exists() for f in required_files):
+        raise FileNotFoundError(
+            f"❌ No se encontraron los archivos de train/test en {PROCESSED_DATA_DIR}\n"
+            f"💡 Asegúrate de haber ejecutado el notebook de división de datos (split) primero."
+        )
+        
+    print("📂 Cargando conjuntos de entrenamiento y prueba...")
+    
+    # Cargar los dataframes desde los archivos CSV
+    X_train = pd.read_csv(X_train_path)
+    X_test = pd.read_csv(X_test_path)
+    # Cargar los targets y extraer la columna 'Class' para obtener una Serie de pandas
+    y_train = pd.read_csv(y_train_path)['Class']
+    y_test = pd.read_csv(y_test_path)['Class']
+    
+    print("✅ Datasets de train/test cargados exitosamente:")
+    print(f"   • X_train: {X_train.shape}")
+    print(f"   • X_test:  {X_test.shape}")
+    print(f"   • y_train: {y_train.shape}")
+    print(f"   • y_test:  {y_test.shape}")
+    
+    return X_train, X_test, y_train, y_test
