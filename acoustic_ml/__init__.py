@@ -7,6 +7,7 @@ __version__ = "0.1.0"
 
 from .dataset import (
     load_raw_data,
+    load_turkish_cleaned,
     save_processed_data,
     load_turkish_original,
     load_turkish_modified,
@@ -24,6 +25,7 @@ from .config import (
 
 __all__ = [
     "load_raw_data",
+    "load_turkish_cleaned",
     "save_processed_data",
     "load_turkish_original",
     "load_turkish_modified",

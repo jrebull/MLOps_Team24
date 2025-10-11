@@ -48,3 +48,25 @@ def get_dataset_info(df: pd.DataFrame) -> None:
         dtype = df[col].dtype
         nulls = df[col].isnull().sum()
         print(f"   • {col:30s} | {str(dtype):10s} | Nulls: {nulls:,}")
+
+
+def load_turkish_cleaned():
+    """
+    Carga el dataset LIMPIO de música turca desde data/processed/
+    
+    Returns:
+        pd.DataFrame: Dataset limpio y procesado
+    """
+    filepath = PROCESSED_DATA_DIR / 'turkish_music_emotion_cleaned.csv'
+    
+    if not filepath.exists():
+        raise FileNotFoundError(
+            f"❌ Dataset limpio no encontrado: {filepath}\n"
+            f"💡 Ejecuta primero el notebook de limpieza y luego: dvc pull"
+        )
+    
+    print(f"📂 Cargando dataset limpio: {filepath.name}")
+    df = pd.read_csv(filepath)
+    print(f"✅ Dataset cargado: {df.shape[0]:,} filas × {df.shape[1]} columnas")
+    
+    return df
