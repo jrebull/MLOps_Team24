@@ -36,5 +36,19 @@ services:
       - ./mlflow.db:/mlflow.db
     restart: unless-stopped
 
+  web:
+    build: .
+    container_name: fastapi_app
+    depends_on:
+      - mlflow
+    ports:
+      - "8000:8000"
+    environment:
+      ENV: dev
+      MODEL_PATH: /app/app/models/model_v1.joblib
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    volumes:
+      - ./app/models:/app/app/models
+
 volumes:
   minio_data:
