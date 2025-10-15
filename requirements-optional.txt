@@ -1,9 +1,0 @@
-# Monitoreo de datos/modelos (pesados)
-evidently==0.7.14
-deepchecks==0.19.1
-
-# Serving / API
-fastapi==0.118.0
-
-# ONNX (solo si vas a exportar/inferir ONNX)
-onnxruntime==1.23.0

@@ -231,3 +231,12 @@ widgetsnbextension==4.0.14
 wrapt==1.17.3
 yarl==1.22.0
 zc.lockfile==4.0
+# Monitoreo de datos/modelos (pesados)
+evidently==0.7.14
+deepchecks==0.19.1
+
+# Serving / API
+fastapi==0.118.0
+
+# ONNX (solo si vas a exportar/inferir ONNX)
+onnxruntime==1.23.0
