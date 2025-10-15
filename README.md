@@ -23,14 +23,11 @@
 - [Sobre el Proyecto](#-sobre-el-proyecto)
 - [Información Académica](#-información-académica)
 - [Estructura del Proyecto](#-estructura-del-proyecto)
-- [Datasets Disponibles](#-datasets-disponibles)
 - [Requisitos Previos](#-requisitos-previos)
 - [Instalación](#-instalación)
 - [Gestión de Datos (DVC + S3)](#-gestión-de-datos-dvc--s3)
 - [Uso](#-uso)
 - [Verificación Rápida antes de Trabajar](#-verificación-rápida-antes-de-trabajar)
-- [Reproducibilidad de Entornos](#-reproducibilidad-de-entornos)
-- [Buenas Prácticas con Notebooks](#-buenas-prácticas-con-notebooks)
 - [Docker Compose](#-docker-compose)
 - [Limpieza Local](#-limpieza-local)
 - [Arquitectura del Pipeline](#-arquitectura-del-pipeline)
@@ -111,7 +108,6 @@ Organizado siguiendo **Cookiecutter Data Science** para máxima reproducibilidad
 ├── references             <- Diccionarios de datos, manuales, etc.
 │
 ├── requirements.txt       <- Dependencias del proyecto (pip freeze)
-├── requirements-optional.txt
 │
 ├── scripts                <- Scripts auxiliares
 │   └── train_baseline.py
@@ -134,6 +130,7 @@ Organizado siguiendo **Cookiecutter Data Science** para máxima reproducibilidad
 ├── mlartifacts            <- Artifacts de MLflow
 ├── dvcstore               <- Almacenamiento local de DVC
 │
+├── docs                   <- Detailed information for the project
 ├── .dvc                   <- Configuración de DVC
 ├── dvc.yaml               <- Definición del pipeline DVC
 ├── dvc.lock               <- Lock file del pipeline
@@ -156,7 +153,7 @@ Contamos con **4 versiones versionadas con DVC** del dataset de emociones musica
 #### 🔵 Versión 0: Limpieza Inicial (turkish_music_emotion_cleaned.csv)
 
 ```
-📍 Ubicación: data/processed/turkish_music_emotion_cleaned.csv
+📍 Ubicación: data/interim/turkish_music_emotion_cleaned.csv
 📏 Dimensiones: Variable
 🎯 Uso: Versión intermedia del primer notebook de limpieza
 🔖 Estado: Histórico (desarrollo temprano)
@@ -176,125 +173,21 @@ Contamos con **4 versiones versionadas con DVC** del dataset de emociones musica
 
 ---
 
-#### 📦 Versión 1: Original (v1_original)
-
-```
-📍 Ubicación: data/processed/turkish_music_emotion_v1_original.csv
-📏 Dimensiones: 400 filas × 21 columnas
-🎯 Uso: Baseline y comparaciones históricas
-🔖 Estado: Referencia oficial (sin modificaciones)
-```
-
-**Características:**
-- Dataset crudo sin modificaciones post-descarga
-- Incluye todas las inconsistencias originales del dataset fuente
-- Punto de referencia oficial para todas las comparaciones
-- Útil para reproducir análisis iniciales y validar mejoras
-
-**Mejoras respecto a versión 0:**
-- ✅ Versionado formal con DVC
-- ✅ Documentación estructurada
-- ✅ Punto de referencia estable
-
-**Cuándo usar:**
-- ✅ Baseline para comparar todas las versiones posteriores
-- ✅ Validación de procesos de limpieza aplicados
-- ✅ Documentación de transformaciones históricas
-- ✅ Reproducción de experimentos iniciales del proyecto
-- ❌ NO recomendado para entrenar nuevos modelos
-
----
-
-#### 🔄 Versión 2: Limpia Alineada (v2_cleaned_aligned)
-
-```
-📍 Ubicación: data/processed/turkish_music_emotion_v2_cleaned_aligned.csv
-📏 Dimensiones: 400 filas × 21 columnas
-🎯 Uso: Comparaciones directas fila por fila con v1
-🔖 Estado: Producción (análisis comparativos)
-```
-
-**Características:**
-- Dataset limpio manteniendo exactamente las 400 filas originales
-- Mismo orden y estructura que v1_original para facilitar diffs
-- Valores faltantes imputados con estrategias estadísticas
-- Outliers corregidos sin eliminar filas
-- Perfecta alineación 1:1 con v1 para análisis de impacto
-
-**Mejoras respecto a v1:**
-- ✅ Limpieza sistemática de valores faltantes
-- ✅ Corrección de outliers estadísticos
-- ✅ Normalización de features numéricas
-- ✅ Validación de consistencia de datos
-- ✅ Preservación de estructura original (400 filas)
-
-**Cuándo usar:**
-- ✅ Análisis de impacto de limpieza (antes/después)
-- ✅ Validación de transformaciones específicas fila por fila
-- ✅ Reportes que comparan resultados con/sin limpieza
-- ✅ Auditoría de cambios aplicados al dataset
-- ⚠️ Puede usarse para entrenar modelos, pero v2_cleaned_full es superior
-
----
-
-#### ⭐ Versión 3: Limpia Completa (v2_cleaned_full) **[RECOMENDADO]**
-
-```
-📍 Ubicación: data/processed/turkish_music_emotion_v2_cleaned_full.csv
-📏 Dimensiones: 408 filas × 21 columnas
-🎯 Uso: Entrenamiento de modelos de producción
-🔖 Estado: Producción (versión oficial para ML)
-```
-
-**Características:**
-- Dataset limpio más completo del proyecto (+8 filas adicionales)
-- Máxima calidad y cantidad de datos para Machine Learning
-- Duplicados inteligentemente consolidados sin pérdida de información
-- Outliers corregidos manteniendo variabilidad natural
-- Features normalizadas y validadas para ML
-- Estrategias avanzadas de imputación de valores faltantes
-
-**Mejoras respecto a v2_aligned:**
-- ✅ +8 filas adicionales recuperadas mediante análisis avanzado
-- ✅ Consolidación inteligente de duplicados (preservando información única)
-- ✅ Imputación avanzada de valores faltantes (KNN, iterativa)
-- ✅ Detección y corrección robusta de outliers multivariados
-- ✅ Validación cruzada de consistencia en todas las features
-- ✅ Máxima representatividad del espacio de características
-
-**Cuándo usar:**
-- ✅ **Entrenamiento de todos los modelos nuevos** (PRIMERA OPCIÓN)
-- ✅ Experimentación y búsqueda de hiperparámetros
-- ✅ Evaluación de performance de modelos
-- ✅ Pipeline de producción y despliegue
-- ✅ Benchmarking y competiciones internas
-- ✅ Validación final de modelos antes de producción
-
----
-
-### 📋 Comparación Rápida de Versiones
-
-| Versión | Archivo | Filas | Uso Principal | Estado | Recomendación |
-|---------|---------|-------|---------------|--------|---------------|
-| **v0** | `turkish_music_emotion_cleaned.csv` | Variable | Histórico (notebook inicial) | 📚 Archivo | ❌ No usar |
-| **v1** | `v1_original.csv` | 400 | Baseline sin modificar | 📖 Referencia | Solo comparaciones |
-| **v2a** | `v2_cleaned_aligned.csv` | 400 | Comparación directa con v1 | 🔄 Análisis | Análisis de impacto |
-| **v3** | `v2_cleaned_full.csv` | 408 | **Entrenamiento ML** | ⭐ Producción | **✅ USAR ESTO** |
-
----
 
 ### 🔄 Flujo Evolutivo de Datos
 
 ```
 📥 Datos Raw (original)
     ↓
-🔧 turkish_music_emotion_cleaned.csv
+🔧 acoustic_features.csv
     ↓ (Primera limpieza - notebook inicial)
-📦 v1_original.csv (400 filas)
-    ↓ (Formalización - sin cambios)
-🔄 v2_cleaned_aligned.csv (400 filas)
-    ↓ (Limpieza alineada - misma estructura)
-⭐ v2_cleaned_full.csv (408 filas)
+📦 turkish_music_emotion_cleaned.csv (400 filas)
+    ↓ (Dataset para entrenamiento)
+🔄 X_train.csv 
+🔄 Y_train.csv 
+    ↓ (Dataset para pruebas)
+⭐ X_test.csv 
+⭐ Y_test.csv 
     ↓ (Limpieza completa - optimización para ML)
 🤖 Modelos de Producción
 ```
@@ -303,7 +196,7 @@ Contamos con **4 versiones versionadas con DVC** del dataset de emociones musica
 
 ### 🎓 Recomendación del Equipo
 
-> **Para nuevos experimentos y modelos:** Usa **v2_cleaned_full**  
+> **Para nuevos experimentos y modelos:** Usa **turkish_music_emotion_cleaned**  
 > Esta versión representa nuestro mejor trabajo de ingeniería de datos y maximiza tanto la cantidad como la calidad de información disponible para tus modelos.
 
 **Flujo de trabajo recomendado:**
@@ -311,7 +204,7 @@ Contamos con **4 versiones versionadas con DVC** del dataset de emociones musica
 ```python
 # 1️⃣ Carga la versión recomendada
 from acoustic_ml.dataset import load_processed_data
-df = load_processed_data("turkish_music_emotion_v2_cleaned_full.csv")
+df = load_processed_data("turkish_music_emotion_cleaned.csv")
 
 # 2️⃣ Entrena tu modelo
 from acoustic_ml.modeling.train import train_model
@@ -322,115 +215,13 @@ from acoustic_ml.modeling.evaluate import evaluate_model
 metrics = evaluate_model(model, X_test, y_test)
 
 # 4️⃣ (Opcional) Compara con versiones anteriores
-df_v1 = load_processed_data("turkish_music_emotion_v1_original.csv")
-df_v2a = load_processed_data("turkish_music_emotion_v2_cleaned_aligned.csv")
+df_v1 = load_processed_data("acoustic_features.csv")
+df_v2a = load_processed_data("turkish_music_emotion_cleaned.csv")
 # Analiza diferencias y mejoras obtenidas
 ```
 
 ---
 
-### 🔧 Cómo usar cada versión en código
-
-#### Ejemplo 1: Cargar versión recomendada
-
-```python
-from acoustic_ml.dataset import load_processed_data
-
-# Versión recomendada para ML
-df_full = load_processed_data("turkish_music_emotion_v2_cleaned_full.csv")
-print(f"✅ Dataset óptimo cargado: {df_full.shape[0]} filas")
-```
-
-#### Ejemplo 2: Análisis comparativo entre versiones
-
-```python
-from acoustic_ml.dataset import load_processed_data
-import pandas as pd
-
-# Cargar las 3 versiones principales
-df_v1 = load_processed_data("turkish_music_emotion_v1_original.csv")
-df_v2a = load_processed_data("turkish_music_emotion_v2_cleaned_aligned.csv")
-df_v3 = load_processed_data("turkish_music_emotion_v2_cleaned_full.csv")
-
-# Comparar dimensiones
-print(f"v1_original:        {df_v1.shape[0]} filas")
-print(f"v2_cleaned_aligned: {df_v2a.shape[0]} filas")
-print(f"v2_cleaned_full:    {df_v3.shape[0]} filas (+{df_v3.shape[0] - df_v2a.shape[0]} filas)")
-
-# Comparar calidad de datos
-print("\n📊 Valores faltantes por versión:")
-print(f"v1: {df_v1.isnull().sum().sum()} valores faltantes")
-print(f"v2a: {df_v2a.isnull().sum().sum()} valores faltantes")
-print(f"v3: {df_v3.isnull().sum().sum()} valores faltantes")
-```
-
-#### Ejemplo 3: Uso en notebooks
-
-```python
-import pandas as pd
-from acoustic_ml.config import PROCESSED_DATA_DIR
-
-# Método 1: Usando el módulo
-from acoustic_ml.dataset import load_processed_data
-df = load_processed_data("turkish_music_emotion_v2_cleaned_full.csv")
-
-# Método 2: Carga directa con pandas
-df = pd.read_csv(PROCESSED_DATA_DIR / "turkish_music_emotion_v2_cleaned_full.csv")
-
-print(f"✅ Dataset cargado: {df.shape[0]} filas, {df.shape[1]} columnas")
-print(f"📍 Ubicación: {PROCESSED_DATA_DIR}")
-```
-
-#### Ejemplo 4: Validación de versión correcta
-
-```python
-from acoustic_ml.dataset import load_processed_data
-
-def validate_dataset_version(df, expected_rows=408):
-    """Valida que estés usando la versión correcta del dataset"""
-    if df.shape[0] == expected_rows:
-        print(f"✅ Usando v2_cleaned_full ({expected_rows} filas) - CORRECTO")
-        return True
-    else:
-        print(f"⚠️  Advertencia: {df.shape[0]} filas (esperadas: {expected_rows})")
-        print("💡 Considera usar 'turkish_music_emotion_v2_cleaned_full.csv'")
-        return False
-
-# Uso
-df = load_processed_data("turkish_music_emotion_v2_cleaned_full.csv")
-validate_dataset_version(df)
-```
-
----
-
-### 🎯 Casos de Uso por Versión
-
-#### Cuando usar `turkish_music_emotion_cleaned.csv`:
-- 🔍 Auditoría histórica del primer proceso de limpieza
-- 📖 Documentación de evolución del proyecto
-- ❌ **NUNCA para entrenamiento de modelos**
-
-#### Cuando usar `v1_original.csv`:
-- 📊 Establecer baseline de performance
-- 📈 Medir impacto de limpieza en métricas
-- 📝 Documentar transformaciones aplicadas
-- ⚖️ Comparar con estado original del dataset
-
-#### Cuando usar `v2_cleaned_aligned.csv`:
-- 🔬 Análisis fila por fila de cambios aplicados
-- 📊 Estudios de impacto de limpieza específica
-- 🔍 Validar que la limpieza preserva estructura
-- 📉 Comparación directa antes/después (400 filas constantes)
-
-#### Cuando usar `v2_cleaned_full.csv` ⭐:
-- 🤖 **Entrenar TODOS los modelos nuevos**
-- 🔧 Ajuste de hiperparámetros
-- 📊 Evaluación de performance
-- 🚀 Despliegue en producción
-- 🏆 Competiciones y benchmarks
-- ✅ Cualquier tarea de Machine Learning
-
----
 
 ### 📦 Gestión de Versiones con DVC
 
@@ -438,16 +229,17 @@ Todas las versiones están trackeadas con DVC y disponibles en S3:
 
 ```bash
 # Descargar todas las versiones desde S3
-dvc pull data/processed
+dvc pull data
 
 # Verificar versiones disponibles localmente
-ls -lh data/processed/
+ls -lh data
 
 # Output esperado:
-# turkish_music_emotion_cleaned.csv              (~XX KB)
-# turkish_music_emotion_v1_original.csv          (400 filas)
-# turkish_music_emotion_v2_cleaned_aligned.csv   (400 filas)
-# turkish_music_emotion_v2_cleaned_full.csv      (408 filas) ⭐
+# data/external
+# data/interim/"X_train.csv"
+# data/interim/"Y_train.csv"
+# data/processed/"X_test.csv"
+# data/processed/"Y_test.csv"
 ```
 
 ---
@@ -461,7 +253,7 @@ model.fit(X_train_v2a, y_train_v2a)
 score = model.score(X_test_v3, y_test_v3)  # ¡Datos incompatibles!
 
 # ✅ BIEN: Usa la misma versión en todo el pipeline
-df = load_processed_data("turkish_music_emotion_v2_cleaned_full.csv")
+df = load_processed_data("turkish_music_emotion_cleaned.csv")
 X_train, X_test, y_train, y_test = train_test_split(df)
 model.fit(X_train, y_train)
 score = model.score(X_test, y_test)
@@ -471,15 +263,16 @@ score = model.score(X_test, y_test)
 ```python
 import mlflow
 
-mlflow.set_tag("dataset_version", "v2_cleaned_full")
+mlflow.set_tag("dataset_version", "turkish_music_emotion_cleaned")
 mlflow.set_tag("dataset_rows", 408)
-mlflow.set_tag("dataset_file", "turkish_music_emotion_v2_cleaned_full.csv")
+mlflow.set_tag("dataset_file", "turkish_music_emotion_cleaned.csv")
 ```
 
 ⚠️ **Mantén consistencia en notebooks**
 ```python
 # Agrega esto al inicio de cada notebook
-DATASET_VERSION = "turkish_music_emotion_v2_cleaned_full.csv"  # ⭐ RECOMENDADO
+DATASET_VERSION = "turkish_music_emotion_cleaned.csv"  
+# ⭐ RECOMENDADO
 print(f"📊 Usando dataset: {DATASET_VERSION}")
 
 df = load_processed_data(DATASET_VERSION)
@@ -625,101 +418,6 @@ make pull
 ls -lh data/processed/
 ```
 
-### 📤 Agregar nuevos datos
-
-Si tienes un nuevo dataset:
-
-```bash
-# 1. Coloca tu archivo en data/processed/
-cp ~/Downloads/nuevo_dataset.csv data/processed/
-
-# 2. Actualiza el tracking de DVC
-dvc add data
-
-# 3. Sube a S3
-dvc push
-# o: make push
-
-# 4. Commitea los metadatos a Git (NO los CSV)
-git add data.dvc data/.gitignore
-git commit -m "feat: add nuevo_dataset.csv"
-git push
-```
-
-### 🔄 Actualizar un dataset existente
-
-Si modificaste un archivo de datos:
-
-```bash
-# 1. Edita tu archivo
-vim data/processed/turkish_music_emotion_v2_cleaned_full.csv
-
-# 2. Actualiza DVC (detecta el cambio automáticamente)
-dvc add data
-
-# 3. Sube la nueva versión a S3
-dvc push
-
-# 4. Commitea el cambio de metadatos
-git add data.dvc
-git commit -m "feat: update v2_cleaned_full with improved imputation"
-git push
-```
-
-### ⏮️ Volver a una versión anterior
-
-```bash
-# 1. Encuentra el commit donde estaba la versión que quieres
-git log --oneline data.dvc
-
-# 2. Vuelve a ese commit
-git checkout <commit_hash> data.dvc
-
-# 3. Descarga esa versión desde S3
-dvc checkout
-
-# 4. Si quieres quedarte con esta versión:
-git add data.dvc
-git commit -m "revert: rollback to previous dataset version"
-git push
-```
-
-### 🔍 Verificar estado de los datos
-
-```bash
-# Ver si tus datos están sincronizados con S3
-dvc status
-
-# Ver configuración de remotes
-dvc remote list
-
-# Ver qué archivos trackea DVC
-cat data.dvc
-```
-
-### 🌐 Ver datos en AWS Console
-
-Accede visualmente a tus datos:
-
-1. Ve a: **https://s3.console.aws.amazon.com/s3/buckets/mlops24-haowei-bucket**
-2. Navega a: `files/` → `md5/`
-3. Verás carpetas con tus datasets (almacenados por hash MD5)
-
-### 🚨 Problemas comunes
-
-**Problema:** `dvc pull` falla con error de AWS
-```bash
-# Solución: Verifica tus credenciales
-aws s3 ls s3://mlops24-haowei-bucket/
-# Si falla, reconfigura:
-aws configure
-```
-
-**Problema:** "Cache is missing" o archivos no se descargan
-```bash
-# Solución: Fuerza la descarga
-dvc pull -f
-```
 
 ### 📋 Comandos de referencia rápida
 
@@ -743,177 +441,6 @@ dvc config --list # Configuración completa de DVC
 
 ---
 
-## 💻 Uso
-
-### 🛠️ Usando el Makefile
-
-Este repo incluye un `Makefile` con comandos cortos para las tareas comunes.
-
-#### Comandos disponibles
-
-```bash
-# 1) Configurar entorno y dependencias
-make setup
-
-# 2) Abrir Jupyter Lab
-make jupyter
-
-# 3) Levantar MLflow en http://127.0.0.1:5001
-make mlflow
-
-# 4) Reproducir pipeline (solo si hubo cambios)
-make reproduce
-
-# 5) Forzar etapa de entrenamiento (nuevo run en MLflow)
-make train
-
-# 6) Ver métricas actuales y diferencias
-make metrics
-make diff
-
-# 7) Sincronizar artefactos con el remoto DVC (S3)
-make pull
-make push
-
-# 8) Limpiar el entorno local
-make clean
-make clean-caches
-
-# 9) Exportar dependencias actuales
-make freeze
-
-# 10) Verificar sincronización antes de trabajar
-make verify-sync
-
-# 11) Muestra si hay datos desactualizados
-make status
-```
-
-### 🐍 Usando el Módulo acoustic_ml
-
-El proyecto está organizado como un módulo Python instalable. Ejemplos de uso:
-
-#### Cargar datos
-
-```python
-from acoustic_ml.dataset import load_processed_data
-
-# Cargar versión recomendada para ML (⭐ RECOMENDADO)
-df = load_processed_data("turkish_music_emotion_v2_cleaned_full.csv")
-print(f"✅ Dataset óptimo cargado: {df.shape}")
-
-# Cargar otras versiones para comparación
-df_original = load_processed_data("turkish_music_emotion_v1_original.csv")
-df_aligned = load_processed_data("turkish_music_emotion_v2_cleaned_aligned.csv")
-
-# Comparar dimensiones
-print(f"\n📊 Comparación de versiones:")
-print(f"v1_original:        {df_original.shape[0]} filas")
-print(f"v2_cleaned_aligned: {df_aligned.shape[0]} filas")
-print(f"v2_cleaned_full:    {df.shape[0]} filas (+{df.shape[0] - df_aligned.shape[0]} adicionales)")
-```
-
-#### Feature Engineering
-
-```python
-from acoustic_ml.features import create_features, select_features
-
-# Crear features adicionales
-df_with_features = create_features(df)
-
-# Seleccionar features específicas
-features = ['tempo', 'energy', 'valence']
-df_selected = select_features(df_with_features, features)
-```
-
-#### Entrenar modelos
-
-```python
-from acoustic_ml.modeling.train import train_model
-import mlflow
-
-# Entrenar modelo con versión recomendada
-# (registra automáticamente en MLflow)
-with mlflow.start_run():
-    # Documentar versión de dataset
-    mlflow.set_tag("dataset_version", "v2_cleaned_full")
-    mlflow.set_tag("dataset_rows", len(X_train))
-    
-    # Entrenar
-    model = train_model(X_train, y_train)
-```
-
-#### Hacer predicciones
-
-```python
-from acoustic_ml.modeling.predict import load_model, predict
-
-# Cargar modelo entrenado
-model = load_model("baseline_model.pkl")
-
-# Predecir
-predictions = predict(model, X_test)
-```
-
-### Trabajar con Notebooks
-
-**Jupyter Lab:**
-```bash
-jupyter-lab
-# o usando make:
-make jupyter
-```
-
-**Importar módulo en notebooks:**
-```python
-from acoustic_ml.dataset import load_processed_data
-from acoustic_ml.config import PROCESSED_DATA_DIR
-
-# ⭐ Usar versión recomendada
-DATASET_VERSION = "turkish_music_emotion_v2_cleaned_full.csv"
-df = load_processed_data(DATASET_VERSION)
-
-print(f"📊 Dataset: {DATASET_VERSION}")
-print(f"📏 Dimensiones: {df.shape[0]} filas, {df.shape[1]} columnas")
-print(f"📍 Ubicación: {PROCESSED_DATA_DIR}")
-```
-
-### Tracking de Experimentos
-
-Inicia el servidor MLflow:
-
-```bash
-mlflow ui --port 5001
-# o usando make:
-make mlflow
-```
-
-Accede a la interfaz en: **http://127.0.0.1:5001**
-
-### Pipeline DVC
-
-**Ejecutar el pipeline completo:**
-```bash
-dvc repro
-# o usando make:
-make reproduce
-```
-
-**Ver métricas actuales:**
-```bash
-dvc metrics show
-# o usando make:
-make metrics
-```
-
-**Comparar métricas entre commits:**
-```bash
-dvc metrics diff
-# o usando make:
-make diff
-```
-
----
 
 ## ✅ Verificación Rápida antes de Trabajar
 
@@ -949,49 +476,6 @@ python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 pip install -e .  # Instalar módulo acoustic_ml
-```
-
----
-
-## 📓 Buenas Prácticas con Notebooks
-
-Instala hooks para limpiar outputs y tener diffs legibles:
-
-```bash
-make nb-hooks
-```
-
-**Beneficios:**
-- `nbstripout` limpia salidas/celdas ejecutadas al commitear
-- `nbdime` muestra diffs de `.ipynb` de forma amigable
-
-**Convención de nombres para notebooks:**
-```
-<número>.<versión>-<iniciales>-<descripción-corta>.ipynb
-
-Ejemplos:
-- 1.0-jrs-initial-data-exploration.ipynb
-- 2.0-hw-feature-engineering.ipynb
-- 3.1-sc-model-evaluation.ipynb
-```
-
-**Template recomendado para notebooks:**
-```python
-# === CONFIGURACIÓN INICIAL ===
-import pandas as pd
-from acoustic_ml.dataset import load_processed_data
-from acoustic_ml.config import PROCESSED_DATA_DIR
-
-# ⭐ Definir versión de dataset a usar
-DATASET_VERSION = "turkish_music_emotion_v2_cleaned_full.csv"
-
-print(f"📊 Notebook: [Nombre del notebook]")
-print(f"📅 Fecha: {pd.Timestamp.now().strftime('%Y-%m-%d')}")
-print(f"📦 Dataset: {DATASET_VERSION}")
-
-# Cargar datos
-df = load_processed_data(DATASET_VERSION)
-print(f"✅ Datos cargados: {df.shape}")
 ```
 
 ---
