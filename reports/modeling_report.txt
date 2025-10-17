@@ -4,7 +4,7 @@
 📊 REPORTE DE MODELADO - FASE 1
 ================================================================================
 
-📅 Fecha: 2025-10-11 18:04:21
+📅 Fecha: 2025-10-17 14:27:47
 👥 Equipo: David Cruz, Javier Rebull, Sandra Cervantes
 🏛️ Institución: ITESM - Maestría en IA Aplicada
 
@@ -189,7 +189,7 @@ por defecto:
 🚀 El modelo está listo para la Fase 3: Deployment
 
 ================================================================================
-Generado: 2025-10-11 18:04:21
+Generado: 2025-10-17 14:27:47
 Equipo: David Cruz • Javier Rebull • Sandra Cervantes
 ITESM - Maestría en Inteligencia Artificial Aplicada
 ================================================================================
