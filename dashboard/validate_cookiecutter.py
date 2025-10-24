@@ -178,6 +178,35 @@ class CookieCutterValidator:
         return {'present': present, 'missing': missing}
 
 
+    def get_tree_structure(self, max_depth: int = 3) -> str:
+        """Generate tree view of repository"""
+        def _tree(directory: Path, prefix: str = "", depth: int = 0) -> List[str]:
+            if depth > max_depth:
+                return []
+            
+            lines = []
+            try:
+                items = sorted(directory.iterdir(), key=lambda x: (not x.is_dir(), x.name))
+                items = [item for item in items if not item.name.startswith('.')]
+                
+                for i, item in enumerate(items):
+                    is_last = i == len(items) - 1
+                    current_prefix = "└── " if is_last else "├── "
+                    lines.append(f"{prefix}{current_prefix}{item.name}")
+                    
+                    if item.is_dir():
+                        extension = "    " if is_last else "│   "
+                        lines.extend(_tree(item, prefix + extension, depth + 1))
+            except PermissionError:
+                pass
+            
+            return lines
+        
+        tree_lines = [f"{self.repo_path.name}/"]
+        tree_lines.extend(_tree(self.repo_path))
+        return "\n".join(tree_lines)
+
+
 def validate_cookiecutter_structure(repo_path: str = '.') -> Dict:
     validator = CookieCutterValidator(repo_path)
     return validator.validate()
