@@ -1,0 +1,22 @@
+# Hyperparameters - Turkish Music Emotion Recognition
+# Team 24
+
+model:
+  random_forest:
+    n_estimators: 100
+    max_depth: 10
+    random_state: 42
+  
+  xgboost:
+    n_estimators: 100
+    max_depth: 6
+    learning_rate: 0.1
+
+train:
+  test_size: 0.2
+  validation_split: 0.2
+  random_state: 42
+
+features:
+  scaler: standard
+  pca_components: null
