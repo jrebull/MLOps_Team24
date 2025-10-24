@@ -1,5 +1,5 @@
 """
-Model evaluation module with comprehensive metrics and MLflow integration.
+Módulo de evaluación de modelos con métricas completas e integración con MLflow.
 """
 import json
 import logging
@@ -21,7 +21,7 @@ from sklearn.metrics import (
 from acoustic_ml.config import MODELS_DIR, REPORTS_DIR
 from acoustic_ml.modeling.predict import ModelPredictor
 
-# Configure logging
+# Configurar logging
 logger = logging.getLogger(__name__)
 
 # Ensure reports directory exists
@@ -30,9 +30,9 @@ REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
 class ModelEvaluator:
     """
-    Evaluates trained models with comprehensive metrics and visualizations.
+    Evalúa modelos entrenados con métricas completas y visualizaciones.
     
-    Attributes:
+    Atributos:
         predictor (ModelPredictor): Predictor instance for inference
         metrics (Dict): Computed evaluation metrics
         report_path (Path): Path to save evaluation reports
@@ -44,9 +44,9 @@ class ModelEvaluator:
         report_dir: Path = REPORTS_DIR
     ):
         """
-        Initialize evaluator with model and report directory.
+        Inicializar evaluador con modelo y directorio de reportes.
         
-        Args:
+        Argumentos:
             model_name: Name of the model file to evaluate
             report_dir: Directory to save evaluation reports
         """
@@ -64,27 +64,27 @@ class ModelEvaluator:
         y_test: pd.Series
     ) -> Dict[str, float]:
         """
-        Evaluate model on test data.
+        Evaluar modelo con datos de prueba.
         
-        Args:
+        Argumentos:
             X_test: Test features
             y_test: True labels
         
-        Returns:
+        Retorna:
             Dictionary with evaluation metrics
         
-        Raises:
+        Lanza:
             ValueError: If inputs are invalid
         """
         if X_test.empty or y_test.empty:
-            raise ValueError("Test data cannot be empty")
+            raise ValueError("Los datos de prueba no pueden estar vacíos")
         
         if len(X_test) != len(y_test):
             raise ValueError(
-                f"X_test ({len(X_test)}) and y_test ({len(y_test)}) must have same length"
+                f"X_test ({len(X_test)}) and y_test ({len(y_test)}) deben tener la misma longitud"
             )
         
-        logger.info(f"Starting evaluation on {len(X_test)} test samples")
+        logger.info(f"Iniciando evaluación en {len(X_test)} test muestras")
         
         # Get predictions
         y_pred = self.predictor.predict(X_test)
@@ -98,10 +98,10 @@ class ModelEvaluator:
             'recall_weighted': float(recall_score(y_test, y_pred, average='weighted', zero_division=0)),
             'f1_macro': float(f1_score(y_test, y_pred, average='macro', zero_division=0)),
             'f1_weighted': float(f1_score(y_test, y_pred, average='weighted', zero_division=0)),
-            'n_samples': len(X_test)
+            'n_muestras': len(X_test)
         }
         
-        logger.info(f"✅ Evaluation complete - Accuracy: {self.metrics['accuracy']:.4f}")
+        logger.info(f"✅ Evaluación completa - Accuracy: {self.metrics['accuracy']:.4f}")
         
         return self.metrics
     
@@ -112,14 +112,14 @@ class ModelEvaluator:
         save: bool = True
     ) -> str:
         """
-        Generate detailed classification report.
+        Generar reporte de clasificación detallado.
         
-        Args:
+        Argumentos:
             X_test: Test features
             y_test: True labels
             save: Whether to save report to file
         
-        Returns:
+        Retorna:
             Classification report as string
         """
         y_pred = self.predictor.predict(X_test)
@@ -130,7 +130,7 @@ class ModelEvaluator:
             report_file = self.report_path / "classification_report.txt"
             with open(report_file, 'w') as f:
                 f.write(report)
-            logger.info(f"📄 Classification report saved to {report_file}")
+            logger.info(f"📄 Reporte de clasificación guardado en {report_file}")
         
         return report
     
@@ -142,15 +142,15 @@ class ModelEvaluator:
         figsize: Tuple[int, int] = (10, 8)
     ) -> plt.Figure:
         """
-        Plot and optionally save confusion matrix.
+        Graficar y opcionalmente guardar matriz de confusión.
         
-        Args:
+        Argumentos:
             X_test: Test features
             y_test: True labels
             save: Whether to save plot to file
             figsize: Figure size
         
-        Returns:
+        Retorna:
             Matplotlib figure object
         """
         y_pred = self.predictor.predict(X_test)
@@ -183,19 +183,19 @@ class ModelEvaluator:
         if save:
             plot_file = self.report_path / "confusion_matrix.png"
             fig.savefig(plot_file, dpi=300, bbox_inches='tight')
-            logger.info(f"📊 Confusion matrix saved to {plot_file}")
+            logger.info(f"📊 Matriz de confusión guardada en {plot_file}")
         
         return fig
     
     def save_metrics(self, filename: str = "metrics.json") -> None:
         """
-        Save computed metrics to JSON file.
+        Guardar métricas computadas en archivo JSON.
         
-        Args:
+        Argumentos:
             filename: Name of the output file
         """
         if not self.metrics:
-            logger.warning("No metrics to save. Run evaluate() first.")
+            logger.warning("No hay métricas para guardar. Ejecute evaluate() primero.")
             return
         
         metrics_file = self.report_path / filename
@@ -203,20 +203,20 @@ class ModelEvaluator:
         with open(metrics_file, 'w') as f:
             json.dump(self.metrics, f, indent=4)
         
-        logger.info(f"💾 Metrics saved to {metrics_file}")
+        logger.info(f"💾 Métricas guardadas en {metrics_file}")
     
     def log_to_mlflow(self, run_name: Optional[str] = None) -> None:
         """
-        Log metrics to MLflow.
+        Registrar métricas en MLflow.
         
-        Args:
+        Argumentos:
             run_name: Optional name for the MLflow run
         """
         try:
             import mlflow
             
             if not self.metrics:
-                logger.warning("No metrics to log. Run evaluate() first.")
+                logger.warning("No hay métricas para registrar. Ejecute evaluate() primero.")
                 return
             
             if run_name:
@@ -231,12 +231,12 @@ class ModelEvaluator:
             if self.report_path.exists():
                 mlflow.log_artifacts(str(self.report_path))
             
-            logger.info("✅ Metrics logged to MLflow")
+            logger.info("✅ Métricas registradas en MLflow")
         
         except ImportError:
-            logger.warning("MLflow not available. Skipping MLflow logging.")
+            logger.warning("MLflow no disponible. Omitiendo registro en MLflow.")
         except Exception as e:
-            logger.error(f"❌ Failed to log to MLflow: {e}")
+            logger.error(f"❌ Falló al registrar en MLflow: {e}")
     
     def generate_full_report(
         self, 
@@ -245,17 +245,17 @@ class ModelEvaluator:
         save_artifacts: bool = True
     ) -> Dict:
         """
-        Generate complete evaluation report with all metrics and visualizations.
+        Generar reporte completo de evaluación con todas las métricas y visualizaciones.
         
-        Args:
+        Argumentos:
             X_test: Test features
             y_test: True labels
             save_artifacts: Whether to save all artifacts to disk
         
-        Returns:
+        Retorna:
             Dictionary with all evaluation results
         """
-        logger.info("Generating full evaluation report...")
+        logger.info("Generando reporte completo de evaluación...")
         
         # Calculate metrics
         metrics = self.evaluate(X_test, y_test)
@@ -276,12 +276,12 @@ class ModelEvaluator:
             'report_path': str(self.report_path) if save_artifacts else None
         }
         
-        logger.info("✅ Full evaluation report generated")
+        logger.info("✅ Reporte completo de evaluación generado")
         
         return results
 
 
-# Convenience function for quick evaluation
+# Función de conveniencia para evaluación rápida
 def evaluate_model(
     model_name: str,
     X_test: pd.DataFrame,
@@ -290,16 +290,16 @@ def evaluate_model(
     log_mlflow: bool = False
 ) -> Dict:
     """
-    Quick model evaluation with all metrics and visualizations.
+    Evaluación rápida de modelo con todas las métricas y visualizaciones.
     
-    Args:
+    Argumentos:
         model_name: Name of the model file
         X_test: Test features
         y_test: True labels
         save_artifacts: Whether to save reports and plots
         log_mlflow: Whether to log to MLflow
     
-    Returns:
+    Retorna:
         Dictionary with evaluation results
     """
     evaluator = ModelEvaluator(model_name)
