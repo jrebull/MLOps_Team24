@@ -30,3 +30,7 @@ TURKISH_MODIFIED = "turkish_music_emotion_modified.csv"
 
 # Seed para reproducibilidad
 RANDOM_STATE = 42
+
+# Nombres de archivos procesados
+CLEANED_FILENAME = "turkish_music_emotion_cleaned.csv"
+PROCESSED_PATTERN = "turkish_music_emotion_{version}_cleaned_full.csv"

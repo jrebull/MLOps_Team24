@@ -1,39 +1,43 @@
 """
 Acoustic ML - MLOps Team 24
 Proyecto de Machine Learning para análisis de características acústicas
+
+Refactorizado con POO + SOLID principles - Fase 2
 """
+__version__ = "0.2.0"  # Incrementado por refactorización
 
-__version__ = "0.1.0"
+# Imports principales - POO
+from acoustic_ml.dataset import DatasetManager
 
-from .dataset import (
-    load_raw_data,
-    load_turkish_cleaned,
-    save_processed_data,
-    load_turkish_original,
-    load_turkish_modified,
-    get_dataset_info,
-)
-
-from .config import (
+# Configuración del proyecto
+from acoustic_ml.config import (
+    PROJECT_DIR,
+    DATA_DIR,
     RAW_DATA_DIR,
     PROCESSED_DATA_DIR,
     MODELS_DIR,
-    RANDOM_STATE,
+    REPORTS_DIR,
     TURKISH_ORIGINAL,
     TURKISH_MODIFIED,
+    RANDOM_STATE,
+    MLFLOW_TRACKING_URI,
+    MLFLOW_EXPERIMENT_NAME,
 )
 
 __all__ = [
-    "load_raw_data",
-    "load_turkish_cleaned",
-    "save_processed_data",
-    "load_turkish_original",
-    "load_turkish_modified",
-    "get_dataset_info",
+    # Dataset Manager (POO)
+    "DatasetManager",
+    
+    # Configuración
+    "PROJECT_DIR",
+    "DATA_DIR",
     "RAW_DATA_DIR",
     "PROCESSED_DATA_DIR",
     "MODELS_DIR",
-    "RANDOM_STATE",
+    "REPORTS_DIR",
     "TURKISH_ORIGINAL",
     "TURKISH_MODIFIED",
+    "RANDOM_STATE",
+    "MLFLOW_TRACKING_URI",
+    "MLFLOW_EXPERIMENT_NAME",
 ]
