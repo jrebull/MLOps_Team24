@@ -4,12 +4,21 @@ Proyecto de Machine Learning para análisis de características acústicas
 
 Refactorizado con POO + SOLID principles - Fase 2
 """
-__version__ = "0.2.0"  # Incrementado por refactorización
+__version__ = "0.2.0"
 
-# Imports principales - POO
+# Dataset Manager (POO)
 from acoustic_ml.dataset import DatasetManager
 
-# Configuración del proyecto
+# Feature Engineering (POO)
+from acoustic_ml.features import (
+    FeatureTransformer,
+    NumericFeatureSelector,
+    PowerFeatureTransformer,
+    FeaturePipelineBuilder,
+    create_preprocessing_pipeline,
+)
+
+# Configuración
 from acoustic_ml.config import (
     PROJECT_DIR,
     DATA_DIR,
@@ -25,10 +34,12 @@ from acoustic_ml.config import (
 )
 
 __all__ = [
-    # Dataset Manager (POO)
     "DatasetManager",
-    
-    # Configuración
+    "FeatureTransformer",
+    "NumericFeatureSelector",
+    "PowerFeatureTransformer",
+    "FeaturePipelineBuilder",
+    "create_preprocessing_pipeline",
     "PROJECT_DIR",
     "DATA_DIR",
     "RAW_DATA_DIR",
