@@ -240,3 +240,7 @@ fastapi==0.118.0
 
 # ONNX (solo si vas a exportar/inferir ONNX)
 onnxruntime==1.23.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
