@@ -72,3 +72,4 @@ wheels/
 .vscode/
 
 /data
+.DS_Store
