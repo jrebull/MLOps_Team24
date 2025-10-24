@@ -75,3 +75,4 @@ wheels/
 .DS_Store
 models/test_model.pkl
 reports/
+*.backup
