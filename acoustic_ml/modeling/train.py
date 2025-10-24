@@ -1,5 +1,5 @@
 """
-Model training con SOLID principles y Design Patterns.
+Entrenamiento de modelos con principios SOLID y patrones de diseño.
 """
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ModelConfig:
-    """Configuracion de un modelo."""
+    """Configuración de un modelo."""
     name: str
     model_class: type
     hyperparameters: Dict[str, Any]
@@ -28,7 +28,7 @@ class ModelConfig:
 
 @dataclass
 class TrainingConfig:
-    """Configuracion de entrenamiento."""
+    """Configuración de entrenamiento."""
     cv_folds: int = 5
     scoring: str = "accuracy"
     mlflow_tracking_uri: str = "http://127.0.0.1:5001"
@@ -36,7 +36,7 @@ class TrainingConfig:
 
 
 class ModelTrainer(ABC):
-    """Interface para entrenadores."""
+    """Interfaz para entrenadores."""
     
     @abstractmethod
     def train(self, X, y) -> BaseEstimator:
@@ -48,7 +48,7 @@ class ModelTrainer(ABC):
 
 
 class BaseModelTrainer(ModelTrainer):
-    """Trainer base con Template Method Pattern."""
+    """Entrenador base con patrón Template Method."""
     
     def __init__(self, model_config: ModelConfig, training_config: TrainingConfig):
         self.model_config = model_config
@@ -105,7 +105,7 @@ class BaseModelTrainer(ModelTrainer):
 
 
 def train_baseline_model(X_train, y_train):
-    """Factory function para entrenar modelo baseline."""
+    """Función factory para entrenar modelo baseline."""
     model_config = ModelConfig(
         name="RandomForest_Baseline",
         model_class=RandomForestClassifier,
