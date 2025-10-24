@@ -1,0 +1,11 @@
+# MLOps Dashboard Requirements
+# Team 24 - Turkish Music Emotion Recognition Project
+
+# Core
+streamlit>=1.28.0
+
+# Visualization
+plotly>=5.17.0
+
+# Optional: for enhanced features
+gitpython>=3.1.40  # For Git operations
