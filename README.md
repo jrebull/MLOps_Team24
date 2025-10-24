@@ -442,6 +442,132 @@ dvc config --list # Configuración completa de DVC
 ---
 
 
+## 🚀 Uso
+
+### Quick Start
+
+Una vez instalado el proyecto, sigue estos pasos para empezar a trabajar:
+
+#### 1️⃣ Sincronizar datos desde S3
+```bash
+# Descargar todos los datos versionados
+dvc pull
+
+# O usando el Makefile
+make pull
+
+# Verificar que los datos llegaron
+ls -lh data/processed/
+```
+
+#### 2️⃣ Entrenar un modelo
+```bash
+# Opción A: Usando el script de entrenamiento
+python scripts/train_baseline.py
+
+# Opción B: Usando el módulo directamente
+python -m acoustic_ml.modeling.train
+
+# Opción C: Usando el Makefile
+make train
+```
+
+#### 3️⃣ Ver experimentos en MLflow
+```bash
+# Iniciar la interfaz web de MLflow
+mlflow ui
+
+# Abrir en el navegador: http://localhost:5000
+```
+
+#### 4️⃣ Ejecutar notebooks de exploración
+```bash
+# Iniciar Jupyter
+jupyter notebook
+
+# Abrir cualquier notebook en notebooks/
+# Recomendado empezar con: 1.0-team-eda-turkish-music.ipynb
+```
+
+#### 5️⃣ Reproducir el pipeline completo
+```bash
+# Ejecutar todo el pipeline de DVC
+dvc repro
+
+# O usando el Makefile
+make reproduce
+```
+
+### Flujo de Trabajo Típico
+
+```bash
+# 1. Verificar sincronización
+make verify-sync
+
+# 2. Descargar datos actualizados
+dvc pull
+
+# 3. Explorar datos (notebooks/)
+jupyter notebook
+
+# 4. Experimentar con modelos
+python scripts/train_baseline.py
+
+# 5. Ver resultados en MLflow
+mlflow ui
+
+# 6. Si los resultados son buenos, guardar cambios
+git add .
+git commit -m "feat: improved model performance"
+git push
+```
+
+### Comandos Útiles
+
+```bash
+# Gestión de datos
+dvc pull              # Descargar datos desde S3
+dvc push              # Subir cambios de datos a S3
+dvc status            # Ver estado de sincronización
+
+# MLflow
+mlflow ui             # Abrir interfaz de experimentos
+mlflow experiments list  # Listar experimentos
+
+# Desarrollo
+make train            # Entrenar modelo
+make reproduce        # Reproducir pipeline completo
+make verify-sync      # Verificar estado del repo
+make freeze           # Actualizar requirements.txt
+
+# Limpieza
+make clean-caches     # Limpiar cachés
+make clean            # Limpieza completa
+```
+
+### Usar el módulo `acoustic_ml` en tu código
+
+```python
+# Cargar datos procesados
+from acoustic_ml.dataset import load_processed_data
+df = load_processed_data("turkish_music_emotion_cleaned.csv")
+
+# Entrenar un modelo
+from acoustic_ml.modeling.train import train_model
+model = train_model(X_train, y_train)
+
+# Hacer predicciones
+from acoustic_ml.modeling.predict import predict
+predictions = predict(model, X_test)
+
+# Crear visualizaciones
+from acoustic_ml.plots import plot_confusion_matrix
+plot_confusion_matrix(y_true, y_pred, save_path="reports/figures/cm.png")
+```
+
+---
+
+
 ## ✅ Verificación Rápida antes de Trabajar
 
 Usa el `Makefile` para confirmar que tu repo está **limpio**, **sincronizado** y listo:
