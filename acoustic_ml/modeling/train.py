@@ -1,74 +1,122 @@
-import pandas as pd
+"""
+Model training con SOLID principles y Design Patterns.
+"""
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Dict, Any, Optional
 import numpy as np
-from pathlib import Path
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+import pandas as pd
+from sklearn.base import BaseEstimator
+from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, f1_score
-import joblib
-import json
-import random
+from sklearn.preprocessing import LabelEncoder
 import mlflow
+import mlflow.sklearn
+import logging
 
-DATA_PATH = "data/raw/acoustic_features.csv"
-TARGET = "Class"
+logger = logging.getLogger(__name__)
 
-def main():
-    np.random.seed(7)
-    random.seed(7)
 
-    # Config MLflow local
-    mlflow.set_tracking_uri("http://127.0.0.1:5001")
-    mlflow.set_experiment("Equipo24-MER")
+@dataclass
+class ModelConfig:
+    """Configuracion de un modelo."""
+    name: str
+    model_class: type
+    hyperparameters: Dict[str, Any]
+    random_state: int = 42
 
-    df = pd.read_csv(DATA_PATH)
-    y = df[TARGET].copy()
-    X = df.drop(columns=[TARGET]).copy()
 
-    if y.dtype == "object":
-        y = LabelEncoder().fit_transform(y)
+@dataclass
+class TrainingConfig:
+    """Configuracion de entrenamiento."""
+    cv_folds: int = 5
+    scoring: str = "accuracy"
+    mlflow_tracking_uri: str = "http://127.0.0.1:5001"
+    mlflow_experiment: str = "Equipo24-MER"
 
-    X = X.replace([np.inf, -np.inf], np.nan).fillna(0)
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, stratify=y, random_state=7
+class ModelTrainer(ABC):
+    """Interface para entrenadores."""
+    
+    @abstractmethod
+    def train(self, X, y) -> BaseEstimator:
+        pass
+    
+    @abstractmethod
+    def evaluate(self, X, y) -> Dict[str, float]:
+        pass
+
+
+class BaseModelTrainer(ModelTrainer):
+    """Trainer base con Template Method Pattern."""
+    
+    def __init__(self, model_config: ModelConfig, training_config: TrainingConfig):
+        self.model_config = model_config
+        self.training_config = training_config
+        self.model = None
+        self.label_encoder = None
+    
+    def train(self, X, y):
+        logger.info(f"Entrenando: {self.model_config.name}")
+        y_encoded = self._encode_labels(y)
+        self.model = self._initialize_model()
+        self.model.fit(X, y_encoded)
+        if self.training_config.mlflow_tracking_uri:
+            self._log_to_mlflow(X, y_encoded)
+        return self.model
+    
+    def evaluate(self, X, y):
+        if self.model is None:
+            raise ValueError("Modelo no entrenado")
+        y_encoded = self._encode_labels(y)
+        scores = cross_val_score(
+            self.model, X, y_encoded,
+            cv=self.training_config.cv_folds,
+            scoring=self.training_config.scoring
+        )
+        return {
+            f"{self.training_config.scoring}_mean": float(scores.mean()),
+            f"{self.training_config.scoring}_std": float(scores.std()),
+        }
+    
+    def _initialize_model(self):
+        return self.model_config.model_class(**self.model_config.hyperparameters)
+    
+    def _encode_labels(self, y):
+        if isinstance(y, pd.Series):
+            y = y.values
+        if y.dtype == object:
+            if self.label_encoder is None:
+                self.label_encoder = LabelEncoder()
+                return self.label_encoder.fit_transform(y)
+            return self.label_encoder.transform(y)
+        return y
+    
+    def _log_to_mlflow(self, X, y):
+        mlflow.set_tracking_uri(self.training_config.mlflow_tracking_uri)
+        mlflow.set_experiment(self.training_config.mlflow_experiment)
+        with mlflow.start_run(run_name=self.model_config.name):
+            for k, v in self.model_config.hyperparameters.items():
+                mlflow.log_param(k, v if v is not None else "None")
+            metrics = self.evaluate(X, y)
+            for metric_name, value in metrics.items():
+                mlflow.log_metric(metric_name, value)
+            logger.info(f"MLflow: {metrics}")
+
+
+def train_baseline_model(X_train, y_train):
+    """Factory function para entrenar modelo baseline."""
+    model_config = ModelConfig(
+        name="RandomForest_Baseline",
+        model_class=RandomForestClassifier,
+        hyperparameters={
+            "n_estimators": 200,
+            "max_depth": None,
+            "random_state": 42,
+            "n_jobs": -1
+        }
     )
-
-    scaler = StandardScaler()
-    X_train_sc = scaler.fit_transform(X_train)
-    X_test_sc = scaler.transform(X_test)
-
-    # Modelo RF (baseline 2)
-    params = dict(n_estimators=200, max_depth=None, random_state=7, n_jobs=-1)
-    clf = RandomForestClassifier(**params)
-
-    with mlflow.start_run(run_name="rf-baseline"):
-        clf.fit(X_train_sc, y_train)
-        y_pred = clf.predict(X_test_sc)
-
-        acc = float(accuracy_score(y_test, y_pred))
-        f1 = float(f1_score(y_test, y_pred, average="weighted"))
-        print(f"Accuracy: {acc:.4f} | F1(weighted): {f1:.4f}")
-
-        # Guardar artefactos locales (DVC los versiona)
-        Path("models").mkdir(parents=True, exist_ok=True)
-        Path("metrics").mkdir(parents=True, exist_ok=True)
-
-        model_path = "models/baseline_model.pkl"
-        joblib.dump({"model": clf, "scaler": scaler, "features": list(X.columns)}, model_path)
-        with open("metrics/metrics.json", "w") as f:
-            json.dump({"accuracy": acc, "f1_weighted": f1}, f, indent=2)
-
-        # Log en MLflow
-        mlflow.log_param("model", "RandomForestClassifier")
-        for k, v in params.items():
-            mlflow.log_param(k, v if v is not None else "None")
-        mlflow.log_metric("accuracy", acc)
-        mlflow.log_metric("f1_weighted", f1)
-
-        # Sube artefactos a MLflow (además de DVC)
-        mlflow.log_artifact("metrics/metrics.json")
-        mlflow.log_artifact(model_path)
-
-if __name__ == "__main__":
-    main()
+    training_config = TrainingConfig()
+    trainer = BaseModelTrainer(model_config, training_config)
+    model = trainer.train(X_train, y_train)
+    return model, trainer
