@@ -76,3 +76,9 @@ wheels/
 models/test_model.pkl
 reports/
 *.backup
+
+# Scripts temporales
+scripts/temp/
+
+# Scripts temporales
+scripts/temp/
