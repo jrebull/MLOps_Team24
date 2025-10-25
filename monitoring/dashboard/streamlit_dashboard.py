@@ -3,23 +3,268 @@ MLOps Project Structure Dashboard
 Streamlit-based validation dashboard for Turkish Music Emotion Recognition project
 Actualizado para Fase 2 - Post Cleanup
 Team 24 - Tecnológico de Monterrey (ITESM)
+
+All-in-one version: validator + dashboard in single file
 """
 import streamlit as st
-import subprocess
 import os
-import sys
 from pathlib import Path
 import json
 from datetime import datetime
 import plotly.graph_objects as go
 import plotly.express as px
 
-# Add current directory to path for imports
-current_dir = Path(__file__).parent
-sys.path.insert(0, str(current_dir))
 
-# Import validator
-from validate_cookiecutter import CookieCutterValidator
+# ============================================================================
+# VALIDATOR CLASS (embedded)
+# ============================================================================
+
+class CookieCutterValidator:
+    """Validates project structure - recognizes professional alternatives"""
+    
+    EXPECTED_STRUCTURE = {
+        'directories': [
+            'data',
+            'data/raw',
+            'data/processed',
+            'data/external',
+            'data/interim',
+            'notebooks',
+            ('src', 'acoustic_ml'),  # Acepta src/ o acoustic_ml/
+            'models',
+            'reports',
+            'reports/figures',
+            'references',
+            'docs',
+            'scripts',
+            'tests',
+            'app',  # FastAPI app
+            'monitoring',  # Monitoring & dashboards
+        ],
+        'files': [
+            'README.md',
+            'requirements.txt',
+            ('.gitignore', '.dvcignore'),
+            ('Makefile', 'pyproject.toml'),
+            ('setup.py', 'pyproject.toml'),
+        ],
+        'optional': [
+            'LICENSE',
+            'tox.ini',
+            'setup.cfg',
+            '.pre-commit-config.yaml',
+            'docker-compose.yml',
+            'Dockerfile',
+            '.env.example',
+            'config.env',
+        ],
+    }
+    
+    MLOPS_FILES = [
+        'dvc.yaml',
+        'params.yaml',
+        '.dvc/config',
+        'requirements.txt',
+        'data.dvc',
+    ]
+    
+    SHOULD_BE_GITIGNORED = [
+        'mlruns',
+        'mlartifacts', 
+        'dvcstore',
+        'acoustic_ml.egg-info',
+        '__pycache__',
+        '.pytest_cache',
+        '.ipynb_checkpoints',
+    ]
+
+    def __init__(self, repo_path: str = '.'):
+        # Navigate to repo root from dashboard directory
+        current_path = Path(repo_path).resolve()
+        
+        # If we're in monitoring/dashboard, go up two levels
+        if current_path.name == 'dashboard':
+            current_path = current_path.parent.parent
+        elif current_path.name == 'monitoring':
+            current_path = current_path.parent
+            
+        self.repo_path = current_path
+        
+    def validate(self):
+        results = {
+            'repo_path': str(self.repo_path),
+            'exists': self.repo_path.exists(),
+            'directories': self._check_directories(),
+            'files': self._check_files(),
+            'optional': self._check_optional(),
+            'mlops': self._check_mlops(),
+            'gitignore_status': self._check_gitignore(),
+            'summary': {}
+        }
+        
+        total_dirs = len(self.EXPECTED_STRUCTURE['directories'])
+        total_files = len(self.EXPECTED_STRUCTURE['files'])
+        total_mlops = len(self.MLOPS_FILES)
+        
+        present_dirs = len(results['directories']['present'])
+        present_files = len(results['files']['present'])
+        present_mlops = len(results['mlops']['present'])
+        
+        results['summary'] = {
+            'directories': {
+                'total': total_dirs,
+                'present': present_dirs,
+                'missing': total_dirs - present_dirs,
+                'percentage': round((present_dirs / total_dirs) * 100, 2)
+            },
+            'files': {
+                'total': total_files,
+                'present': present_files,
+                'missing': total_files - present_files,
+                'percentage': round((present_files / total_files) * 100, 2)
+            },
+            'mlops': {
+                'total': total_mlops,
+                'present': present_mlops,
+                'missing': total_mlops - present_mlops,
+                'percentage': round((present_mlops / total_mlops) * 100, 2)
+            },
+            'overall_score': round(
+                (present_dirs / total_dirs + present_files / total_files + present_mlops / total_mlops) / 3 * 100, 2
+            )
+        }
+        
+        return results
+    
+    def _check_directories(self):
+        present = []
+        missing = []
+        
+        for item in self.EXPECTED_STRUCTURE['directories']:
+            if isinstance(item, tuple):
+                found = False
+                for alt in item:
+                    if (self.repo_path / alt).is_dir():
+                        present.append(alt)
+                        found = True
+                        break
+                if not found:
+                    missing.append(f"{item[0]} (or alternatives)")
+            else:
+                if (self.repo_path / item).is_dir():
+                    present.append(item)
+                else:
+                    missing.append(item)
+        
+        return {'present': present, 'missing': missing}
+    
+    def _check_files(self):
+        present = []
+        missing = []
+        
+        for item in self.EXPECTED_STRUCTURE['files']:
+            if isinstance(item, tuple):
+                found = False
+                for alt in item:
+                    if (self.repo_path / alt).is_file():
+                        present.append(alt)
+                        found = True
+                        break
+                if not found:
+                    missing.append(f"{item[0]} (or alternatives)")
+            else:
+                if (self.repo_path / item).is_file():
+                    present.append(item)
+                else:
+                    missing.append(item)
+        
+        return {'present': present, 'missing': missing}
+    
+    def _check_optional(self):
+        present = []
+        missing = []
+        
+        for file in self.EXPECTED_STRUCTURE['optional']:
+            if (self.repo_path / file).exists():
+                present.append(file)
+            else:
+                missing.append(file)
+        
+        return {'present': present, 'missing': missing}
+    
+    def _check_mlops(self):
+        present = []
+        missing = []
+        
+        for file in self.MLOPS_FILES:
+            if (self.repo_path / file).exists():
+                present.append(file)
+            else:
+                missing.append(file)
+        
+        return {'present': present, 'missing': missing}
+    
+    def _check_gitignore(self):
+        properly_ignored = []
+        should_be_ignored = []
+        
+        gitignore_path = self.repo_path / '.gitignore'
+        
+        if not gitignore_path.exists():
+            return {
+                'properly_ignored': [],
+                'should_be_ignored': self.SHOULD_BE_GITIGNORED,
+                'note': '.gitignore file not found'
+            }
+        
+        gitignore_content = gitignore_path.read_text()
+        
+        for item in self.SHOULD_BE_GITIGNORED:
+            item_path = self.repo_path / item
+            if item_path.exists():
+                if item in gitignore_content or f"{item}/" in gitignore_content:
+                    properly_ignored.append(item)
+                else:
+                    should_be_ignored.append(item)
+        
+        return {
+            'properly_ignored': properly_ignored,
+            'should_be_ignored': should_be_ignored,
+            'note': f'Checked {len(self.SHOULD_BE_GITIGNORED)} patterns'
+        }
+    
+    def get_tree_structure(self, max_depth: int = 3):
+        def _tree(directory: Path, prefix: str = "", depth: int = 0):
+            if depth > max_depth:
+                return []
+            
+            lines = []
+            try:
+                items = sorted(directory.iterdir(), key=lambda x: (not x.is_dir(), x.name))
+                items = [item for item in items if not item.name.startswith('.')]
+                items = [item for item in items if item.name not in ['__pycache__', 'mlruns', 'mlartifacts', 'dvcstore']]
+                
+                for i, item in enumerate(items):
+                    is_last = i == len(items) - 1
+                    current_prefix = "└── " if is_last else "├── "
+                    lines.append(f"{prefix}{current_prefix}{item.name}")
+                    
+                    if item.is_dir():
+                        extension = "    " if is_last else "│   "
+                        lines.extend(_tree(item, prefix + extension, depth + 1))
+            except PermissionError:
+                pass
+            
+            return lines
+        
+        tree_lines = [f"{self.repo_path.name}/"]
+        tree_lines.extend(_tree(self.repo_path))
+        return "\n".join(tree_lines)
+
+
+# ============================================================================
+# STREAMLIT DASHBOARD
+# ============================================================================
 
 # Page configuration
 st.set_page_config(
@@ -84,10 +329,16 @@ st.markdown("""
 
 # Sidebar
 with st.sidebar:
-    st.image("https://iili.io/Kw90kmB.png", width=80)
     st.markdown("### 📊 Dashboard Options")
     
-    repo_path = st.text_input("Repository Path", value=".", help="Root path of the repository")
+    # Try to detect repo root
+    current_file = Path(__file__).resolve()
+    if current_file.parent.name == 'dashboard':
+        default_path = str(current_file.parent.parent.parent)
+    else:
+        default_path = "."
+    
+    repo_path = st.text_input("Repository Path", value=default_path, help="Root path of the repository")
     
     if st.button("🔄 Run Validation", type="primary"):
         st.session_state.run_validation = True
