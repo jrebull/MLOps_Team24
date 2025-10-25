@@ -15,6 +15,7 @@
 [![notebooks](https://img.shields.io/badge/notebooks-clean%20outputs-success?logo=jupyter&logoColor=white)](#buenas-prácticas-con-notebooks)
 [![Tests](https://img.shields.io/badge/tests-37%2F37_passing-success?logo=pytest&logoColor=white)](#-testing-y-validación)
 [![Code Quality](https://img.shields.io/badge/code%20quality-production--ready-brightgreen?logo=python&logoColor=white)](#-arquitectura-del-código)
+[![Accuracy](https://img.shields.io/badge/accuracy-80.17%25-success?logo=tensorflow&logoColor=white)](#-sklearn-pipeline-end-to-end)
 
 </div>
 
@@ -29,6 +30,8 @@
   - [Módulos Refactorizados](#módulos-refactorizados)
   - [Design Patterns Implementados](#design-patterns-implementados)
   - [Métricas de Refactorización](#-métricas-de-refactorización)
+- [🆕 Sklearn Pipeline End-to-End](#-sklearn-pipeline-end-to-end)
+- [🆕 Manejo de Outliers y Robustez](#-manejo-de-outliers-y-robustez)
 - [🆕 Guía de Uso de Módulos](#-guía-de-uso-de-módulos)
 - [🆕 Testing y Validación](#-testing-y-validación)
 - [Datasets Disponibles](#-datasets-disponibles)
@@ -36,6 +39,7 @@
 - [Instalación](#-instalación)
 - [Gestión de Datos (DVC + S3)](#-gestión-de-datos-dvc--s3)
 - [Uso](#-uso--usage)
+- [Scripts Disponibles](#-scripts-disponibles)
 - [Verificación Rápida antes de Trabajar](#-verificación-rápida-antes-de-trabajar)
 - [Docker Compose](#-docker-compose)
 - [Limpieza Local](#-limpieza-local)
@@ -47,16 +51,25 @@
 
 ## 🎯 Sobre el Proyecto
 
-Este repositorio contiene la implementación completa de un sistema MLOps para reconocimiento de emociones en música, siguiendo las mejores prácticas de la industria con la estructura **Cookiecutter Data Science**. El proyecto integra:
+Este repositorio contiene la implementación completa de un sistema MLOps para reconocimiento de emociones en música turca, siguiendo las mejores prácticas de la industria con la estructura **Cookiecutter Data Science**. El proyecto integra un **pipeline sklearn end-to-end completo y listo para producción** con las siguientes características:
 
 - 📊 **Versionado de datos** con DVC
-- 🔄 **Pipelines reproducibles** automatizados
+- 🔄 **Pipelines reproducibles** automatizados y compatibles con scikit-learn
 - 📈 **Tracking de experimentos** con MLflow
-- ☁️ **Almacenamiento en la nube** (AWS S3)
-- 🤖 **Modelos de Machine Learning** versionados
+- ☁️ **Almacenamiento en la nube** (AWS S3: mlops24-haowei-bucket)
+- 🤖 **Modelos de Machine Learning** versionados (Accuracy: **80.17%**)
 - 🗂️ **Estructura modular** siguiendo estándares de la industria
 - 🏗️ **Arquitectura OOP** con SOLID principles
 - 🧪 **Testing comprehensivo** (37/37 tests passing)
+- 🎯 **Pipeline sklearn profesional** compatible con GridSearchCV y cross_val_score
+- 🛡️ **Manejo robusto de outliers** con análisis cuantitativo completo
+
+### 🎵 Dataset y Objetivo
+
+**Dataset:** Turkish Music Emotion Dataset  
+**Clases:** 4 emociones (Happy, Sad, Angry, Relax)  
+**Features:** 50 características acústicas extraídas  
+**Objetivo:** Clasificación automática de emociones en música turca
 
 ---
 
@@ -97,7 +110,11 @@ Organizado siguiendo **Cookiecutter Data Science** para máxima reproducibilidad
 │   │   ├── turkish_music_emotion_cleaned.csv              (Limpieza inicial)
 │   │   ├── turkish_music_emotion_v1_original.csv          (400 filas - Baseline)
 │   │   ├── turkish_music_emotion_v2_cleaned_aligned.csv   (400 filas - Comparación)
-│   │   └── turkish_music_emotion_v2_cleaned_full.csv      (408 filas) ⭐ RECOMENDADO
+│   │   ├── turkish_music_emotion_v2_cleaned_full.csv      (408 filas) ⭐ RECOMENDADO
+│   │   ├── X_train.csv    <- Training features
+│   │   ├── X_test.csv     <- Test features
+│   │   ├── y_train.csv    <- Training labels
+│   │   └── y_test.csv     <- Test labels
 │   └── raw                <- Datos originales inmutables (versionados con DVC)
 │       ├── turkis_music_emotion_original.csv      (125 KB)
 │       ├── turkish_music_emotion_modified.csv     (130 KB)
@@ -115,6 +132,10 @@ Organizado siguiendo **Cookiecutter Data Science** para máxima reproducibilidad
 │
 ├── reports                <- Análisis generados (HTML, PDF, etc.)
 │   └── figures            <- Gráficas y figuras para reportes
+│       ├── outlier_analysis.png          <- Distribución de outliers por feature
+│       ├── outlier_boxplots.png          <- Boxplots de top features con outliers
+│       ├── outlier_analysis_report.txt   <- Reporte técnico completo de outliers
+│       └── scaler_comparison_results.txt <- Comparación StandardScaler vs RobustScaler
 │
 ├── references             <- Diccionarios de datos, manuales, etc.
 │
@@ -122,9 +143,14 @@ Organizado siguiendo **Cookiecutter Data Science** para máxima reproducibilidad
 │
 ├── scripts                <- Scripts auxiliares
 │   ├── train_baseline.py
-│   ├── validate_plots.py      <- Validación de módulo plots
-│   ├── validate_features.py   <- Validación de módulo features
-│   └── validate_dataset.py    <- Validación de módulo dataset
+│   ├── validate_plots.py           <- Validación de módulo plots
+│   ├── validate_features.py        <- Validación de módulo features
+│   ├── validate_dataset.py         <- Validación de módulo dataset
+│   ├── analyze_outliers.py         <- Análisis estadístico de outliers ✨ NUEVO
+│   ├── compare_scalers.py          <- Comparación empírica A/B de scalers ✨ NUEVO
+│   ├── test_sklearn_pipeline.py    <- Test de integración del pipeline ✨ NUEVO
+│   ├── test_full_integration.py    <- Validación completa del sistema ✨ NUEVO
+│   └── run_full_analysis.py        <- Script maestro de análisis ✨ NUEVO
 │
 ├── acoustic_ml            <- Código fuente del proyecto (módulo Python) ⭐ REFACTORIZADO
 │   ├── __init__.py        <- Hace de acoustic_ml un módulo Python
@@ -134,10 +160,11 @@ Organizado siguiendo **Cookiecutter Data Science** para máxima reproducibilidad
 │   ├── plots.py           <- Visualizaciones (370 líneas, 8 tests) ✨ NUEVO
 │   └── modeling           <- Módulos de modelado
 │       ├── __init__.py
-│       ├── train.py       <- Entrenamiento de modelos (122 líneas)
-│       ├── predict.py     <- Inferencia con modelos (189 líneas)
-│       ├── evaluate.py    <- Evaluación de modelos (311 líneas)
-│       └── pipeline.py    <- Pipeline completo (370 líneas)
+│       ├── train.py          <- Entrenamiento de modelos (122 líneas)
+│       ├── predict.py        <- Inferencia con modelos (189 líneas)
+│       ├── evaluate.py       <- Evaluación de modelos (311 líneas)
+│       ├── pipeline.py       <- Pipeline completo (370 líneas)
+│       └── sklearn_pipeline.py <- Pipeline sklearn end-to-end ⭐ PRODUCCIÓN
 │
 ├── metrics                <- Métricas del pipeline DVC
 │   └── metrics.json
@@ -170,6 +197,7 @@ En la **Fase 2 del proyecto**, realizamos una **refactorización masiva** del m�
 - **37 tests** comprehensivos (100% passing)
 - **100% type hints** y documentación en español
 - **Design patterns** de la industria implementados
+- **Pipeline sklearn end-to-end** listo para producción ⭐ NUEVO
 
 ---
 
@@ -233,626 +261,538 @@ FeatureTransformer (Base abstracta)
 ├── Preservación de formato (DataFrame/array)
 └── get_feature_names_out() para inspección
 
-7 TRANSFORMERS ESPECIALIZADOS:
-├── NumericFeatureSelector      → Selección inteligente de columnas numéricas
-├── PowerFeatureTransformer     → Yeo-Johnson / Box-Cox normalization
-├── OutlierRemover              → Detección y remoción IQR
-├── FeatureScaler               → Standard / MinMax / Robust scaling
-├── CorrelationFilter           → Eliminación de multicolinealidad
-├── VarianceThresholdSelector   → Filtrado por varianza mínima
-└── [Todos sklearn-compatible: BaseEstimator + TransformerMixin]
+NumericFeatureSelector
+├── Selección automática de features numéricas
+├── Validación de tipos de datos
+├── Compatible con sklearn pipelines
+└── Manejo inteligente de DataFrames vs arrays
+
+PowerTransformer
+├── Transformación Yeo-Johnson por defecto
+├── Reducción de skewness
+├── Mejora de normalidad
+└── Preservación de nombres de features
+
+RobustScaler
+├── Escalado robusto a outliers
+├── Usa mediana y rango intercuartil (IQR)
+├── Mejor generalización en producción
+└── Compatible con datos con distribuciones no normales
+
+FeaturePipeline
+├── Encadena múltiples transformers
+├── Preserva nombres de features en cada paso
+├── Logging comprehensivo
+└── Fácil de serializar para producción
 
 FeaturePipelineBuilder
-├── Builder Pattern con fluent interface
-├── Métodos encadenables (.add_xxx().build())
-└── Validación de steps en tiempo de construcción
-
-3 FACTORY FUNCTIONS:
-├── create_preprocessing_pipeline()      → Pipeline de preprocesamiento
-├── create_feature_selection_pipeline()  → Pipeline de selección
-└── create_full_pipeline()              → Pipeline completo end-to-end
+├── Patrón Builder para construcción fluida
+├── add_transformer() encadenable
+├── build() genera el pipeline final
+└── Flexible y extensible
 ```
 
 **Características destacadas:**
-- ✅ 100% compatible con scikit-learn pipelines
-- ✅ Validación robusta en todos los transformers
-- ✅ Logging comprehensivo de operaciones
+- ✅ 7 transformers especializados
+- ✅ Builder pattern para construcción flexible
+- ✅ Type hints completos
 - ✅ **13/13 tests pasados**
 
 **Ejemplo de uso:**
 ```python
-from acoustic_ml.features import FeaturePipelineBuilder, create_full_pipeline
+from acoustic_ml.features import FeaturePipelineBuilder
 
-# Opción 1: Builder Pattern (control granular)
-pipeline = (FeaturePipelineBuilder()
-    .add_numeric_selector()
-    .add_power_transformer(method='yeo-johnson')
-    .add_outlier_remover(threshold=1.5)
-    .add_scaler(strategy='standard')
-    .add_correlation_filter(threshold=0.95)
-    .add_variance_selector(threshold=0.01)
-    .build())
-
-# Opción 2: Factory function (configuración rápida)
-pipeline = create_full_pipeline(
-    scaler_strategy='robust',
-    correlation_threshold=0.9,
-    variance_threshold=0.01
+# Construir pipeline de features
+pipeline = (
+    FeaturePipelineBuilder()
+    .add_transformer(NumericFeatureSelector())
+    .add_transformer(PowerTransformer())
+    .add_transformer(RobustScaler())
+    .build()
 )
 
-# Usar pipeline
+# Usar el pipeline
 X_transformed = pipeline.fit_transform(X_train)
-X_test_transformed = pipeline.transform(X_test)
 ```
 
 ---
 
-#### 💾 **3. acoustic_ml/dataset.py** - Gestión de Datos
+#### 📦 **3. acoustic_ml/dataset.py** - Gestión de Datos
 
-**Transformación:** 95 → 650 líneas (+555 líneas, +584%)
+**Transformación:** 46 → 650 líneas (+604 líneas, +1,313%)
 
 ```python
-DatasetConfig
-├── Configuración centralizada de paths
-├── validate_directories() para verificar estructura
-├── get_all_available_files() para descubrimiento
-└── get_config_summary() para debugging
+DatasetManager (Singleton)
+├── Thread-safe con _lock para concurrencia
+├── Caché inteligente de datasets
+├── Métodos get_* para acceso rápido
+├── Validación automática de estructura
+└── Configuración centralizada
 
-SingletonMeta
-├── Thread-safe Singleton implementation
-└── Double-checked locking pattern
+DatasetValidator
+├── Validación de estructura (filas, columnas)
+├── Validación de tipos de datos
+├── Detección de valores faltantes
+├── Validación de target_column
+└── Reportes detallados de validación
 
-DatasetValidator (NUEVO)
-├── validate_dataframe()           → Validación de estructura
-├── validate_required_columns()    → Verificación de columnas
-├── validate_target_variable()     → Validación de target
-└── validate_train_test_split()    → Verificación de splits
-
-DatasetStatistics (NUEVO)
-├── get_summary()                  → Resumen general
-├── get_numeric_stats()            → Estadísticas descriptivas
-├── get_correlation_matrix()       → Matriz de correlación
-└── detect_outliers()              → Detección IQR/Z-score
-
-DatasetManager (Singleton thread-safe)
-├── Load/Save con validación automática
-├── Context managers para operaciones seguras
-├── Train/test split management
-├── Backup automático en saves
-└── Métodos de análisis integrados
+DataPreprocessor
+├── Limpieza de datos automática
+├── Manejo de valores faltantes
+├── Encoding de variables categóricas
+└── Normalización opcional
 ```
 
 **Características destacadas:**
-- ✅ Separación de responsabilidades clara (SRP)
-- ✅ Validación comprehensiva de datos
-- ✅ Análisis estadístico robusto integrado
+- ✅ Patrón Singleton thread-safe
+- ✅ Validación comprehensiva
+- ✅ Caché inteligente
 - ✅ **16/16 tests pasados**
 
 **Ejemplo de uso:**
 ```python
 from acoustic_ml.dataset import DatasetManager
 
-# Obtener instancia Singleton
-manager = DatasetManager()
+# Obtener instancia (Singleton)
+dm = DatasetManager.get_instance()
 
-# Cargar datos con validación automática
-df = manager.load_data("turkish_music_emotion_cleaned.csv")
+# Cargar dataset con validación automática
+df = dm.get_dataset("turkish_music_emotion_v2_cleaned_full.csv")
 
-# Realizar train/test split
-X_train, X_test, y_train, y_test = manager.split_data(
-    test_size=0.2,
-    random_state=42
-)
-
-# Obtener estadísticas
-stats = manager.get_statistics()
-print(stats.get_summary())
-
-# Detectar outliers
-outliers = stats.detect_outliers(method='iqr')
-
-# Context manager para operaciones seguras
-with manager.load_context("processed_data.csv") as df:
-    # Procesar datos
-    processed_df = preprocess(df)
-    # Guardar automáticamente al salir del context
+# Obtener training splits
+X_train, y_train = dm.get_train_data()
+X_test, y_test = dm.get_test_data()
 ```
 
 ---
 
 ### Design Patterns Implementados
 
-#### 🎯 **SOLID Principles**
-
-| Principio | Implementación |
-|-----------|----------------|
-| **S**ingle Responsibility | Cada clase tiene una responsabilidad única y bien definida |
-| **O**pen/Closed | Extensible por herencia, cerrado a modificación |
-| **L**iskov Substitution | Clases derivadas intercambiables con sus bases |
-| **I**nterface Segregation | Interfaces mínimas y específicas |
-| **D**ependency Inversion | Dependencias de abstracciones, no implementaciones |
-
-#### 🏛️ **Design Patterns de la Industria**
-
-| Pattern | Dónde | Propósito |
-|---------|-------|-----------|
-| **Singleton** | `DatasetManager` | Única instancia thread-safe con double-checked locking |
+| Pattern | Ubicación | Propósito |
+|---------|-----------|-----------|
+| **Singleton** | `DatasetManager` | Única instancia thread-safe de gestión de datos |
 | **Builder** | `FeaturePipelineBuilder` | Construcción fluida de pipelines complejos |
-| **Factory** | `create_*_pipeline()` | Creación estandarizada de pipelines |
-| **Template Method** | `BasePlotter`, `FeatureTransformer` | Definir estructura, permitir customización |
-| **Strategy** | Múltiples scalers/métodos | Algoritmos intercambiables en runtime |
-
-#### 🔒 **Best Practices**
-
-- ✅ **Type hints** completos (100% coverage)
-- ✅ **Docstrings** en español con ejemplos
-- ✅ **Logging** descriptivo en todas las operaciones
-- ✅ **Validación robusta** de datos y estados
-- ✅ **Error handling** profesional con mensajes claros
-- ✅ **Context managers** para operaciones seguras
-- ✅ **Backward compatibility** con `DeprecationWarnings` oficiales
+| **Template Method** | `BasePlotter` | Estructura común para todos los plotters |
+| **Strategy** | `FeatureTransformer` | Intercambio flexible de transformadores |
+| **Factory** | `create_sklearn_pipeline()` | Creación simplificada de pipelines ⭐ NUEVO |
 
 ---
 
-### 📊 Métricas de Refactorización
+### 📈 Métricas de Refactorización
 
-```
-═══════════════════════════════════════════════════════════════════
-                    RESUMEN GLOBAL DE REFACTORIZACIÓN
-═══════════════════════════════════════════════════════════════════
-Líneas de código:      232 → 1,950 líneas
-Crecimiento:           +1,718 líneas (+740%)
-Clases creadas:        15 clases principales
-Tests creados:         37 tests comprehensivos
-Tasa de éxito:         100% (37/37 passing)
-Documentación:         100% docstrings en español
-Type hints:            100% coverage
-Design patterns:       5 patterns implementados
-SOLID principles:      5/5 implementados
-═══════════════════════════════════════════════════════════════════
-
-                     DESGLOSE POR MÓDULO
-═══════════════════════════════════════════════════════════════════
-plots.py           49 →  370 líneas  (+321, +655%)   8 tests  ✅
-features.py        88 →  930 líneas  (+842, +956%)  13 tests  ✅
-dataset.py         95 →  650 líneas  (+555, +584%)  16 tests  ✅
-═══════════════════════════════════════════════════════════════════
-```
+| Módulo | Antes | Después | Crecimiento | Tests |
+|--------|-------|---------|-------------|-------|
+| `plots.py` | 49 líneas | 370 líneas | **+655%** | 8/8 ✅ |
+| `features.py` | 88 líneas | 930 líneas | **+956%** | 13/13 ✅ |
+| `dataset.py` | 46 líneas | 650 líneas | **+1,313%** | 16/16 ✅ |
+| **TOTAL** | 183 líneas | 1,950 líneas | **+965%** | 37/37 ✅ |
 
 ---
 
-## 🚀 Guía de Uso de Módulos
+## 🎯 Sklearn Pipeline End-to-End
 
-### 📊 Ejemplo Completo: Pipeline End-to-End
+### Descripción
+
+El módulo `acoustic_ml/modeling/sklearn_pipeline.py` implementa un **pipeline completamente compatible con scikit-learn** que integra preprocessing, feature engineering, y modelado en un único objeto que puede ser usado directamente con herramientas de sklearn como `GridSearchCV`, `cross_val_score`, y `Pipeline`.
+
+### Características Principales
+
+- 🔄 **Pipeline End-to-End:** Desde datos crudos hasta predicciones
+- 🎯 **Compatible con sklearn:** Funciona con GridSearchCV, cross_val_score, etc.
+- 🛡️ **Robusto a outliers:** Usa RobustScaler por defecto
+- 📊 **Modelos soportados:** RandomForest, SVM, LogisticRegression, KNN
+- 🎨 **Factory function:** `create_sklearn_pipeline()` para creación rápida
+- 💾 **Serializable:** Guarda y carga con pickle/joblib
+
+### Arquitectura del Pipeline
 
 ```python
-"""
-Ejemplo completo de uso de los módulos refactorizados
-para entrenar un modelo de clasificación de emociones.
-"""
+SklearnMLPipeline
+├── NumericFeatureSelector    # Selecciona solo features numéricas
+├── PowerTransformer           # Yeo-Johnson transformation
+├── RobustScaler              # Escalado robusto a outliers
+└── Model                     # RandomForest, SVM, LogisticRegression, o KNN
+```
 
-# 1️⃣ GESTIÓN DE DATOS
+**Pipeline optimizado actual (80.17% accuracy):**
+```
+NumericFeatureSelector → PowerTransformer → RobustScaler → RandomForest
+```
+
+### Uso Básico
+
+```python
+from acoustic_ml.modeling.sklearn_pipeline import create_sklearn_pipeline
+import pandas as pd
+
+# Cargar datos
+X_train = pd.read_csv("data/processed/X_train.csv")
+y_train = pd.read_csv("data/processed/y_train.csv").squeeze()
+X_test = pd.read_csv("data/processed/X_test.csv")
+y_test = pd.read_csv("data/processed/y_test.csv").squeeze()
+
+# Crear pipeline con RandomForest
+pipeline = create_sklearn_pipeline(
+    model_type="random_forest",
+    model_params={'n_estimators': 100, 'max_depth': None, 'random_state': 42}
+)
+
+# Entrenar
+pipeline.fit(X_train, y_train)
+
+# Predecir
+predictions = pipeline.predict(X_test)
+
+# Evaluar
+accuracy = pipeline.score(X_test, y_test)
+print(f"Accuracy: {accuracy:.2%}")  # Output: Accuracy: 80.17%
+```
+
+### Uso Avanzado: GridSearchCV
+
+```python
+from sklearn.model_selection import GridSearchCV
+from acoustic_ml.modeling.sklearn_pipeline import create_sklearn_pipeline
+
+# Crear pipeline base
+pipeline = create_sklearn_pipeline(model_type="random_forest")
+
+# Definir grid de hiperparámetros
+param_grid = {
+    'model__n_estimators': [50, 100, 200],
+    'model__max_depth': [None, 10, 20, 30],
+    'model__min_samples_split': [2, 5, 10]
+}
+
+# Grid Search
+grid_search = GridSearchCV(
+    pipeline, 
+    param_grid, 
+    cv=5, 
+    scoring='accuracy',
+    n_jobs=-1
+)
+
+# Buscar mejores hiperparámetros
+grid_search.fit(X_train, y_train)
+
+# Mejores parámetros y score
+print(f"Best params: {grid_search.best_params_}")
+print(f"Best CV score: {grid_search.best_score_:.2%}")
+
+# Evaluar en test set
+test_score = grid_search.score(X_test, y_test)
+print(f"Test accuracy: {test_score:.2%}")
+```
+
+### Uso Avanzado: Cross-Validation
+
+```python
+from sklearn.model_selection import cross_val_score
+from acoustic_ml.modeling.sklearn_pipeline import create_sklearn_pipeline
+
+# Crear pipeline
+pipeline = create_sklearn_pipeline(
+    model_type="random_forest",
+    model_params={'n_estimators': 100, 'random_state': 42}
+)
+
+# Cross-validation con 5 folds
+cv_scores = cross_val_score(
+    pipeline, 
+    X_train, 
+    y_train, 
+    cv=5, 
+    scoring='accuracy'
+)
+
+print(f"CV Scores: {cv_scores}")
+print(f"Mean CV Score: {cv_scores.mean():.2%} (+/- {cv_scores.std() * 2:.2%})")
+```
+
+### Modelos Disponibles
+
+| Modelo | `model_type` | Parámetros por defecto |
+|--------|--------------|------------------------|
+| Random Forest | `"random_forest"` | `n_estimators=100, random_state=42` |
+| SVM | `"svm"` | `kernel='rbf', C=1.0, random_state=42` |
+| Logistic Regression | `"logistic_regression"` | `max_iter=1000, random_state=42` |
+| KNN | `"knn"` | `n_neighbors=5` |
+
+### Serialización
+
+```python
+import joblib
+
+# Guardar pipeline entrenado
+joblib.dump(pipeline, "models/sklearn_pipeline.pkl")
+
+# Cargar pipeline
+loaded_pipeline = joblib.load("models/sklearn_pipeline.pkl")
+
+# Usar pipeline cargado
+predictions = loaded_pipeline.predict(X_new)
+```
+
+### Métricas de Rendimiento
+
+**Modelo actual en producción:**
+- **Arquitectura:** NumericFeatureSelector → PowerTransformer → RobustScaler → RandomForest
+- **Accuracy:** 80.17%
+- **Dataset:** turkish_music_emotion_v2_cleaned_full.csv (408 filas, 50 features)
+- **Train/Test split:** 70/30
+- **Random state:** 42
+
+---
+
+## 🛡️ Manejo de Outliers y Robustez
+
+### Análisis Cuantitativo de Outliers
+
+Realizamos un **análisis estadístico exhaustivo** de outliers en el dataset Turkish Music Emotion usando el método IQR (Interquartile Range):
+
+#### 📊 Resultados Clave
+
+- **62.4% de filas** contienen al menos un outlier (176/282 filas)
+- **38 features de 50** tienen outliers detectados
+- **Features más afectados:**
+  - `AttackTime_Mean`: 8.87% de valores son outliers
+  - `Roughness_Slope`: 7.09% de valores son outliers
+  - `ZeroCrossingRate_Mean`: 6.03% de valores son outliers
+
+### 📈 Comparación Empírica de Scalers
+
+Realizamos una **comparación A/B** entre `StandardScaler` y `RobustScaler`:
+
+| Scaler | Accuracy | Observaciones |
+|--------|----------|---------------|
+| StandardScaler | 80.17% | Sensible a outliers, asume distribución normal |
+| RobustScaler | 80.17% | **Robusto a outliers**, usa mediana e IQR |
+
+**Resultado:** EMPATE en accuracy, pero **RobustScaler elegido** por:
+- 🛡️ Mayor robustez en producción
+- 📊 Mejor generalización con datos nuevos
+- 🎯 No asume distribución normal
+- ✅ MLOps best practice para datos del mundo real
+
+### 🎯 Decisión Técnica: ¿Eliminar o Transformar?
+
+Evaluamos dos enfoques para manejo de outliers:
+
+| Enfoque | Ventajas | Desventajas | Decisión |
+|---------|----------|-------------|----------|
+| **OutlierRemover** | Elimina ruido | ❌ Elimina filas (rompe pipeline sklearn)<br>❌ No reproducible en nuevos datos<br>❌ Reduce tamaño del dataset | ❌ NO usar |
+| **RobustScaler** | ✅ Transforma sin eliminar<br>✅ Reproducible<br>✅ Compatible con sklearn | Puede mantener outliers extremos | ✅ **ELEGIDO** |
+
+### 🧪 Justificación MLOps
+
+En **producción**, no podemos eliminar filas de datos nuevos. Por lo tanto:
+
+1. ✅ **RobustScaler** transforma outliers manteniendo reproducibilidad
+2. ✅ **Random Forest** es naturalmente robusto a outliers por su construcción con bagging
+3. ✅ **PowerTransformer** reduce skewness antes del escalado
+4. ✅ Pipeline completo es **reproducible** en cualquier dato nuevo
+
+### 📁 Reportes Generados
+
+Los análisis detallados están disponibles en:
+
+```
+reports/figures/
+├── outlier_analysis.png          # Distribución de outliers por feature
+├── outlier_boxplots.png          # Boxplots de top features con outliers
+├── outlier_analysis_report.txt   # Reporte técnico completo
+└── scaler_comparison_results.txt # Comparación StandardScaler vs RobustScaler
+```
+
+### 🔬 Scripts de Análisis
+
+```bash
+# Análisis de outliers con visualizaciones
+python scripts/analyze_outliers.py
+
+# Comparación empírica de scalers
+python scripts/compare_scalers.py
+
+# Análisis completo (outliers + scalers)
+python scripts/run_full_analysis.py
+```
+
+---
+
+## 📚 Guía de Uso de Módulos
+
+### 1️⃣ Gestión de Datos con DatasetManager
+
+```python
 from acoustic_ml.dataset import DatasetManager
 
-# Obtener manager (Singleton)
-manager = DatasetManager()
+# Singleton instance
+dm = DatasetManager.get_instance()
 
-# Cargar datos con validación automática
-df = manager.load_data("turkish_music_emotion_cleaned.csv")
+# Cargar dataset completo
+df = dm.get_dataset("turkish_music_emotion_v2_cleaned_full.csv")
 
-# Realizar split
-X_train, X_test, y_train, y_test = manager.split_data(
-    test_size=0.2,
-    random_state=42,
-    stratify=True
-)
+# Obtener datos de entrenamiento
+X_train, y_train = dm.get_train_data()
 
-# Obtener estadísticas
-stats = manager.get_statistics()
-print("📊 Resumen del dataset:")
-print(stats.get_summary())
+# Obtener datos de prueba
+X_test, y_test = dm.get_test_data()
 
-# 2️⃣ FEATURE ENGINEERING
-from acoustic_ml.features import create_full_pipeline
-
-# Crear pipeline completo
-feature_pipeline = create_full_pipeline(
-    scaler_strategy='robust',
-    correlation_threshold=0.9,
-    variance_threshold=0.01
-)
-
-# Transformar datos
-X_train_transformed = feature_pipeline.fit_transform(X_train)
-X_test_transformed = feature_pipeline.transform(X_test)
-
-print(f"✨ Features originales: {X_train.shape[1]}")
-print(f"✨ Features después de pipeline: {X_train_transformed.shape[1]}")
-
-# 3️⃣ ENTRENAMIENTO
-from acoustic_ml.modeling.train import train_model
-
-model = train_model(
-    X_train_transformed, 
-    y_train,
-    model_type='random_forest'
-)
-
-# 4️⃣ EVALUACIÓN
-from acoustic_ml.modeling.evaluate import evaluate_model
-
-metrics = evaluate_model(model, X_test_transformed, y_test)
-print(f"🎯 Accuracy: {metrics['accuracy']:.2%}")
-
-# 5️⃣ VISUALIZACIÓN
-from acoustic_ml.plots import FeatureImportancePlotter
-
-# Obtener feature importances
-importances = model.feature_importances_
-feature_names = feature_pipeline.get_feature_names_out()
-
-# Crear visualización
-plotter = FeatureImportancePlotter(
-    importance_values=importances,
-    feature_names=feature_names,
-    title="Feature Importance - Turkish Music Emotions",
-    top_n=15
-)
-
-plotter.plot_and_save("reports/figures/feature_importance.png")
-print("💾 Visualización guardada en reports/figures/")
+# Información del dataset
+print(f"Shape: {df.shape}")
+print(f"Columns: {df.columns.tolist()}")
 ```
 
-### 🔧 Ejemplos Específicos por Módulo
-
-#### Dataset Management
-
-```python
-from acoustic_ml.dataset import DatasetManager, DatasetValidator
-
-manager = DatasetManager()
-
-# Cargar y validar
-df = manager.load_data("data.csv")
-validator = DatasetValidator()
-
-# Validaciones
-is_valid = validator.validate_dataframe(
-    df, 
-    required_columns=['tempo', 'energy', 'emotion'],
-    check_nulls=True
-)
-
-# Estadísticas
-stats = manager.get_statistics()
-outliers = stats.detect_outliers(method='iqr', threshold=1.5)
-print(f"Outliers detectados: {len(outliers)}")
-
-# Context manager para operaciones seguras
-with manager.load_context("data.csv") as df:
-    df['new_feature'] = df['energy'] * df['tempo']
-    # Auto-save al salir
-```
-
-#### Feature Engineering Avanzado
+### 2️⃣ Feature Engineering con FeaturePipeline
 
 ```python
 from acoustic_ml.features import (
     FeaturePipelineBuilder,
-    PowerFeatureTransformer,
-    CorrelationFilter
+    NumericFeatureSelector,
+    PowerTransformer,
+    RobustScaler
 )
 
-# Builder Pattern - Control total
-pipeline = (FeaturePipelineBuilder()
-    .add_numeric_selector()
-    .add_power_transformer(method='yeo-johnson')
-    .add_outlier_remover(threshold=1.5)
-    .add_scaler(strategy='robust')
-    .add_correlation_filter(threshold=0.95)
-    .add_variance_selector(threshold=0.01)
-    .build())
+# Construir pipeline
+feature_pipeline = (
+    FeaturePipelineBuilder()
+    .add_transformer(NumericFeatureSelector())
+    .add_transformer(PowerTransformer(method='yeo-johnson'))
+    .add_transformer(RobustScaler())
+    .build()
+)
 
-# Transformar
-X_processed = pipeline.fit_transform(X_train)
+# Aplicar transformaciones
+X_transformed = feature_pipeline.fit_transform(X_train)
 
-# Inspeccionar features
-print(f"Features finales: {pipeline.get_feature_names_out()}")
-
-# Usar transformers individuales
-power_transformer = PowerFeatureTransformer(method='box-cox')
-X_normalized = power_transformer.fit_transform(X_positive)
-
-corr_filter = CorrelationFilter(threshold=0.9)
-X_uncorrelated = corr_filter.fit_transform(X_normalized)
+# Inspeccionar nombres de features
+feature_names = feature_pipeline.get_feature_names_out()
+print(f"Features: {feature_names}")
 ```
 
-#### Visualizaciones Profesionales
+### 3️⃣ Visualización con Plotters
 
 ```python
-from acoustic_ml.plots import PlotManager, FeatureImportancePlotter
+from acoustic_ml.plots import FeatureImportancePlotter
+import numpy as np
 
-# Manager centralizado
-plot_manager = PlotManager(style='whitegrid', context='notebook')
+# Simular feature importances
+feature_importances = np.random.rand(10)
+feature_names = [f"Feature_{i}" for i in range(10)]
 
-# Crear múltiples figuras con layout
-fig, axes = plot_manager.create_subplot_grid(2, 2, figsize=(12, 10))
-
-# Feature importance plotter
-importance_plotter = FeatureImportancePlotter(
-    importance_values=importances,
-    feature_names=features,
-    title="Top 20 Features",
-    top_n=20,
-    color='viridis'
+# Crear plotter
+plotter = FeatureImportancePlotter(
+    importance_values=feature_importances,
+    feature_names=feature_names,
+    title="Top 10 Features",
+    top_n=10
 )
 
-# Generar en un subplot específico
-importance_plotter.plot(ax=axes[0, 0])
+# Generar y guardar
+plotter.plot_and_save("reports/figures/importance.png")
+```
 
-# Guardar con alta calidad
-plot_manager.save_figure(
-    fig,
-    "reports/figures/analysis.png",
-    dpi=300,
-    bbox_inches='tight'
+### 4️⃣ Pipeline Sklearn End-to-End
+
+```python
+from acoustic_ml.modeling.sklearn_pipeline import create_sklearn_pipeline
+
+# Crear pipeline optimizado
+pipeline = create_sklearn_pipeline(
+    model_type="random_forest",
+    model_params={
+        'n_estimators': 100,
+        'max_depth': None,
+        'random_state': 42
+    }
 )
+
+# Entrenar y evaluar
+pipeline.fit(X_train, y_train)
+accuracy = pipeline.score(X_test, y_test)
+print(f"Accuracy: {accuracy:.2%}")
+
+# Guardar modelo
+import joblib
+joblib.dump(pipeline, "models/production_pipeline.pkl")
 ```
 
 ---
 
 ## 🧪 Testing y Validación
 
-### 📝 Scripts de Validación
+### Suite de Tests Completa
 
-Creamos **3 scripts comprehensivos** para validar cada módulo refactorizado:
+El proyecto cuenta con **37 tests comprehensivos** que validan:
 
-```bash
-scripts/
-├── validate_plots.py       # 8 tests para plots.py
-├── validate_features.py    # 13 tests para features.py
-└── validate_dataset.py     # 16 tests para dataset.py
-```
+- ✅ Gestión de datos (`dataset.py` - 16 tests)
+- ✅ Feature engineering (`features.py` - 13 tests)
+- ✅ Sistema de visualización (`plots.py` - 8 tests)
 
-### ▶️ Ejecutar Tests
+### Scripts de Validación
 
 ```bash
-# Ejecutar todos los tests
-python scripts/validate_plots.py
-python scripts/validate_features.py
+# Validar módulo de datasets
 python scripts/validate_dataset.py
 
-# O ejecutar todos de una vez
-for script in scripts/validate_*.py; do
-    echo "Ejecutando: $script"
-    python "$script"
-done
+# Validar módulo de features
+python scripts/validate_features.py
+
+# Validar módulo de plots
+python scripts/validate_plots.py
+
+# Test de integración del pipeline sklearn
+python scripts/test_sklearn_pipeline.py
+
+# Validación completa del sistema
+python scripts/test_full_integration.py
 ```
 
-### ✅ Cobertura de Testing
+### Resultados de Tests
 
-| Módulo | Tests | Status | Cobertura |
-|--------|-------|--------|-----------|
-| `plots.py` | 8 | ✅ 8/8 passing | Completa |
-| `features.py` | 13 | ✅ 13/13 passing | Completa |
-| `dataset.py` | 16 | ✅ 16/16 passing | Completa |
-| **TOTAL** | **37** | **✅ 37/37 passing** | **100%** |
-
-### 🔍 Qué Validan los Tests
-
-**validate_plots.py:**
-- ✅ Imports correctos
-- ✅ PlotManager functionality
-- ✅ Plotters especializados
-- ✅ Save/load de figuras
-- ✅ Funciones legacy con DeprecationWarnings
-
-**validate_features.py:**
-- ✅ Todos los transformers individuales
-- ✅ Builder pattern functionality
-- ✅ Factory functions
-- ✅ Compatibilidad DataFrame/array
-- ✅ Error handling robusto
-- ✅ get_feature_names_out()
-
-**validate_dataset.py:**
-- ✅ Singleton behavior thread-safe
-- ✅ Validación comprehensiva de datos
-- ✅ Estadísticas descriptivas
-- ✅ Save/load operations
-- ✅ Train/test split validation
-- ✅ Context managers
-- ✅ Detección de outliers
-
-### 📊 Ejemplo de Output de Tests
-
-```bash
-$ python scripts/validate_features.py
-
-═══════════════════════════════════════════════════════════
-🧪 VALIDACIÓN DEL MÓDULO acoustic_ml/features.py
-═══════════════════════════════════════════════════════════
-
-Test 1/13: Validación de imports...                     ✅ PASADO
-Test 2/13: NumericFeatureSelector...                    ✅ PASADO
-Test 3/13: PowerFeatureTransformer...                   ✅ PASADO
-Test 4/13: OutlierRemover...                            ✅ PASADO
-Test 5/13: FeatureScaler...                             ✅ PASADO
-Test 6/13: CorrelationFilter...                         ✅ PASADO
-Test 7/13: VarianceThresholdSelector...                 ✅ PASADO
-Test 8/13: FeaturePipelineBuilder...                    ✅ PASADO
-Test 9/13: create_preprocessing_pipeline...             ✅ PASADO
-Test 10/13: create_feature_selection_pipeline...        ✅ PASADO
-Test 11/13: create_full_pipeline...                     ✅ PASADO
-Test 12/13: Compatibilidad DataFrame/array...           ✅ PASADO
-Test 13/13: Error handling...                           ✅ PASADO
-
-═══════════════════════════════════════════════════════════
-✅ RESULTADO: 13/13 tests pasados (100.0%)
-✨ Módulo features.py: PRODUCCIÓN READY
-═══════════════════════════════════════════════════════════
+```
+✅ acoustic_ml.dataset   - 16/16 tests passing
+✅ acoustic_ml.features  - 13/13 tests passing
+✅ acoustic_ml.plots     - 8/8 tests passing
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ TOTAL: 37/37 tests passing (100%)
 ```
 
 ---
 
-## 📊 Datasets Disponibles
+## 📦 Datasets Disponibles
 
-### Turkish Music Emotion Dataset
+| Archivo | Filas | Descripción | Recomendado |
+|---------|-------|-------------|-------------|
+| `turkis_music_emotion_original.csv` | ~400 | Dataset original crudo | ❌ |
+| `turkish_music_emotion_modified.csv` | ~400 | Dataset con modificaciones manuales | ❌ |
+| `turkish_music_emotion_cleaned.csv` | ~400 | Primera limpieza | ❌ |
+| `turkish_music_emotion_v1_original.csv` | 400 | Versión formalizada (baseline) | ⚠️ |
+| `turkish_music_emotion_v2_cleaned_aligned.csv` | 400 | Limpieza alineada (comparación) | ⚠️ |
+| **`turkish_music_emotion_v2_cleaned_full.csv`** | **408** | **Dataset completo limpio** | ✅ **USAR** |
 
-Contamos con **4 versiones versionadas con DVC** del dataset de emociones musicales turcas. Cada versión representa una etapa evolutiva en nuestro proceso de limpieza y preparación de datos:
+### Dataset Recomendado: v2_cleaned_full.csv
 
----
-
-#### 🔵 Versión 0: Limpieza Inicial (turkish_music_emotion_cleaned.csv)
-
-```
-📍 Ubicación: data/interim/turkish_music_emotion_cleaned.csv
-📏 Dimensiones: Variable
-🎯 Uso: Versión intermedia del primer notebook de limpieza
-🔖 Estado: Histórico (desarrollo temprano)
-```
-
-**Características:**
-- Primera iteración de limpieza de datos
-- Producto del notebook inicial de exploración
-- Base para las versiones posteriores más refinadas
-- Contiene limpieza básica sin optimizaciones avanzadas
-
-**Cuándo usar:**
-- 📚 Referencia histórica del proceso de limpieza
-- 🔍 Auditoría de evolución del pipeline
-- ❌ NO recomendado para entrenar modelos
-- ❌ NO recomendado para análisis de producción
+- **Filas:** 408 (máxima información preservada)
+- **Features:** 50 características acústicas
+- **Target:** 4 clases (Happy, Sad, Angry, Relax)
+- **Calidad:** Limpieza profesional sin pérdida innecesaria de datos
+- **Versionado:** Trackeado con DVC en S3
 
 ---
 
+## ⚙️ Requisitos Previos
 
-### 🔄 Flujo Evolutivo de Datos
-
-```
-📥 Datos Raw (original)
-    ↓
-🔧 acoustic_features.csv
-    ↓ (Primera limpieza - notebook inicial)
-📦 turkish_music_emotion_cleaned.csv (400 filas)
-    ↓ (Dataset para entrenamiento)
-🔄 X_train.csv 
-🔄 Y_train.csv 
-    ↓ (Dataset para pruebas)
-⭐ X_test.csv 
-⭐ Y_test.csv 
-    ↓ (Limpieza completa - optimización para ML)
-🤖 Modelos de Producción
-```
+- **Python:** 3.12 o superior
+- **Sistema operativo:** Linux, macOS, Windows
+- **Git:** Para control de versiones
+- **AWS CLI:** Configurado con credenciales para S3
+- **DVC:** Para versionado de datos
 
 ---
 
-### 🎓 Recomendación del Equipo
-
-> **Para nuevos experimentos y modelos:** Usa **turkish_music_emotion_cleaned**  
-> Esta versión representa nuestro mejor trabajo de ingeniería de datos y maximiza tanto la cantidad como la calidad de información disponible para tus modelos.
-
-**Flujo de trabajo recomendado:**
-
-```python
-# 1️⃣ Carga la versión recomendada usando DatasetManager
-from acoustic_ml.dataset import DatasetManager
-
-manager = DatasetManager()
-df = manager.load_data("turkish_music_emotion_cleaned.csv")
-
-# 2️⃣ Split automático con validación
-X_train, X_test, y_train, y_test = manager.split_data(
-    test_size=0.2,
-    random_state=42,
-    stratify=True
-)
-
-# 3️⃣ Feature engineering con pipeline
-from acoustic_ml.features import create_full_pipeline
-
-pipeline = create_full_pipeline()
-X_train_transformed = pipeline.fit_transform(X_train)
-X_test_transformed = pipeline.transform(X_test)
-
-# 4️⃣ Entrena tu modelo
-from acoustic_ml.modeling.train import train_model
-model = train_model(X_train_transformed, y_train)
-
-# 5️⃣ Evalúa resultados
-from acoustic_ml.modeling.evaluate import evaluate_model
-metrics = evaluate_model(model, X_test_transformed, y_test)
-
-# 6️⃣ Visualiza feature importance
-from acoustic_ml.plots import FeatureImportancePlotter
-
-plotter = FeatureImportancePlotter(
-    importance_values=model.feature_importances_,
-    feature_names=pipeline.get_feature_names_out()
-)
-plotter.plot_and_save("reports/figures/importance.png")
-```
-
----
-
-
-### 📦 Gestión de Versiones con DVC
-
-Todas las versiones están trackeadas con DVC y disponibles en S3:
-
-```bash
-# Descargar todas las versiones desde S3
-dvc pull data
-
-# Verificar versiones disponibles localmente
-ls -lh data
-
-# Output esperado:
-# data/external
-# data/interim/"X_train.csv"
-# data/interim/"Y_train.csv"
-# data/processed/"X_test.csv"
-# data/processed/"Y_test.csv"
-```
-
----
-
-### 🚨 Advertencias Importantes
-
-⚠️ **NO mezcles versiones en el mismo experimento**
-```python
-# ❌ MAL: Entrenar con una versión y evaluar con otra
-model.fit(X_train_v2a, y_train_v2a)
-score = model.score(X_test_v3, y_test_v3)  # ¡Datos incompatibles!
-
-# ✅ BIEN: Usa DatasetManager para consistencia
-manager = DatasetManager()
-X_train, X_test, y_train, y_test = manager.split_data()
-model.fit(X_train, y_train)
-score = model.score(X_test, y_test)
-```
-
-⚠️ **Documenta la versión en tus experimentos MLflow**
-```python
-import mlflow
-
-mlflow.set_tag("dataset_version", "turkish_music_emotion_cleaned")
-mlflow.set_tag("feature_pipeline", "create_full_pipeline")
-mlflow.set_tag("preprocessing", "robust_scaler+correlation_filter")
-```
-
----
-
-## 🔧 Requisitos Previos
-
-- Python 3.12 o superior
-- Git y DVC instalados
-- Acceso a AWS S3 (credenciales configuradas)
-- pip y virtualenv
-
----
-
-## 📦 Instalación
+## 🚀 Instalación
 
 ### 1. Clonar el repositorio
 
@@ -861,15 +801,17 @@ git clone https://github.com/jrebull/MLOps_Team24.git
 cd MLOps_Team24
 ```
 
-### 2. Crear y activar entorno virtual
+### 2. Crear entorno virtual
 
+**macOS/Linux:**
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+```
+
+**Windows:**
 ```bash
 python -m venv .venv
-
-# En Linux/Mac:
-source .venv/bin/activate
-
-# En Windows:
 .venv\Scripts\activate
 ```
 
@@ -877,124 +819,242 @@ source .venv/bin/activate
 
 ```bash
 pip install -r requirements.txt
+```
 
-# Instalar acoustic_ml en modo desarrollo
+### 4. Instalar el módulo acoustic_ml en modo desarrollo
+
+```bash
 pip install -e .
 ```
 
-### 4. Configurar DVC
+Esto permite que cualquier cambio en `acoustic_ml/` se refleje inmediatamente sin reinstalar.
 
+### 5. Configurar DVC con S3
+
+**Verificar configuración:**
 ```bash
-# Verificar configuración de remote
 dvc remote list
-
-# Debería mostrar:
-# mlops-s3-remote	s3://mlops24-haowei-bucket/dvcstore
 ```
 
-### 5. Descargar datos desde S3
+Debería mostrar:
+```
+myremote	s3://mlops24-haowei-bucket/dvcstore
+```
+
+**Si no está configurado:**
+```bash
+dvc remote add -d myremote s3://mlops24-haowei-bucket/dvcstore
+```
+
+### 6. Descargar datos desde S3
 
 ```bash
 dvc pull
 ```
 
-### 6. Verificar instalación
+O usando Makefile:
+```bash
+make pull
+```
+
+### 7. Verificar instalación
 
 ```bash
-# Ejecutar tests de validación
-python scripts/validate_plots.py
-python scripts/validate_features.py
 python scripts/validate_dataset.py
-
-# Todos deberían mostrar: ✅ XX/XX tests pasados
+python scripts/validate_features.py
+python scripts/validate_plots.py
 ```
+
+Si todos los tests pasan ✅, ¡estás listo!
 
 ---
 
 ## ☁️ Gestión de Datos (DVC + S3)
 
-### Comandos esenciales
+### Comandos DVC Esenciales
 
 ```bash
+# Ver estado de los datos
+dvc status
+
 # Descargar datos desde S3
 dvc pull
 
-# Subir datos a S3
+# Subir cambios de datos a S3
 dvc push
 
-# Ver estado de sincronización
-dvc status
-
-# Agregar nuevos datos al tracking
-dvc add data/new_file.csv
-git add data/new_file.csv.dvc data/.gitignore
+# Agregar nuevos archivos al tracking
+dvc add data/raw/new_file.csv
+git add data/raw/new_file.csv.dvc data/raw/.gitignore
+git commit -m "data: add new dataset"
+dvc push
 ```
 
-### Verificar archivos locales
+### Makefile Shortcuts
 
 ```bash
-# Listar archivos en data/
-ls -lh data/processed/
+make pull    # Equivalente a: dvc pull
+make push    # Equivalente a: dvc push + git push
+make status  # Equivalente a: dvc status
 ```
 
+### Estructura de Versionado
 
-### 📋 Comandos de referencia rápida
+```
+S3 Bucket: mlops24-haowei-bucket
+├── dvcstore/
+│   ├── files/              <- Contenido de archivos versionados
+│   └── tmp/                <- Archivos temporales
+```
+
+**Importante:** Los archivos CSV en `data/raw/` están en `.gitignore` pero trackeados con DVC mediante archivos `.dvc`.
+
+---
+
+## 💻 Uso / Usage
+
+### Opción 1: Pipeline Sklearn (Recomendado para Producción) ⭐
+
+```python
+from acoustic_ml.modeling.sklearn_pipeline import create_sklearn_pipeline
+import pandas as pd
+
+# Cargar datos
+X_train = pd.read_csv("data/processed/X_train.csv")
+y_train = pd.read_csv("data/processed/y_train.csv").squeeze()
+X_test = pd.read_csv("data/processed/X_test.csv")
+y_test = pd.read_csv("data/processed/y_test.csv").squeeze()
+
+# Crear pipeline optimizado
+pipeline = create_sklearn_pipeline(
+    model_type="random_forest",
+    model_params={'n_estimators': 100, 'max_depth': None, 'random_state': 42}
+)
+
+# Entrenar
+pipeline.fit(X_train, y_train)
+
+# Evaluar
+accuracy = pipeline.score(X_test, y_test)
+print(f"Test Accuracy: {accuracy:.2%}")  # 80.17%
+
+# Guardar modelo
+import joblib
+joblib.dump(pipeline, "models/production_pipeline.pkl")
+```
+
+### Opción 2: Usando Módulos Individuales
+
+```python
+from acoustic_ml.dataset import DatasetManager
+from acoustic_ml.features import FeaturePipelineBuilder, NumericFeatureSelector, PowerTransformer, RobustScaler
+from sklearn.ensemble import RandomForestClassifier
+
+# 1. Cargar datos
+dm = DatasetManager.get_instance()
+X_train, y_train = dm.get_train_data()
+X_test, y_test = dm.get_test_data()
+
+# 2. Construir feature pipeline
+feature_pipeline = (
+    FeaturePipelineBuilder()
+    .add_transformer(NumericFeatureSelector())
+    .add_transformer(PowerTransformer())
+    .add_transformer(RobustScaler())
+    .build()
+)
+
+# 3. Transformar features
+X_train_transformed = feature_pipeline.fit_transform(X_train)
+X_test_transformed = feature_pipeline.transform(X_test)
+
+# 4. Entrenar modelo
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train_transformed, y_train)
+
+# 5. Evaluar
+accuracy = model.score(X_test_transformed, y_test)
+print(f"Accuracy: {accuracy:.2%}")
+```
+
+### Opción 3: Usando Makefile
 
 ```bash
-# Descargar datos desde S3
-dvc pull          # Usando DVC
-make pull         # Usando Makefile
+# Reproducir pipeline completo
+make reproduce
 
-# Subir datos a S3
-dvc push          # Usando DVC
-make push         # Usando Makefile
+# Entrenar modelo baseline
+make train
 
-# Ver estado de sincronización
-dvc status        # Estado actual
-make status       # Usando Makefile
+# Ver métricas
+cat metrics/metrics.json
+```
 
-# Verificar configuración
-dvc remote list   # Lista remotes configurados
-dvc config --list # Configuración completa de DVC
+### Opción 4: Usar MLflow UI
+
+```bash
+# Levantar servidor MLflow
+mlflow ui --port 5001
+
+# Abrir en navegador
+# http://localhost:5001
 ```
 
 ---
 
+## 📜 Scripts Disponibles
+
+### Scripts de Validación
+
+| Script | Descripción | Comando |
+|--------|-------------|---------|
+| `validate_dataset.py` | Valida módulo dataset.py (16 tests) | `python scripts/validate_dataset.py` |
+| `validate_features.py` | Valida módulo features.py (13 tests) | `python scripts/validate_features.py` |
+| `validate_plots.py` | Valida módulo plots.py (8 tests) | `python scripts/validate_plots.py` |
+
+### Scripts de Análisis ✨ NUEVOS
+
+| Script | Descripción | Comando |
+|--------|-------------|---------|
+| `analyze_outliers.py` | Análisis estadístico de outliers con visualizaciones | `python scripts/analyze_outliers.py` |
+| `compare_scalers.py` | Comparación empírica A/B: StandardScaler vs RobustScaler | `python scripts/compare_scalers.py` |
+| `test_sklearn_pipeline.py` | Test de integración del pipeline sklearn | `python scripts/test_sklearn_pipeline.py` |
+| `test_full_integration.py` | Validación completa del sistema end-to-end | `python scripts/test_full_integration.py` |
+| `run_full_analysis.py` | Script maestro: ejecuta análisis completo | `python scripts/run_full_analysis.py` |
+
+### Ejemplo: Análisis Completo
+
+```bash
+# Ejecutar análisis completo de outliers y scalers
+python scripts/run_full_analysis.py
+
+# Salida esperada:
+# ✅ Outlier analysis completed
+# ✅ Scaler comparison completed
+# 📊 Reports saved in: reports/figures/
+```
+
+---
 
 ## ✅ Verificación Rápida antes de Trabajar
 
-Usa el `Makefile` para confirmar que tu repo está **limpio**, **sincronizado** y listo:
+Antes de comenzar a trabajar, **siempre** verifica sincronización:
 
 ```bash
 make verify-sync
 ```
 
-**Qué valida:**
-- ✔ Árbol de trabajo limpio (sin cambios sin commit)
-- ✔ HEAD == origin/<rama> (sin ahead/behind)
-- ✔ Datos sincronizados con S3
+Este comando automáticamente:
+1. ✅ Verifica estado de Git
+2. ✅ Verifica estado de DVC
+3. ✅ Detecta cambios no commiteados
+4. ✅ Detecta datos no sincronizados con S3
 
----
-
-## 🔄 Reproducibilidad de Entornos
-
-Exporta dependencias después de instalar paquetes nuevos:
-
-```bash
-make freeze
-# luego:
-git add requirements.txt
-git commit -m "chore: update dependencies"
-git push
+**Salida esperada:**
 ```
-
-Reconstrucción rápida en cualquier máquina:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-pip install -e .  # Instalar módulo acoustic_ml
+✅ Everything is synchronized!
+✅ Git: Working directory clean
+✅ DVC: Data in sync with remote
 ```
 
 ---
@@ -1063,8 +1123,8 @@ flowchart TD
     E -->|DVC tracking| F[☁️ AWS S3]
     E -->|DatasetManager| G[🔧 acoustic_ml/dataset.py]
     G -->|feature engineering| H[⚙️ acoustic_ml/features.py]
-    H -->|entrenamiento| I[🤖 acoustic_ml/modeling/train.py]
-    I --> J[💾 models/baseline_model.pkl]
+    H -->|sklearn pipeline| I[🎯 acoustic_ml/modeling/sklearn_pipeline.py]
+    I --> J[💾 models/production_pipeline.pkl]
     I --> K[📈 metrics/metrics.json]
     J -->|log_model| L[MLflow Tracking]
     K -->|log_metrics| L
@@ -1077,9 +1137,10 @@ flowchart TD
     style M fill:#f3e5f5
     style G fill:#ffe4e1
     style H fill:#e6f3ff
+    style I fill:#fff9c4
 ```
 
-**Flujo de trabajo refactorizado:**
+**Flujo de trabajo optimizado:**
 
 1. 📥 Datos crudos en `data/raw/` (versionados con DVC)
 2. 🔧 Primera limpieza → `turkish_music_emotion_cleaned.csv` (histórico)
@@ -1087,13 +1148,14 @@ flowchart TD
 4. 🔄 Limpieza alineada → `v2_cleaned_aligned.csv` (400 filas, comparación)
 5. ⭐ Limpieza completa → `v2_cleaned_full.csv` (408 filas, **PRODUCCIÓN**)
 6. ☁️ Almacenamiento en S3 para colaboración
-7. 🔧 **NUEVO:** `DatasetManager` (Singleton thread-safe) gestiona carga/validación
-8. ⚙️ **NUEVO:** `FeaturePipeline` transforma datos con 7 transformers especializados
-9. 🤖 `acoustic_ml/modeling/train.py` entrena modelos con datos procesados
+7. 🔧 **DatasetManager** (Singleton thread-safe) gestiona carga/validación
+8. ⚙️ **FeaturePipeline** transforma datos con transformers especializados
+9. 🎯 **SklearnMLPipeline** integra preprocessing + modelo en un único objeto ⭐ NUEVO
 10. 💾 Modelos entrenados se guardan en `models/`
 11. 📈 Experimentos y artefactos se registran en MLflow
 12. 📊 Métricas se trackean con DVC
 13. ✅ Todo es reproducible, versionado y testado (37 tests)
+14. 🛡️ Robusto a outliers con RobustScaler y análisis cuantitativo
 
 ---
 
@@ -1155,8 +1217,10 @@ flowchart TD
 
 - ✅ Ejecuta `make verify-sync` antes de comenzar a trabajar
 - ✅ **SIEMPRE usa `DatasetManager` para gestionar datos**
-- ✅ **Usa `FeaturePipelineBuilder` o factory functions para feature engineering**
+- ✅ **Usa `create_sklearn_pipeline()` para pipelines de producción** ⭐ NUEVO
+- ✅ **Usa `RobustScaler` para manejo de outliers** (no OutlierRemover)
 - ✅ **Ejecuta tests de validación antes de commit** (`validate_*.py`)
+- ✅ **Prueba el pipeline completo** con `test_sklearn_pipeline.py`
 - ✅ Documenta la versión de dataset en MLflow tags
 - ✅ Ejecuta `dvc status` para verificar estado de datos
 - ✅ Ejecuta `make reproduce` antes de hacer commit
@@ -1210,6 +1274,6 @@ flowchart TD
 
 Desarrollado con ❤️ por el Equipo 24 | Estructura basada en [Cookiecutter Data Science](https://drivendata.github.io/cookiecutter-data-science/)
 
-**🏗️ Refactorizado con SOLID Principles & Design Patterns** | **🧪 100% Tested (37/37 passing)**
+**🏗️ Refactorizado con SOLID Principles & Design Patterns** | **🧪 100% Tested (37/37 passing)** | **🎯 Production-Ready Sklearn Pipeline**
 
 </div>
