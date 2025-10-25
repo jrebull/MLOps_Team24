@@ -39,7 +39,8 @@ class SklearnMLPipeline(BaseEstimator):
         self,
         model_type: str = "random_forest",
         model_params: Optional[Dict[str, Any]] = None,
-        feature_config: Optional[Dict[str, Any]] = None
+        feature_config: Optional[Dict[str, Any]] = None,
+        scale_method: str = "robust"  # ✅ CAMBIO 1: Añadir parámetro
     ):
         """
         Inicializa el pipeline end-to-end.
@@ -48,10 +49,12 @@ class SklearnMLPipeline(BaseEstimator):
             model_type: Tipo de modelo ('random_forest', 'svm', etc.)
             model_params: Parámetros para el modelo
             feature_config: Configuración para el pipeline de features
+            scale_method: Método de escalado ('robust', 'standard', 'minmax')
         """
         self.model_type = model_type
         self.model_params = model_params or {}
         self.feature_config = feature_config or {}
+        self.scale_method = scale_method  # ✅ CAMBIO 2: Guardar parámetro
         
         # Se inicializarán en fit()
         self.feature_pipeline = None
@@ -114,7 +117,7 @@ class SklearnMLPipeline(BaseEstimator):
         self.feature_pipeline = create_full_pipeline(
             exclude_cols=None,
             remove_outliers=False,  # ⚠️ Crítico: False para no eliminar filas
-            scale_method='robust'  # ✅ RobustScaler para manejo de outliers
+            scale_method=self.scale_method  # ✅ CAMBIO 3: Usar parámetro en lugar de hardcoded 'robust'
         )
         
         print("  → Transformando features de entrenamiento...")
@@ -137,7 +140,7 @@ class SklearnMLPipeline(BaseEstimator):
         training_config = TrainingConfig(
             cv_folds=5,
             scoring="accuracy",
-            mlflow_tracking_uri="http://127.0.0.1:5000",  # ✅ Habilitado
+            mlflow_tracking_uri=None,  # ❌ Deshabilitado - logging manejado externamente
             mlflow_experiment="Equipo24-MER"  # Experimento del equipo
         )
         
@@ -201,7 +204,8 @@ class SklearnMLPipeline(BaseEstimator):
 
 def create_sklearn_pipeline(
     model_type: str = "random_forest",
-    model_params: Optional[Dict[str, Any]] = None
+    model_params: Optional[Dict[str, Any]] = None,
+    scale_method: str = "robust"  # ✅ CAMBIO 4: Añadir parámetro a función factory
 ) -> SklearnMLPipeline:
     """
     Factory function para crear un pipeline sklearn end-to-end.
@@ -209,6 +213,7 @@ def create_sklearn_pipeline(
     Args:
         model_type: Tipo de modelo a usar
         model_params: Parámetros del modelo
+        scale_method: Método de escalado ('robust', 'standard', 'minmax')
         
     Returns:
         Pipeline configurado listo para fit()
@@ -220,7 +225,8 @@ def create_sklearn_pipeline(
     """
     return SklearnMLPipeline(
         model_type=model_type,
-        model_params=model_params
+        model_params=model_params,
+        scale_method=scale_method  # ✅ CAMBIO 5: Pasar parámetro al constructor
     )
 
 
