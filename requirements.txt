@@ -244,3 +244,6 @@ onnxruntime==1.23.0
 # Testing
 pytest>=7.4.0
 pytest-cov>=4.1.0
+
+# MLflow para experiment tracking
+mlflow>=2.8.0
