@@ -501,7 +501,7 @@ python scripts/validation/verify_sync.py
 
 ### Cookiecutter Compliance
 
-**Dashboard de Validación**: [https://mlopsteam24-cookiecutter.streamlit.app](https://mlopsteam24-cookiecutter.streamlit.app)
+**Dashboard de Validación**: [https://mlopsteam24-cookiecutter2.streamlit.app](https://mlopsteam24-cookiecutter.streamlit.app)
 
 **Cumplimiento**: **95.2%**
 
