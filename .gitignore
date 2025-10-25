@@ -82,3 +82,51 @@ scripts/temp/
 
 # Scripts temporales
 scripts/temp/
+
+
+# === Limpieza MLOps Team 24 ===
+
+# MLflow (experimentos no se versionan)
+mlruns/
+mlartifacts/
+.mlflow/
+
+# Python compiled
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.Python
+build/
+dist/
+
+# DVC cache (no versionar cache local)
+dvcstore/
+
+# Temporales
+scripts/temp/
+*.tmp
+*.log
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+*checkpoint.ipynb
+
+# Environment
+.env
+config.env
+*.env
+
+# IDE
+.vscode/
+.idea/
+
+# Anaconda auto-generated
+anaconda_projects/
