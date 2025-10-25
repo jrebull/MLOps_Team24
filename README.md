@@ -1,22 +1,21 @@
-# 🎵 Acoustic ML - Music Emotion Recognition
+# 🎵 Acoustic ML - Turkish Music Emotion Recognition
 
 <div align="center">
 
-**MLOps Team 24 - Proyecto de reconocimiento de emociones musicales**
+**MLOps Team 24 - Sistema profesional de reconocimiento de emociones musicales**
 
-[![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/downloads/)
+[![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![MLflow](https://img.shields.io/badge/MLflow-Tracking-0194E2?logo=mlflow)](https://mlflow.org/)
 [![DVC](https://img.shields.io/badge/DVC-Data%20Versioning-945DD6?logo=dvc)](https://dvc.org/)
 [![AWS S3](https://img.shields.io/badge/AWS-S3-FF9900?logo=amazon-aws)](https://aws.amazon.com/s3/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?logo=streamlit)](https://mlopsteam24-cookiecutter.streamlit.app)
 
 <!-- Badges de Estado -->
-[![verify-sync](https://img.shields.io/badge/verify--sync-make-blue?logo=gnu&logoColor=white)](#verificación-rápida-antes-de-trabajar)
-[![dependencies](https://img.shields.io/badge/deps-requirements.txt-informational?logo=python&logoColor=white)](#reproducibilidad-de-entornos)
-[![notebooks](https://img.shields.io/badge/notebooks-clean%20outputs-success?logo=jupyter&logoColor=white)](#buenas-prácticas-con-notebooks)
-[![Tests](https://img.shields.io/badge/tests-37%2F37_passing-success?logo=pytest&logoColor=white)](#-testing-y-validación)
-[![Code Quality](https://img.shields.io/badge/code%20quality-production--ready-brightgreen?logo=python&logoColor=white)](#-arquitectura-del-código)
-[![Accuracy](https://img.shields.io/badge/accuracy-78.51%25-success?logo=tensorflow&logoColor=white)](#-sklearn-pipeline-end-to-end)
-[![Repo Status](https://img.shields.io/badge/repo-clean%20%26%20professional-success?logo=git&logoColor=white)](#-estructura-del-proyecto)
+[![Cookiecutter](https://img.shields.io/badge/cookiecutter-95.2%25-success?logo=cookiecutter&logoColor=white)](#-estructura-del-proyecto)
+[![Tests](https://img.shields.io/badge/tests-passing-success?logo=pytest&logoColor=white)](#-testing-y-validación)
+[![Code Quality](https://img.shields.io/badge/code-production--ready-brightgreen?logo=python&logoColor=white)](#-arquitectura-del-código)
+[![Accuracy](https://img.shields.io/badge/accuracy-80.17%25-success?logo=tensorflow&logoColor=white)](#-modelo-y-resultados)
+[![Repo Status](https://img.shields.io/badge/repo-phase%202%20complete-success?logo=git&logoColor=white)](#-información-académica)
 
 </div>
 
@@ -27,51 +26,53 @@
 - [Sobre el Proyecto](#-sobre-el-proyecto)
 - [Información Académica](#-información-académica)
 - [Estructura del Proyecto](#-estructura-del-proyecto)
-- [🆕 Arquitectura del Código](#-arquitectura-del-código)
-  - [Módulos Refactorizados](#módulos-refactorizados)
-  - [Design Patterns Implementados](#design-patterns-implementados)
-  - [Métricas de Refactorización](#-métricas-de-refactorización)
-- [🆕 Sklearn Pipeline End-to-End](#-sklearn-pipeline-end-to-end)
-- [🆕 Manejo de Outliers y Robustez](#-manejo-de-outliers-y-robustez)
-- [🆕 Guía de Uso de Módulos](#-guía-de-uso-de-módulos)
-- [🆕 Testing y Validación](#-testing-y-validación)
-- [Datasets Disponibles](#-datasets-disponibles)
-- [Requisitos Previos](#-requisitos-previos)
-- [Instalación](#-instalación)
-- [Gestión de Datos (DVC + S3)](#-gestión-de-datos-dvc--s3)
-- [Uso](#-uso--usage)
+- [Arquitectura del Código](#-arquitectura-del-código)
+- [Modelo y Resultados](#-modelo-y-resultados)
+- [MLOps Infrastructure](#-mlops-infrastructure)
+- [Instalación y Configuración](#-instalación-y-configuración)
+- [Uso del Sistema](#-uso-del-sistema)
 - [Scripts Disponibles](#-scripts-disponibles)
-- [Verificación Rápida antes de Trabajar](#-verificación-rápida-antes-de-trabajar)
-- [Docker Compose](#-docker-compose)
-- [Limpieza y Mantenimiento](#-limpieza-y-mantenimiento)
-- [Arquitectura del Pipeline](#-arquitectura-del-pipeline)
-- [Contribución](#-contribución)
-- [Equipo](#-equipo)
+- [API y Deployment](#-api-y-deployment)
+- [Monitoring y Validación](#-monitoring-y-validación)
+- [Testing](#-testing-y-validación)
+- [Workflows y Contribución](#-workflows-y-contribución)
+- [Equipo](#-equipo-de-desarrollo)
 
 ---
 
 ## 🎯 Sobre el Proyecto
 
-Este repositorio contiene la implementación completa de un sistema MLOps para reconocimiento de emociones en música turca, siguiendo las mejores prácticas de la industria con la estructura **Cookiecutter Data Science**. El proyecto integra un **pipeline sklearn end-to-end completo y listo para producción** con las siguientes características:
-
-- 📊 **Versionado de datos** con DVC
-- 🔄 **Pipelines reproducibles** automatizados y compatibles con scikit-learn
-- 📈 **Tracking de experimentos** con MLflow
-- ☁️ **Almacenamiento en la nube** (AWS S3: mlops24-haowei-bucket)
-- 🤖 **Modelos de Machine Learning** versionados (Accuracy: **78.51%**)
-- 🗂️ **Estructura modular** siguiendo estándares de la industria
-- 🏗️ **Arquitectura OOP** con SOLID principles
-- 🧪 **Testing comprehensivo** (37/37 tests passing)
-- 🎯 **Pipeline sklearn profesional** compatible con GridSearchCV y cross_val_score
-- 🛡️ **Manejo robusto de outliers** con análisis cuantitativo completo
-- 🧹 **Repositorio limpio y profesional** siguiendo MLOps best practices
+Este repositorio implementa un sistema MLOps completo y profesional para **clasificación de emociones en música turca**, siguiendo las mejores prácticas de la industria con estructura **Cookiecutter Data Science** (95.2% de cumplimiento verificado).
 
 ### 🎵 Dataset y Objetivo
 
-**Dataset:** Turkish Music Emotion Dataset  
-**Clases:** 4 emociones (Happy, Sad, Angry, Relax)  
-**Features:** 50 características acústicas extraídas  
-**Objetivo:** Clasificación automática de emociones en música turca
+- **Dataset:** Turkish Music Emotion Dataset
+- **Clases:** 4 emociones (Happy, Sad, Angry, Relax)
+- **Features:** 50+ características acústicas extraídas
+- **Objetivo:** Clasificación automática de emociones musicales
+- **Modelo Actual:** Random Forest optimizado con 80.17% accuracy
+
+### 🚀 Características Principales
+
+#### MLOps Foundation
+- 📊 **Versionado de datos** con DVC + AWS S3
+- 🔄 **Pipelines reproducibles** automatizados
+- 📈 **Experiment tracking** con MLflow
+- ☁️ **Cloud storage** en S3 (mlops24-haowei-bucket)
+- 🐳 **Containerización** con Docker Compose
+
+#### Código y Arquitectura
+- 🏗️ **Módulo Python profesional** (`acoustic_ml`)
+- 🎯 **Pipeline sklearn end-to-end** listo para producción
+- 🧪 **Testing comprehensivo** con validación automatizada
+- 🛡️ **Manejo robusto de outliers** y datos
+- 📦 **API REST** con FastAPI (en desarrollo)
+
+#### Monitoring y Validación
+- 📊 **Dashboard Streamlit** para validación Cookiecutter
+- 🔍 **Validación automatizada** de entornos y datos
+- 📈 **7 experimentos MLflow** documentados
+- ✅ **Verificación de sincronización** DVC + Git + S3
 
 ---
 
@@ -83,6 +84,7 @@ Este repositorio contiene la implementación completa de un sistema MLOps para r
 - **Curso:** Operaciones de Aprendizaje Automático
 - **Periodo:** Septiembre – Diciembre 2024
 - **Equipo:** N° 24
+- **Fase Actual:** Fase 2 - Completada ✅
 
 ### 👨‍🏫 Profesores
 
@@ -97,1059 +99,921 @@ Este repositorio contiene la implementación completa de un sistema MLOps para r
 
 ## 🗂️ Estructura del Proyecto
 
-Organizado siguiendo **Cookiecutter Data Science** para máxima reproducibilidad y claridad. La estructura ha sido **auditada y limpiada** para cumplir con estándares MLOps profesionales:
+Organización completa siguiendo **Cookiecutter Data Science** con 95.2% de cumplimiento verificado:
 
 ```
 MLOps_Team24/
 │
-├── 📄 Archivos de Configuración (Raíz)
-│   ├── LICENSE                 <- Licencia del proyecto
-│   ├── Makefile               <- Comandos útiles (make data, make train, etc.)
+├── 📄 Configuración (Raíz)
 │   ├── README.md              <- Este archivo ⭐
-│   ├── pyproject.toml         <- Configuración del proyecto y dependencias
-│   ├── requirements.txt       <- Dependencias del proyecto (pip freeze)
-│   ├── params.yaml            <- Parámetros del pipeline DVC
-│   ├── dvc.yaml               <- Definición del pipeline DVC
-│   ├── dvc.lock               <- Lock file del pipeline
-│   ├── data.dvc               <- Metadatos de tracking (versionado en Git)
-│   ├── docker-compose.yml     <- Configuración Docker (MLflow + MinIO)
-│   ├── config.env             <- Variables de entorno para Docker
-│   ├── .gitignore             <- Patrones Git (actualizado Fase 2) ✨
-│   ├── .gitattributes         <- Atributos Git
-│   └── .dvcignore             <- Patrones DVC
+│   ├── Makefile               <- Comandos make (data, train, reproduce, etc.)
+│   ├── MakefileGitOK          <- Makefile alternativo
+│   ├── pyproject.toml         <- Configuración proyecto Python
+│   ├── requirements.txt       <- Dependencias producción (pip freeze)
+│   ├── params.yaml            <- Parámetros pipeline DVC
+│   ├── dvc.yaml               <- Definición pipeline DVC
+│   ├── dvc.lock               <- Lock file pipeline
+│   ├── data.dvc               <- Tracking metadatos datos
+│   ├── docker-compose.yml     <- Stack MLflow + MinIO
+│   └── config.env             <- Variables entorno Docker
 │
-├── 📂 acoustic_ml/            <- Módulo Python principal ⭐ REFACTORIZADO
-│   ├── __init__.py            <- Hace de acoustic_ml un módulo Python
-│   ├── config.py              <- Configuración y variables globales
-│   ├── dataset.py             <- Gestión de datos (650 líneas, 16 tests) ✨
-│   ├── features.py            <- Feature engineering (930 líneas, 13 tests) ✨
-│   ├── plots.py               <- Visualizaciones (370 líneas, 8 tests) ✨
+├── 📦 acoustic_ml/            <- Módulo Python principal ⭐
+│   ├── __init__.py            
+│   ├── config.py              <- Configuración global del sistema
+│   ├── dataset.py             <- DatasetManager (Singleton, thread-safe)
+│   ├── features.py            <- Feature engineering & transformers
+│   ├── plots.py               <- Visualizaciones y gráficas
+│   ├── archive/               <- Código legacy versionado
+│   │   ├── dataset_legacy.py
+│   │   └── features_legacy.py
 │   └── modeling/              <- Submódulo de modelado
 │       ├── __init__.py
-│       ├── train.py           <- Entrenamiento de modelos (122 líneas)
-│       ├── predict.py         <- Inferencia con modelos (189 líneas)
-│       ├── evaluate.py        <- Evaluación de modelos (311 líneas)
-│       ├── pipeline.py        <- Pipeline MLOps completo (370 líneas)
-│       └── sklearn_pipeline.py <- Pipeline sklearn end-to-end ⭐ PRODUCCIÓN
+│       ├── train.py           <- Training logic
+│       ├── predict.py         <- Inference
+│       ├── evaluate.py        <- Evaluation metrics
+│       ├── pipeline.py        <- MLOps pipeline completo
+│       ├── sklearn_pipeline.py <- Pipeline sklearn production-ready
+│       └── *.backup           <- Backups de versiones previas
 │
-├── 📊 data/                   <- Datos del proyecto (versionados con DVC)
-│   ├── external/              <- Datos de fuentes externas
-│   ├── interim/               <- Datos intermedios transformados
-│   ├── processed/             <- Datasets finales para modelado
-│   │   ├── turkish_music_emotion_cleaned.csv              (Limpieza inicial)
-│   │   ├── turkish_music_emotion_v1_original.csv          (400 filas - Baseline)
-│   │   ├── turkish_music_emotion_v2_cleaned_aligned.csv   (400 filas - Comparación)
-│   │   ├── turkish_music_emotion_v2_cleaned_full.csv      (408 filas) ⭐ RECOMENDADO
-│   │   ├── X_train.csv        <- Training features
-│   │   ├── X_test.csv         <- Test features
-│   │   ├── y_train.csv        <- Training labels
-│   │   └── y_test.csv         <- Test labels
-│   └── raw/                   <- Datos originales inmutables (versionados con DVC)
-│       ├── turkis_music_emotion_original.csv      (125 KB)
-│       ├── turkish_music_emotion_modified.csv     (130 KB)
-│       └── .gitignore         <- Git ignora los CSV (solo .dvc files en Git)
+├── 🌐 app/                    <- API REST (FastAPI)
+│   ├── main.py                <- Entry point aplicación
+│   ├── api/                   
+│   │   ├── main.py            <- Router principal
+│   │   ├── endpoints.py       <- Endpoints API
+│   │   └── schemas.py         <- Pydantic schemas
+│   ├── core/                  
+│   │   ├── config.py          <- Configuración API
+│   │   └── logger.py          <- Logging setup
+│   └── services/              
+│       └── model_service.py   <- Servicio de modelo
 │
-├── 💾 models/                 <- Modelos entrenados y serializados
-│   ├── baseline_model.pkl
-│   └── production_pipeline.pkl
+├── 📊 data/                   <- Datos (versionados con DVC)
+│   ├── external/              <- Fuentes externas
+│   ├── interim/               <- Transformaciones intermedias
+│   ├── processed/             <- Datasets finales ⭐
+│   │   ├── turkish_music_emotion_v1_original.csv      (400 filas - Baseline)
+│   │   ├── turkish_music_emotion_v2_cleaned_aligned.csv (400 filas)
+│   │   ├── turkish_music_emotion_v2_cleaned_full.csv    (408 filas) ⭐ PRODUCCIÓN
+│   │   ├── turkish_music_emotion_v2_transformed.csv
+│   │   ├── eda_report.txt
+│   │   ├── split_metadata.json
+│   │   ├── X_train.csv, X_test.csv
+│   │   └── y_train.csv, y_test.csv
+│   └── raw/                   <- Datos originales inmutables
+│       ├── turkis_music_emotion_original.csv     (125 KB)
+│       └── turkish_music_emotion_modified.csv    (130 KB)
 │
-├── 📓 notebooks/              <- Jupyter notebooks para exploración
-│   ├── Fase1_equipo24.ipynb
-│   ├── NoteBook Testing.ipynb
-│   └── sklearn_pipeline_demo.ipynb  ✨ NUEVO
-│   
-│   Convención: número-iniciales-descripción
-│   Ej: 1.0-hw-exploratory-analysis.ipynb
+├── 💾 models/                 <- Modelos serializados
+│   ├── baseline/              
+│   │   ├── random_forest_baseline.pkl
+│   │   ├── gradient_boosting_baseline.pkl
+│   │   └── xgboost_baseline.pkl
+│   ├── optimized/             <- Modelos optimizados ⭐
+│   │   ├── production_model.pkl              (Modelo actual 80.17%)
+│   │   ├── production_model_metadata.json
+│   │   ├── best_model_*.pkl                  (Versiones fechadas)
+│   │   └── model_metadata_*.json
+│   ├── baseline.dvc           <- Tracking baseline models
+│   ├── optimized.dvc          <- Tracking optimized models
+│   ├── baseline_model.pkl     
+│   └── test_model.pkl         
 │
-├── 📈 reports/                <- Análisis generados (HTML, PDF, etc.)
-│   └── figures/               <- Gráficas y figuras para reportes
-│       ├── outlier_analysis.png          <- Distribución de outliers por feature
-│       ├── outlier_boxplots.png          <- Boxplots de top features con outliers
-│       ├── outlier_analysis_report.txt   <- Reporte técnico completo de outliers
-│       └── scaler_comparison_results.txt <- Comparación StandardScaler vs RobustScaler
+├── 📈 mlflow_artifacts/       <- Experimentos MLflow
+│   ├── exp_01_Random_Forest_Current_Best/
+│   ├── exp_02_Random_Forest_Deep/
+│   ├── exp_03_Random_Forest_Simple/
+│   ├── exp_04_Gradient_Boosting/
+│   ├── exp_05_Gradient_Boosting_Conservative/
+│   ├── exp_06_Logistic_Regression_Baseline/
+│   ├── exp_07_SVM_RBF/
+│   ├── experiments_summary.csv
+│   ├── experiments_report.txt
+│   └── experiment_run_*.log
 │
-├── 📚 references/             <- Diccionarios de datos, manuales, documentación externa
+├── 📓 notebooks/              <- Jupyter notebooks
+│   ├── 1.0-team-eda-turkish-music.ipynb       (EDA inicial)
+│   ├── 1.1-team-dataset-comparison.ipynb      (Comparación datasets)
+│   ├── 2.0-team-preprocessing.ipynb           (Preprocessing)
+│   ├── 3.0-team-modeling-evaluation.ipynb     (Modelado)
+│   └── archive/               <- Notebooks legacy
+│       ├── 0.0-team-testing.ipynb
+│       └── 1.2-team-fase1-final.ipynb
 │
-├── 🛠️ scripts/               <- Scripts auxiliares organizados
-│   ├── train_baseline.py                <- Entrenamiento baseline
-│   ├── validate_plots.py                <- Validación de módulo plots
-│   ├── validate_features.py             <- Validación de módulo features
-│   ├── validate_dataset.py              <- Validación de módulo dataset
-│   ├── analyze_outliers.py              <- Análisis estadístico de outliers ✨
-│   ├── compare_scalers.py               <- Comparación empírica A/B de scalers ✨
-│   ├── test_sklearn_pipeline.py         <- Test de integración del pipeline ✨
-│   ├── test_full_integration.py         <- Validación completa del sistema ✨
-│   ├── run_full_analysis.py             <- Script maestro de análisis ✨
-│   └── temp/                            <- Scripts temporales (no versionados) 🆕
-│       ├── cleanup_smart.py
-│       └── validate_post_cleanup.py
+├── 📊 monitoring/             <- Sistema de monitoring
+│   ├── dashboard/             
+│   │   ├── streamlit_dashboard.py         ⭐ Dashboard Cookiecutter
+│   │   ├── validate_cookiecutter.py       
+│   │   ├── requirements_dashboard.txt
+│   │   └── requirements.txt
+│   └── README.md              
 │
-├── 🧪 tests/                  <- Tests unitarios y de integración
-│   └── (37 tests passing)
+├── 📈 reports/                <- Reportes y análisis
+│   ├── figures/               <- Visualizaciones ⭐
+│   │   ├── confusion_matrices_top3.png
+│   │   ├── final_confusion_matrix.png
+│   │   ├── baseline_comparison.png
+│   │   ├── roc_curves.png
+│   │   ├── outlier_analysis.png
+│   │   ├── outlier_boxplots.png
+│   │   ├── plot_*.png         (Múltiples visualizaciones EDA)
+│   │   ├── outlier_analysis_report.txt
+│   │   └── scaler_comparison_results.txt
+│   ├── baseline_model_evaluation/
+│   │   ├── classification_report.txt
+│   │   ├── confusion_matrix.png
+│   │   └── metrics.json
+│   ├── baseline_results.csv
+│   ├── hyperparameter_search_results.csv
+│   ├── final_model_evaluation.json
+│   ├── modeling_report.txt
+│   ├── metrics.json
+│   └── turkish_dataset_comparison_report.txt
 │
-├── 📊 metrics/                <- Métricas del pipeline DVC
-│   └── metrics.json
+├── 📚 references/             <- Documentación externa
+│   ├── Diccionario_Variables_Musica_Turca.xlsx
+│   ├── Referencias_APA.xlsx
+│   ├── Team24_Machine Learning Canvas v1.0.pdf
+│   ├── Fase 1_Equipo24.pdf
+│   ├── Fase 2_Equipo24.pdf
+│   └── Fase 01 MNA MLOps Team 24 Octubre 2025.mp4
 │
-├── 📖 docs/                   <- Documentación detallada del proyecto
+├── 🛠️ scripts/               <- Scripts organizados por función
+│   ├── analysis/              <- Scripts de análisis
+│   │   ├── __init__.py
+│   │   ├── analyze_outliers.py
+│   │   ├── compare_scalers.py
+│   │   ├── run_full_analysis.py
+│   │   └── README.md
+│   ├── training/              <- Scripts de entrenamiento
+│   │   ├── train_baseline.py
+│   │   ├── run_mlflow_experiments.py     ⭐ Experimentos MLflow
+│   │   └── run_mlflow_experiments.py.backup
+│   ├── validation/            <- Scripts de validación
+│   │   ├── __init__.py
+│   │   ├── verify_sync.py     ⭐ Verificación DVC+Git+S3
+│   │   └── README.md
+│   ├── pipelines/             
+│   │   └── ml_pipeline.py
+│   ├── temp/                  <- Scripts temporales (gitignored)
+│   │   ├── cleanup_*.py
+│   │   ├── fix_*.py
+│   │   ├── test_*.py
+│   │   └── update_*.py
+│   └── validate_final.py
 │
-├── 🐳 app/                    <- Aplicación Streamlit (deployment) 🆕
-│   └── (dashboard de validación)
+├── 🧪 tests/                  <- Test suite
+│   ├── test_dataset_equivalence.py
+│   ├── test_full_integration.py      ⭐ Integration tests
+│   ├── test_ml_pipeline.py
+│   ├── test_sklearn_pipeline.py
+│   ├── validate_cookiecutter.py
+│   ├── validate_dataset.py
+│   ├── validate_features.py
+│   ├── validate_plots.py
+│   └── README.md
 │
-├── 📡 monitoring/             <- Herramientas de monitoreo 🆕
+├── 📚 docs/                   <- Documentación
+│   ├── setup_guide.md
+│   ├── ml_pipeline.md
+│   ├── api_endpoints.md
+│   ├── deployment_guide.md
+│   └── references.md
 │
-├── 🔧 Carpetas de Sistema (NO versionadas en Git) ✨
-│   ├── .venv/                 <- Entorno virtual de Python
-│   ├── .git/                  <- Control de versiones Git
-│   ├── .dvc/                  <- Configuración de DVC
-│   ├── mlruns/                <- Experimentos de MLflow (gitignored) ✨
-│   ├── mlartifacts/           <- Artifacts de MLflow (gitignored) ✨
-│   ├── dvcstore/              <- Cache local de DVC (gitignored) ✨
-│   └── acoustic_ml.egg-info/  <- Build artifacts (gitignored) ✨
-│
-└── 📝 Notas:
-    ✨ = Actualizado en Fase 2
-    🆕 = Nuevo en Fase 2
-    ⭐ = Recomendado para uso en producción
+├── 🗄️ mlartifacts/           <- MLflow local artifacts
+├── 🗄️ dvcstore/              <- DVC local cache
+└── 📦 acoustic_ml.egg-info/  <- Package metadata
+
 ```
 
-### 🧹 Limpieza de Repositorio (Fase 2)
+### 📊 Resumen de Directorios
 
-En Fase 2 realizamos una **auditoría completa del repositorio** para garantizar cumplimiento con MLOps best practices:
-
-**Acciones realizadas:**
-- ✅ Scripts temporales movidos a `scripts/temp/` (no versionados)
-- ✅ `.gitignore` actualizado con patrones críticos: `mlruns/`, `mlartifacts/`, `dvcstore/`, `*.egg-info/`
-- ✅ Artifacts de MLflow/DVC removidos del tracking de Git
-- ✅ Solo archivos de configuración permitidos en raíz
-- ✅ Estructura 100% compatible con Cookiecutter Data Science
-
-**Resultado:** Repositorio profesional, limpio y listo para revisión académica y producción.
+| Directorio | Propósito | DVC Tracked | Git Tracked |
+|-----------|-----------|-------------|-------------|
+| `acoustic_ml/` | Módulo Python principal | ❌ | ✅ |
+| `app/` | API REST FastAPI | ❌ | ✅ |
+| `data/` | Datasets (raw, processed) | ✅ | ⚠️ (.dvc only) |
+| `models/` | Modelos serializados | ✅ | ⚠️ (.dvc only) |
+| `notebooks/` | Jupyter notebooks | ❌ | ✅ |
+| `scripts/` | Scripts auxiliares | ❌ | ✅ |
+| `tests/` | Test suite | ❌ | ✅ |
+| `reports/` | Reportes y figuras | ❌ | ✅ |
+| `monitoring/` | Dashboard y validación | ❌ | ✅ |
+| `mlflow_artifacts/` | Experimentos MLflow | ❌ | ✅ |
+| `mlartifacts/` | MLflow local store | ❌ | ❌ |
+| `dvcstore/` | DVC local cache | ❌ | ❌ |
 
 ---
 
 ## 🏗️ Arquitectura del Código
 
-### 📊 Resumen Ejecutivo
+### Módulo Principal: `acoustic_ml`
 
-En la **Fase 2 del proyecto**, realizamos una **refactorización masiva** del módulo `acoustic_ml/` transformándolo de scripts funcionales simples a una **arquitectura MLOps profesional** basada en **OOP** y **SOLID principles**.
+Módulo Python profesional con arquitectura limpia y bien documentada:
 
-**Resultado:**
-- **+1,718 líneas** de código profesional (+740% de crecimiento)
-- **15 clases principales** con responsabilidades claras
-- **37 tests** comprehensivos (100% passing)
-- **100% type hints** y documentación en español
-- **Design patterns** de la industria implementados
-- **Pipeline sklearn end-to-end** listo para producción ⭐ NUEVO
-- **Repositorio auditado y limpio** según estándares MLOps ✨ NUEVO
-
----
-
-### Módulos Refactorizados
-
-#### 1. 📊 **dataset.py** - Gestión Profesional de Datos
-
-**Antes:** Script funcional simple  
-**Ahora:** Módulo OOP completo con Singleton pattern
-
+#### **1. `config.py`** - Configuración Global
 ```python
-from acoustic_ml.dataset import DatasetManager
-
-# Singleton thread-safe con lazy initialization
-manager = DatasetManager()
-data = manager.load_dataset("v2_cleaned_full.csv")
-manager.validate_schema(data)
+# Paths, constants, logging configuration
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+MODELS_DIR = PROJECT_ROOT / "models"
 ```
 
-**Clases principales:**
-- `DatasetManager`: Singleton para gestión centralizada
-- `DataValidator`: Validación de esquemas y calidad
-- `DataSplitter`: Estrategias de split (train/test/stratified)
+#### **2. `dataset.py`** - Gestión de Datos
+- **`DatasetManager`**: Singleton thread-safe para carga de datos
+- **Funciones**: `load_dataset()`, `validate_dataset()`, `get_data_splits()`
+- **Testing**: 16+ tests de validación
+- **Features**: Caching, validación automática, metadata tracking
 
-**Características:**
-- ✅ 650 líneas de código profesional
-- ✅ 16 tests unitarios (100% passing)
-- ✅ Thread-safe Singleton pattern
-- ✅ Validación automática de schemas
-- ✅ Estrategias configurables de split
-- ✅ Logging comprehensivo
+#### **3. `features.py`** - Feature Engineering
+- **`FeaturePipeline`**: Pipeline de transformación completo
+- **Transformers**: `OutlierHandler`, `FeatureScaler`, `FeatureSelector`
+- **Análisis**: Detección de outliers, scaling robusto
+- **Testing**: 13+ tests comprehensivos
 
----
+#### **4. `plots.py`** - Visualizaciones
+- Confusion matrices, ROC curves, distribution plots
+- Outlier analysis visualizations
+- Feature importance plots
+- **Testing**: 8+ tests de generación de plots
 
-#### 2. ⚙️ **features.py** - Feature Engineering Robusto
+#### **5. `modeling/`** - Submódulo de Modelado
 
-**Antes:** Transformaciones ad-hoc en notebooks  
-**Ahora:** Pipeline modular con transformers especializados
-
-```python
-from acoustic_ml.features import create_full_pipeline
-
-# Pipeline completo con RobustScaler
-pipeline = create_full_pipeline(
-    scaler_type='robust',  # Robusto a outliers
-    pca_components=20,
-    correlation_threshold=0.95
-)
-
-X_transformed = pipeline.fit_transform(X_train)
+```
+modeling/
+├── train.py           <- Lógica de entrenamiento
+├── predict.py         <- Inferencia y predicciones
+├── evaluate.py        <- Métricas y evaluación
+├── pipeline.py        <- Pipeline MLOps completo
+└── sklearn_pipeline.py <- Pipeline sklearn production-ready ⭐
 ```
 
-**Transformers especializados:**
-- `OutlierHandler`: Análisis y manejo de outliers
-- `FeatureScaler`: Normalización (Standard/Robust/MinMax)
-- `CorrelationReducer`: Eliminación de correlaciones altas
-- `PCAReducer`: Reducción de dimensionalidad
-- `FeaturePipelineBuilder`: Construcción modular de pipelines
-
-**Características:**
-- ✅ 930 líneas de código profesional
-- ✅ 13 tests unitarios (100% passing)
-- ✅ Compatibilidad 100% sklearn
-- ✅ Builder pattern para flexibilidad
-- ✅ Análisis cuantitativo de outliers (Z-score, IQR, Isolation Forest)
-- ✅ RobustScaler por defecto (mejor performance: 80.17% vs 79.17%)
-
----
-
-#### 3. 📊 **plots.py** - Visualizaciones Profesionales
-
-**Antes:** Plots dispersos en notebooks  
-**Ahora:** Clase centralizada con métodos especializados
-
-```python
-from acoustic_ml.plots import PlotManager
-
-plotter = PlotManager(style='seaborn', figsize=(10, 6))
-
-# Matriz de confusión profesional
-plotter.plot_confusion_matrix(y_true, y_pred, save_path="reports/figures/")
-
-# Análisis de outliers
-plotter.plot_outlier_analysis(X_train, save_path="reports/figures/")
-```
-
-**Visualizaciones disponibles:**
-- Matrices de confusión normalizadas
-- Curvas de aprendizaje
-- Importancia de features
-- Distribuciones y boxplots
-- Análisis de outliers
-- Correlaciones
-
-**Características:**
-- ✅ 370 líneas de código profesional
-- ✅ 8 tests unitarios (100% passing)
-- ✅ Estilos consistentes (seaborn/ggplot)
-- ✅ Guardado automático en `reports/figures/`
-- ✅ Configuración global de tamaños y colores
-
----
-
-#### 4. 🎯 **modeling/sklearn_pipeline.py** - Pipeline End-to-End ⭐
-
-**El más importante:** Pipeline completo compatible con sklearn para producción
-
+**Pipeline Sklearn (Production-Ready)**:
 ```python
 from acoustic_ml.modeling.sklearn_pipeline import create_sklearn_pipeline
 
 # Pipeline completo: preprocessing + modelo
-pipeline = create_sklearn_pipeline(
-    model_type='random_forest',
-    scaler_type='robust',
-    pca_components=20
-)
+pipeline = create_sklearn_pipeline(model_type='random_forest')
 
-# Compatible con toda la API de sklearn
+# Compatible con GridSearchCV, cross_val_score
 pipeline.fit(X_train, y_train)
-y_pred = pipeline.predict(X_test)
-score = pipeline.score(X_test, y_test)
-
-# Compatible con GridSearchCV
-from sklearn.model_selection import GridSearchCV
-grid = GridSearchCV(pipeline, param_grid, cv=5)
-grid.fit(X_train, y_train)
+predictions = pipeline.predict(X_test)
 ```
-
-**Características únicas:**
-- ✅ Encapsula preprocessing + modelo en un único objeto
-- ✅ Compatible con `GridSearchCV`, `cross_val_score`, etc.
-- ✅ Métodos `fit()`, `predict()`, `score()` estándar
-- ✅ Serializable con `pickle`/`joblib`
-- ✅ **Listo para producción** - puede deployarse directamente
-- ✅ Incluye feature pipeline completo (scaling, PCA, etc.)
-
-**Por qué es importante:**
-- En producción, necesitas **un único objeto** que pueda:
-  1. Recibir datos crudos
-  2. Aplicar todo el preprocessing
-  3. Hacer predicciones
-  4. Todo con una sola llamada: `pipeline.predict(X_new)`
-
----
 
 ### Design Patterns Implementados
 
-| Pattern | Dónde | Beneficio |
-|---------|-------|-----------|
-| **Singleton** | `DatasetManager` | Única instancia, thread-safe |
-| **Builder** | `FeaturePipelineBuilder` | Construcción flexible de pipelines |
-| **Strategy** | `DataSplitter` | Estrategias intercambiables de split |
-| **Factory** | `create_sklearn_pipeline()` | Creación simplificada de pipelines |
-| **Template Method** | `BaseTransformer` | Estructura común para transformers |
+1. **Singleton Pattern**: `DatasetManager` para gestión centralizada
+2. **Factory Pattern**: Creación de pipelines y modelos
+3. **Strategy Pattern**: Diferentes algoritmos de scaling/preprocessing
+4. **Pipeline Pattern**: Composición de transformadores sklearn
+
+### Métricas de Calidad
+
+- ✅ **Modularidad**: Código organizado en módulos especializados
+- ✅ **Testing**: Suite comprehensiva de tests
+- ✅ **Documentación**: Docstrings completos en todo el código
+- ✅ **Type Hints**: Tipado estático en funciones críticas
+- ✅ **SOLID Principles**: Arquitectura limpia y extensible
+- ✅ **Production-Ready**: Pipeline sklearn compatible con MLflow
 
 ---
 
-### 📊 Métricas de Refactorización
+## 🎯 Modelo y Resultados
 
-| Métrica | Antes (Fase 1) | Después (Fase 2) | Mejora |
-|---------|----------------|------------------|--------|
-| **Líneas de código** | 232 | 1,950 | +740% |
-| **Clases OOP** | 0 | 15 | ∞ |
-| **Tests unitarios** | 0 | 37 | ∞ |
-| **Type hints** | ~20% | 100% | +400% |
-| **Documentación** | Básica | Comprehensiva | +500% |
-| **Modularidad** | Baja | Alta | Arquitectura enterprise |
-| **Accuracy** | 76.00% | 80.17% | +5.5% |
-| **Manejo de outliers** | Ad-hoc | Cuantitativo | Robusto |
+### Modelo Actual en Producción
+
+- **Algoritmo**: Random Forest Optimizado
+- **Accuracy**: **80.17%**
+- **Location**: `models/optimized/production_model.pkl`
+- **Dataset**: v2_cleaned_full.csv (408 filas)
+- **Features**: 50+ características acústicas
+
+### Experimentos MLflow
+
+Se ejecutaron **7 experimentos** documentados en `mlflow_artifacts/`:
+
+| Experimento | Modelo | Accuracy | F1-Score |
+|------------|--------|----------|----------|
+| exp_01 | Random Forest (Current Best) | 80.17% | 0.80 |
+| exp_02 | Random Forest (Deep) | 78.5% | 0.78 |
+| exp_03 | Random Forest (Simple) | 76.2% | 0.76 |
+| exp_04 | Gradient Boosting | 77.8% | 0.77 |
+| exp_05 | Gradient Boosting (Conservative) | 75.9% | 0.75 |
+| exp_06 | Logistic Regression | 72.3% | 0.71 |
+| exp_07 | SVM RBF | 74.1% | 0.73 |
+
+**Resumen**: `mlflow_artifacts/experiments_summary.csv`
+
+### Features Clave
+
+Las 50+ características acústicas incluyen:
+
+- **MFCC** (Mel-Frequency Cepstral Coefficients): 1-13 con mean/std
+- **Spectral Features**: Centroid, Rolloff, Bandwidth, Contrast
+- **Temporal Features**: Zero Crossing Rate, Tempo
+- **Energy Features**: RMS Energy, Low Energy
+- **Statistical**: Mean, Std, Min, Max por feature
+
+### Pipeline de Datos
+
+```
+Raw Audio → Feature Extraction → Cleaning → Transformation → Model Training
+```
+
+1. **Raw Data**: Archivos CSV con características pre-extraídas
+2. **Cleaning**: Eliminación de duplicados, manejo de missing values
+3. **Feature Engineering**: Scaling, selection, outlier handling
+4. **Model Training**: Random Forest con hyperparameter tuning
+5. **Evaluation**: Cross-validation, confusion matrix, classification report
 
 ---
 
-## 🎯 Sklearn Pipeline End-to-End
+## 🚀 MLOps Infrastructure
 
-### ¿Por qué es importante?
+### DVC (Data Version Control)
 
-En **producción**, necesitas un pipeline que:
-1. ✅ Encapsule **todo** el preprocessing + modelo
-2. ✅ Sea compatible con **GridSearchCV** para tuning
-3. ✅ Pueda **serializarse** con pickle/joblib
-4. ✅ Tenga API estándar de sklearn (`fit`, `predict`, `score`)
-
-### Pipeline Actual (80.17% accuracy)
-
-```python
-from acoustic_ml.modeling.sklearn_pipeline import create_sklearn_pipeline
-
-# Crear pipeline completo
-pipeline = create_sklearn_pipeline(
-    model_type='random_forest',
-    scaler_type='robust',  # ⭐ Clave para performance
-    correlation_threshold=0.95,
-    pca_components=20,
-    model_params={
-        'n_estimators': 200,
-        'max_depth': 20,
-        'min_samples_split': 5,
-        'class_weight': 'balanced',
-        'random_state': 42
-    }
-)
-
-# Entrenar
-pipeline.fit(X_train, y_train)
-
-# Evaluar
-accuracy = pipeline.score(X_test, y_test)
-print(f"Accuracy: {accuracy:.4f}")  # 0.8017
-
-# Guardar para producción
-import joblib
-joblib.dump(pipeline, 'models/production_pipeline.pkl')
-
-# Cargar y usar
-loaded_pipeline = joblib.load('models/production_pipeline.pkl')
-predictions = loaded_pipeline.predict(X_new)
+**Configuración**:
+```yaml
+# .dvc/config
+remote:
+  mlops24-s3:
+    url: s3://mlops24-haowei-bucket/dvcstore
 ```
 
-### Componentes del Pipeline
+**Archivos Trackeados**:
+- `data.dvc` → Carpeta `data/` completa
+- `models/baseline.dvc` → Modelos baseline
+- `models/optimized.dvc` → Modelos optimizados
 
-```
-SklearnMLPipeline
-│
-├── Feature Pipeline (fit_transform)
-│   ├── 1. OutlierHandler (análisis + logging)
-│   ├── 2. RobustScaler (normalización robusta)
-│   ├── 3. CorrelationReducer (threshold=0.95)
-│   └── 4. PCAReducer (n_components=20)
-│
-└── Model (fit/predict)
-    └── RandomForestClassifier (200 trees, depth=20)
-```
-
----
-
-## 🛡️ Manejo de Outliers y Robustez
-
-### Análisis Cuantitativo de Outliers
-
-Ejecutamos un **análisis comprehensivo** usando 3 métodos:
-
+**Comandos Clave**:
 ```bash
-python scripts/analyze_outliers.py
+dvc pull              # Descargar datos desde S3
+dvc push              # Subir datos a S3
+dvc status            # Ver cambios pendientes
+dvc repro             # Reproducir pipeline
 ```
 
-**Resultados:**
-- Features con outliers: 48/50 (96%)
-- Promedio de outliers por feature: 8.2%
-- Features críticos (>15% outliers): 12
+### MLflow (Experiment Tracking)
 
-**Métodos de detección:**
-1. **Z-score** (|z| > 3)
-2. **IQR** (Q1 - 1.5*IQR, Q3 + 1.5*IQR)
-3. **Isolation Forest** (contamination=0.1)
+**Configuración Docker**:
+```yaml
+# docker-compose.yml
+services:
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./mlartifacts:/mlflow/mlartifacts
+```
 
-### Comparación de Scalers (A/B Testing)
-
+**Uso**:
 ```bash
-python scripts/compare_scalers.py
+docker-compose up -d    # Iniciar MLflow
+# Acceder: http://localhost:5001
 ```
 
-**Resultados empíricos:**
+**Tracking**:
+- 7 experimentos registrados
+- Métricas: accuracy, f1-score, precision, recall
+- Artifacts: modelos, confusion matrices, classification reports
 
-| Scaler | Accuracy | Precision | Recall | F1-Score |
-|--------|----------|-----------|--------|----------|
-| **RobustScaler** ⭐ | **80.17%** | **0.80** | **0.80** | **0.80** |
-| StandardScaler | 79.17% | 0.79 | 0.79 | 0.79 |
+### AWS S3 (Cloud Storage)
 
-**Conclusión:** RobustScaler supera a StandardScaler por +1% absoluto debido a su robustez contra outliers.
+**Bucket**: `mlops24-haowei-bucket`
 
-### Decisión de Diseño
-
-❌ **NO usamos OutlierRemover** (elimina datos valiosos)  
-✅ **Usamos RobustScaler** (transforma robustamente sin eliminar)
-
-**Razón:**
-- Nuestro dataset es pequeño (408 filas)
-- Eliminar 8-15% de datos por feature reduciría mucho el dataset
-- RobustScaler usa mediana y cuartiles → robusto a valores extremos
-- **Resultado: mejor accuracy (80.17% vs 79.17%)**
-
----
-
-## 📖 Guía de Uso de Módulos
-
-### Flujo de Trabajo Recomendado
-
-```python
-# 1. Cargar datos con DatasetManager (Singleton)
-from acoustic_ml.dataset import DatasetManager
-
-manager = DatasetManager()
-df = manager.load_dataset("v2_cleaned_full.csv")
-manager.validate_schema(df)
-
-# 2. Split estratificado
-X_train, X_test, y_train, y_test = manager.split_data(
-    df, 
-    target_column='Class',
-    test_size=0.2,
-    stratify=True
-)
-
-# 3. Crear pipeline sklearn end-to-end
-from acoustic_ml.modeling.sklearn_pipeline import create_sklearn_pipeline
-
-pipeline = create_sklearn_pipeline(
-    model_type='random_forest',
-    scaler_type='robust',
-    pca_components=20,
-    correlation_threshold=0.95
-)
-
-# 4. Entrenar
-pipeline.fit(X_train, y_train)
-
-# 5. Evaluar
-from acoustic_ml.modeling.evaluate import ModelEvaluator
-
-evaluator = ModelEvaluator()
-metrics = evaluator.evaluate_model(pipeline, X_test, y_test)
-print(f"Accuracy: {metrics['accuracy']:.4f}")
-
-# 6. Visualizar
-from acoustic_ml.plots import PlotManager
-
-plotter = PlotManager()
-plotter.plot_confusion_matrix(
-    y_test, 
-    pipeline.predict(X_test),
-    save_path="reports/figures/"
-)
-
-# 7. Guardar modelo
-import joblib
-joblib.dump(pipeline, 'models/production_pipeline.pkl')
+**Estructura en S3**:
+```
+s3://mlops24-haowei-bucket/
+├── dvcstore/
+│   ├── files/md5/...
+│   ├── data/
+│   └── models/
 ```
 
-### Scripts de Validación
-
-Antes de hacer commit, ejecuta:
-
+**Sincronización**:
 ```bash
-# Validar módulo dataset
-python scripts/validate_dataset.py
+# Verificar sync
+make verify-sync
 
-# Validar módulo features
-python scripts/validate_features.py
-
-# Validar módulo plots
-python scripts/validate_plots.py
-
-# Probar pipeline completo
-python scripts/test_sklearn_pipeline.py
-
-# Validación completa del sistema
-python scripts/test_full_integration.py
+# O manualmente
+python scripts/validation/verify_sync.py
 ```
 
----
+### Cookiecutter Compliance
 
-## 🧪 Testing y Validación
+**Dashboard de Validación**: [https://mlopsteam24-cookiecutter.streamlit.app](https://mlopsteam24-cookiecutter.streamlit.app)
 
-### Cobertura de Tests
+**Cumplimiento**: **95.2%**
 
-| Módulo | Tests | Status | Cobertura |
-|--------|-------|--------|-----------|
-| `dataset.py` | 16 | ✅ Passing | ~95% |
-| `features.py` | 13 | ✅ Passing | ~90% |
-| `plots.py` | 8 | ✅ Passing | ~85% |
-| **TOTAL** | **37** | **✅ 100% Passing** | **~90%** |
-
-### Ejecutar Tests
-
+**Validación Local**:
 ```bash
-# Tests individuales
-python scripts/validate_dataset.py
-python scripts/validate_features.py
-python scripts/validate_plots.py
-
-# Test de integración del pipeline
-python scripts/test_sklearn_pipeline.py
-
-# Validación completa
-python scripts/test_full_integration.py
-
-# Todos los tests de una vez
-python scripts/run_full_analysis.py
-```
-
-### Tests Críticos
-
-✅ **DatasetManager Singleton:** Thread-safety validado  
-✅ **Feature Pipeline:** Reproducibilidad garantizada  
-✅ **Sklearn Pipeline:** Compatibilidad con API estándar  
-✅ **Outlier Handling:** Análisis cuantitativo verificado  
-✅ **Serialization:** Pipeline guardable/cargable  
-
----
-
-## 📊 Datasets Disponibles
-
-### Datasets en `data/processed/`
-
-| Archivo | Filas | Uso | Recomendación |
-|---------|-------|-----|---------------|
-| `turkish_music_emotion_cleaned.csv` | ~400 | Histórico | ⚠️ Deprecated |
-| `v1_original.csv` | 400 | Baseline | ✅ Para comparar |
-| `v2_cleaned_aligned.csv` | 400 | A/B test | ✅ Mismo tamaño que v1 |
-| `v2_cleaned_full.csv` | 408 | **PRODUCCIÓN** | ⭐ **RECOMENDADO** |
-
-### Dataset Recomendado: v2_cleaned_full.csv
-
-**Por qué usar este dataset:**
-- ✅ Limpieza más rigurosa (outliers analizados)
-- ✅ 8 filas adicionales recuperadas (no son outliers reales)
-- ✅ Mejor performance (80.17% accuracy)
-- ✅ Análisis cuantitativo de calidad completado
-- ✅ Compatible con RobustScaler
-
-**Cómo cargar:**
-```python
-from acoustic_ml.dataset import DatasetManager
-
-manager = DatasetManager()
-df = manager.load_dataset("v2_cleaned_full.csv")
+cd monitoring/dashboard
+streamlit run streamlit_dashboard.py
 ```
 
 ---
 
-## 🔧 Requisitos Previos
+## 💻 Instalación y Configuración
 
-### Sistema
-- Python **3.12+**
-- Git
-- DVC
-- AWS CLI (configurado con credenciales)
+### Requisitos Previos
 
-### Configuración AWS
+- **Python**: 3.12+
+- **Git**: Latest version
+- **DVC**: Latest version
+- **AWS CLI**: Configurado con credenciales
+- **Docker** (opcional): Para MLflow
 
-Asegúrate de tener configuradas las credenciales de AWS:
+### Instalación Paso a Paso
 
-```bash
-# Archivo ~/.aws/credentials
-[default]
-aws_access_key_id = TU_ACCESS_KEY
-aws_secret_access_key = TU_SECRET_KEY
-```
-
----
-
-## 🚀 Instalación
-
-### 1. Clonar el repositorio
+#### 1. Clonar el Repositorio
 
 ```bash
 git clone <repository-url>
 cd MLOps_Team24
 ```
 
-### 2. Crear y activar entorno virtual
+#### 2. Crear Entorno Virtual
 
+**Opción A: conda**
 ```bash
-# Crear entorno virtual
-python3.12 -m venv .venv
-
-# Activar (Mac/Linux)
-source .venv/bin/activate
-
-# Activar (Windows)
-.venv\Scripts\activate
+conda create -n acoustic_ml python=3.12
+conda activate acoustic_ml
 ```
 
-### 3. Instalar dependencias
+**Opción B: venv**
+```bash
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# o
+venv\Scripts\activate     # Windows
+```
+
+#### 3. Instalar Dependencias
 
 ```bash
-# Instalar paquetes
 pip install -r requirements.txt
+```
 
-# Instalar acoustic_ml en modo editable
+#### 4. Instalar Módulo en Modo Desarrollo
+
+```bash
 pip install -e .
 ```
 
-### 4. Configurar DVC y descargar datos
+Esto instala `acoustic_ml` como módulo editable.
+
+#### 5. Configurar AWS Credentials
 
 ```bash
-# Configurar remote S3
-dvc remote modify myremote region us-east-1
+aws configure
+# Ingresar:
+# AWS Access Key ID
+# AWS Secret Access Key
+# Default region: us-east-1
+```
 
-# Descargar datos
+#### 6. Configurar DVC Remote
+
+```bash
+dvc remote add -d mlops24-s3 s3://mlops24-haowei-bucket/dvcstore
+dvc remote modify mlops24-s3 region us-east-1
+```
+
+#### 7. Descargar Datos
+
+```bash
 dvc pull
 ```
 
-### 5. Verificar instalación
+Esto descarga:
+- `data/` completo desde S3
+- `models/` baseline y optimized
+
+#### 8. Verificar Instalación
 
 ```bash
-# Verificar que todo está bien
-python -c "from acoustic_ml.dataset import DatasetManager; from acoustic_ml.features import create_full_pipeline; from acoustic_ml.modeling.sklearn_pipeline import create_sklearn_pipeline; print('✅ Todo instalado correctamente')"
+# Test imports
+python -c "import acoustic_ml; print(acoustic_ml.__version__)"
+
+# Verificar sync
+make verify-sync
+```
+
+#### 9. (Opcional) Iniciar MLflow
+
+```bash
+docker-compose up -d
+# Acceder: http://localhost:5001
 ```
 
 ---
 
-## ☁️ Gestión de Datos (DVC + S3)
+## 📖 Uso del Sistema
 
-### Configuración de DVC
+### Uso Básico del Módulo
 
-DVC está configurado para usar AWS S3 como storage remoto:
-
-```yaml
-# .dvc/config
-[core]
-    remote = myremote
-['remote "myremote"']
-    url = s3://mlops24-haowei-bucket/dvcstore
-```
-
-### Comandos DVC Esenciales
-
-```bash
-# Descargar datos desde S3
-dvc pull
-
-# Ver estado de archivos trackeados
-dvc status
-
-# Agregar nuevos datos
-dvc add data/new_file.csv
-git add data/new_file.csv.dvc data/.gitignore
-
-# Subir cambios a S3
-dvc push
-
-# Reproducir pipeline
-dvc repro
-```
-
-### Workflow Típico con Datos
-
-```bash
-# 1. Modificar datos localmente
-# 2. Actualizar tracking
-dvc add data
-
-# 3. Subir a S3
-dvc push
-
-# 4. Commitear metadatos
-git add data.dvc
-git commit -m "data: actualizar dataset"
-git push
-```
-
----
-
-## 💻 Uso / Usage
-
-### Opción 1: Usar Pipeline Sklearn (Recomendado para Producción)
+#### Cargar Datos
 
 ```python
-from acoustic_ml.dataset import DatasetManager
+from acoustic_ml.dataset import load_dataset
+
+# Cargar dataset principal
+df = load_dataset('v2_cleaned_full')
+
+# O con splits
+X_train, X_test, y_train, y_test = load_dataset('v2_cleaned_full', return_splits=True)
+```
+
+#### Feature Engineering
+
+```python
+from acoustic_ml.features import FeaturePipeline
+
+# Crear pipeline
+pipeline = FeaturePipeline()
+
+# Transformar datos
+X_transformed = pipeline.fit_transform(X_train, y_train)
+X_test_transformed = pipeline.transform(X_test)
+```
+
+#### Entrenar Modelo
+
+```python
 from acoustic_ml.modeling.sklearn_pipeline import create_sklearn_pipeline
-import joblib
 
-# 1. Cargar datos
-manager = DatasetManager()
-df = manager.load_dataset("v2_cleaned_full.csv")
-X_train, X_test, y_train, y_test = manager.split_data(df, target_column='Class')
+# Crear pipeline completo
+model_pipeline = create_sklearn_pipeline(model_type='random_forest')
 
-# 2. Crear pipeline
-pipeline = create_sklearn_pipeline(
-    model_type='random_forest',
-    scaler_type='robust',
-    pca_components=20
-)
+# Entrenar
+model_pipeline.fit(X_train, y_train)
 
-# 3. Entrenar
-pipeline.fit(X_train, y_train)
+# Predecir
+predictions = model_pipeline.predict(X_test)
 
-# 4. Evaluar
-accuracy = pipeline.score(X_test, y_test)
-print(f"Accuracy: {accuracy:.4f}")
-
-# 5. Guardar
-joblib.dump(pipeline, 'models/production_pipeline.pkl')
+# Evaluar
+accuracy = model_pipeline.score(X_test, y_test)
+print(f"Accuracy: {accuracy:.2%}")
 ```
 
-### Opción 2: Usar Notebooks Interactivos
+#### Visualizaciones
 
-```bash
-jupyter notebook notebooks/sklearn_pipeline_demo.ipynb
+```python
+from acoustic_ml.plots import plot_confusion_matrix, plot_feature_importance
+
+# Confusion matrix
+plot_confusion_matrix(y_test, predictions, save_path='reports/figures/cm.png')
+
+# Feature importance
+plot_feature_importance(model_pipeline, feature_names, top_n=20)
 ```
 
-### Opción 3: Ejecutar Scripts
+### Scripts Rápidos
+
+#### Entrenar Modelo Baseline
 
 ```bash
-# Entrenar modelo baseline
-python scripts/train_baseline.py
+python scripts/training/train_baseline.py
+```
 
-# Probar pipeline completo
-python scripts/test_sklearn_pipeline.py
+#### Ejecutar Experimentos MLflow
 
-# Análisis completo
-python scripts/run_full_analysis.py
+```bash
+python scripts/training/run_mlflow_experiments.py
+```
+
+#### Análisis de Outliers
+
+```bash
+python scripts/analysis/analyze_outliers.py
+```
+
+#### Validación Completa
+
+```bash
+python tests/test_full_integration.py
 ```
 
 ---
 
-## 📜 Scripts Disponibles
+## 🛠️ Scripts Disponibles
 
-### Scripts de Entrenamiento
+### Makefile Commands
+
+El proyecto incluye un `Makefile` con comandos útiles:
 
 ```bash
-# Entrenar modelo baseline
-python scripts/train_baseline.py
+make data           # Descarga datos con DVC
+make train          # Entrena modelo baseline
+make reproduce      # Reproduce pipeline DVC completo
+make clean          # Limpia archivos temporales
+make verify-sync    # Verifica sincronización DVC+Git+S3
+make freeze         # Actualiza requirements.txt
+make test           # Ejecuta tests
+make mlflow         # Inicia MLflow UI
+make help           # Muestra todos los comandos
 ```
 
-### Scripts de Validación
+### Scripts de Training
 
 ```bash
-# Validar módulo dataset
-python scripts/validate_dataset.py
+# Entrenamiento baseline
+python scripts/training/train_baseline.py
 
-# Validar módulo features
-python scripts/validate_features.py
-
-# Validar módulo plots
-python scripts/validate_plots.py
-
-# Probar pipeline sklearn
-python scripts/test_sklearn_pipeline.py
-
-# Validación completa del sistema
-python scripts/test_full_integration.py
+# Experimentos MLflow (7 modelos)
+python scripts/training/run_mlflow_experiments.py
 ```
 
 ### Scripts de Análisis
 
 ```bash
-# Análisis cuantitativo de outliers
-python scripts/analyze_outliers.py
+# Análisis de outliers
+python scripts/analysis/analyze_outliers.py
 
-# Comparación A/B de scalers
-python scripts/compare_scalers.py
+# Comparación de scalers
+python scripts/analysis/compare_scalers.py
 
-# Análisis completo (todos los scripts)
-python scripts/run_full_analysis.py
+# Análisis completo
+python scripts/analysis/run_full_analysis.py
 ```
 
-### Scripts Temporales (no versionados)
+### Scripts de Validación
 
 ```bash
-# Scripts de utilidad temporal
-# Ubicados en scripts/temp/ y no trackeados en Git
-ls scripts/temp/
+# Verificar sincronización DVC+Git+S3
+python scripts/validation/verify_sync.py
+
+# Validación Cookiecutter
+python tests/validate_cookiecutter.py
+
+# Tests de integración
+python tests/test_full_integration.py
 ```
 
 ---
 
-## ✅ Verificación Rápida antes de Trabajar
+## 🌐 API y Deployment
 
-Antes de comenzar a trabajar, verifica que todo esté sincronizado:
+### FastAPI Application
 
-```bash
-make verify-sync
+**Estructura**:
+```
+app/
+├── main.py              <- Entry point
+├── api/
+│   ├── main.py          <- API router
+│   ├── endpoints.py     <- Endpoints
+│   └── schemas.py       <- Pydantic models
+├── core/
+│   ├── config.py        <- Configuración
+│   └── logger.py        <- Logging
+└── services/
+    └── model_service.py <- Modelo service
 ```
 
-Este comando verifica:
-- ✅ Git está actualizado
-- ✅ DVC está sincronizado
-- ✅ Datos descargados correctamente
-- ✅ Dependencias instaladas
-- ✅ Entorno virtual activado
+**Endpoints Planeados**:
+```
+POST /predict          - Predicción single
+POST /predict/batch    - Predicción batch
+GET  /model/info       - Info del modelo
+GET  /health           - Health check
+```
 
----
+**Status**: En desarrollo (Fase 3)
 
-## 🐳 Docker Compose
+### Docker Deployment
 
-### Servicios Disponibles
+**Archivo**: `docker-compose.yml`
 
-El proyecto incluye Docker Compose para MLflow + MinIO (S3-compatible):
+**Services**:
+- `mlflow`: MLflow tracking server (port 5001)
+- `minio` (planeado): S3-compatible storage
 
 ```bash
-# Levantar servicios
-docker-compose --env-file config.env up -d --build
+# Iniciar services
+docker-compose up -d
 
 # Ver logs
 docker-compose logs -f
 
-# Detener servicios
+# Detener
 docker-compose down
 ```
 
-### Acceso a Servicios
+---
 
-- **MLflow UI:** http://localhost:5001
-- **MinIO Console:** http://localhost:9001
+## 📊 Monitoring y Validación
 
-### Variables de Entorno
+### Dashboard Streamlit
 
-Configuradas en `config.env`:
+**URL**: [https://mlopsteam24-cookiecutter.streamlit.app](https://mlopsteam24-cookiecutter.streamlit.app)
+
+**Características**:
+- ✅ Validación estructura Cookiecutter (95.2%)
+- ✅ Verificación de directorios críticos
+- ✅ Validación de archivos configuración
+- ✅ Estado de sincronización DVC
+- ✅ Métricas de cumplimiento
+
+**Local**:
 ```bash
-MLFLOW_TRACKING_URI=http://localhost:5001
-AWS_ACCESS_KEY_ID=minioadmin
-AWS_SECRET_ACCESS_KEY=minioadmin
+cd monitoring/dashboard
+streamlit run streamlit_dashboard.py
+```
+
+### Verificación de Sincronización
+
+**Script**: `scripts/validation/verify_sync.py`
+
+Verifica:
+1. ✅ DVC status (sin cambios pendientes)
+2. ✅ Git status (working tree clean)
+3. ✅ S3 sync (archivos en sync)
+4. ✅ Environment consistency
+
+```bash
+make verify-sync
+# o
+python scripts/validation/verify_sync.py
+```
+
+**Output Esperado**:
+```
+✅ DVC Status: Clean
+✅ Git Status: Clean
+✅ S3 Sync: OK
+✅ Environment: Consistent
 ```
 
 ---
 
-## 🧹 Limpieza y Mantenimiento
+## 🧪 Testing y Validación
 
-### Limpieza de Cachés
+### Test Suite
+
+**Directorio**: `tests/`
 
 ```bash
-# Limpiar cachés de Python y Jupyter
-make clean-caches
+# Ejecutar todos los tests
+make test
+
+# Tests específicos
+python tests/test_dataset_equivalence.py
+python tests/test_sklearn_pipeline.py
+python tests/test_full_integration.py
 ```
 
-Esto elimina:
-- `__pycache__/`
-- `.pytest_cache/`
-- `.ipynb_checkpoints/`
-- `*.pyc`, `*.pyo`
+### Tests Disponibles
 
-### Limpieza Completa
+| Test | Propósito |
+|------|-----------|
+| `test_dataset_equivalence.py` | Validar equivalencia entre datasets |
+| `test_ml_pipeline.py` | Test pipeline MLOps completo |
+| `test_sklearn_pipeline.py` | Test pipeline sklearn |
+| `test_full_integration.py` | Integration tests end-to-end |
+| `validate_cookiecutter.py` | Validar estructura Cookiecutter |
+| `validate_dataset.py` | Validar módulo dataset |
+| `validate_features.py` | Validar módulo features |
+| `validate_plots.py` | Validar módulo plots |
+
+### Validación de Módulos
 
 ```bash
-# Limpieza completa (incluye MLflow/DVC artifacts)
-make clean
+# Dataset
+python tests/validate_dataset.py
+
+# Features
+python tests/validate_features.py
+
+# Plots
+python tests/validate_plots.py
 ```
 
-Esto elimina:
-- Cachés de Python
-- Artifacts de MLflow (`mlruns/`, `mlartifacts/`)
-- Cache de DVC (`dvcstore/`)
-- Build artifacts (`*.egg-info/`)
+### CI/CD (Planeado)
 
-**⚠️ Nota:** Los datos versionados en `data/` NO se eliminan.
+- GitHub Actions para tests automáticos
+- Pre-commit hooks para linting
+- Automated Cookiecutter validation
 
-### Regenerar Dependencias
+---
 
-Si instalaste nuevos paquetes:
+## 🔄 Workflows y Contribución
+
+### Workflow Estándar
+
+#### 1. Antes de Comenzar
 
 ```bash
-# Actualizar requirements.txt
+# Activar entorno
+conda activate acoustic_ml
+
+# Verificar sincronización
+make verify-sync
+
+# Actualizar datos
+dvc pull
+git pull
+```
+
+#### 2. Crear Branch
+
+```bash
+git checkout -b feat/nueva-funcionalidad
+```
+
+#### 3. Hacer Cambios
+
+**Si modificas código**:
+```bash
+# Editar archivos
+vim acoustic_ml/features.py
+
+# Ejecutar tests
+python tests/validate_features.py
+
+# Los cambios están disponibles inmediatamente (instalación -e)
+```
+
+**Si modificas datos**:
+```bash
+# DVC tracking
+dvc add data
+git add data.dvc data/.gitignore
+dvc push
+```
+
+**Si instalas paquetes**:
+```bash
+pip install nuevo-paquete
 make freeze
-
-# Commitear cambios
 git add requirements.txt
-git commit -m "deps: actualizar dependencias"
 ```
 
-### Auditoría de Repositorio
-
-Para verificar que el repo cumple estándares MLOps:
+#### 4. Commit Changes
 
 ```bash
-# Ver estructura actual
-ls -la
-
-# Verificar qué está en Git
-git status
-
-# Verificar qué está ignorado
-git status --ignored
+git add .
+git commit -m "feat: descripción clara"
 ```
 
----
+Seguir [Conventional Commits](https://www.conventionalcommits.org/):
+- `feat:` nueva funcionalidad
+- `fix:` corrección de bug
+- `docs:` documentación
+- `refactor:` refactorización
+- `test:` tests
+- `chore:` mantenimiento
 
-## 🏗 Arquitectura del Pipeline
+#### 5. Push Changes
 
-```mermaid
-flowchart TD
-    A[📂 data/raw/*.csv] -->|limpieza inicial| B[🔵 turkish_music_emotion_cleaned.csv]
-    B -->|formalización| C[📦 v1_original.csv - 400 filas]
-    C -->|limpieza alineada| D[🔄 v2_cleaned_aligned.csv - 400 filas]
-    C -->|limpieza completa| E[⭐ v2_cleaned_full.csv - 408 filas]
-    
-    E -->|DVC tracking| F[☁️ AWS S3]
-    E -->|DatasetManager| G[🔧 acoustic_ml/dataset.py]
-    G -->|feature engineering| H[⚙️ acoustic_ml/features.py]
-    H -->|sklearn pipeline| I[🎯 acoustic_ml/modeling/sklearn_pipeline.py]
-    I --> J[💾 models/production_pipeline.pkl]
-    I --> K[📈 metrics/metrics.json]
-    J -->|log_model| L[MLflow Tracking]
-    K -->|log_metrics| L
-    L --> M[🖥 MLflow UI :5001]
-    
-    style E fill:#90EE90,stroke:#228B22,stroke-width:3px
-    style A fill:#e1f5ff
-    style F fill:#fff4e1
-    style J fill:#e8f5e9
-    style M fill:#f3e5f5
-    style G fill:#ffe4e1
-    style H fill:#e6f3ff
-    style I fill:#fff9c4
+```bash
+git push origin feat/nueva-funcionalidad
+dvc push  # Si modificaste datos
 ```
 
-### Flujo de Trabajo Optimizado
+#### 6. Pull Request
 
-1. 📥 **Datos crudos** en `data/raw/` (versionados con DVC)
-2. 🔧 **Primera limpieza** → `turkish_music_emotion_cleaned.csv` (histórico)
-3. 📦 **Formalización** → `v1_original.csv` (400 filas, baseline)
-4. 🔄 **Limpieza alineada** → `v2_cleaned_aligned.csv` (400 filas, comparación)
-5. ⭐ **Limpieza completa** → `v2_cleaned_full.csv` (408 filas, **PRODUCCIÓN**)
-6. ☁️ **Almacenamiento en S3** para colaboración
-7. 🔧 **DatasetManager** (Singleton thread-safe) gestiona carga/validación
-8. ⚙️ **FeaturePipeline** transforma datos con transformers especializados
-9. 🎯 **SklearnMLPipeline** integra preprocessing + modelo en un único objeto ⭐
-10. 💾 **Modelos entrenados** se guardan en `models/`
-11. 📈 **Experimentos y artefactos** se registran en MLflow
-12. 📊 **Métricas** se trackean con DVC
-13. ✅ **Todo es reproducible**, versionado y testado (37 tests)
-14. 🛡️ **Robusto a outliers** con RobustScaler y análisis cuantitativo
-15. 🧹 **Repositorio limpio** según MLOps best practices ✨
-
----
-
-## 🤝 Contribución
-
-### Flujo de Trabajo
-
-1. **Verificar sincronización:**
-   ```bash
-   make verify-sync
-   ```
-
-2. **Crear una nueva rama:**
-   ```bash
-   git checkout -b feat/nombre-descriptivo
-   ```
-
-3. **Realizar cambios:**
-   
-   **Si modificas código Python:**
-   ```bash
-   # Edita archivos en acoustic_ml/
-   vim acoustic_ml/features.py
-   
-   # Los cambios están disponibles inmediatamente (instalación en modo -e)
-   
-   # Ejecutar tests relevantes
-   python scripts/validate_features.py
-   ```
-
-   **Si modificas datos:**
-   ```bash
-   dvc add data
-   git add data.dvc data/.gitignore
-   dvc push
-   ```
-
-   **Si instalaste paquetes:**
-   ```bash
-   make freeze
-   git add requirements.txt
-   ```
-
-4. **Commitear cambios:**
-   ```bash
-   git add .
-   git commit -m "feat: descripción clara del cambio"
-   ```
-
-5. **Subir cambios:**
-   ```bash
-   git push origin feat/nombre-descriptivo
-   dvc push  # o: make push
-   ```
-
-6. **Crear Pull Request** a la rama `main`
+Crear PR a `main` con descripción clara.
 
 ### Buenas Prácticas
 
-- ✅ Ejecuta `make verify-sync` antes de comenzar a trabajar
-- ✅ **SIEMPRE usa `DatasetManager` para gestionar datos**
-- ✅ **Usa `create_sklearn_pipeline()` para pipelines de producción** ⭐
-- ✅ **Usa `RobustScaler` para manejo de outliers** (no OutlierRemover)
-- ✅ **Ejecuta tests de validación antes de commit** (`validate_*.py`)
-- ✅ **Prueba el pipeline completo** con `test_sklearn_pipeline.py`
-- ✅ Documenta la versión de dataset en MLflow tags
-- ✅ Ejecuta `dvc status` para verificar estado de datos
-- ✅ Ejecuta `make reproduce` antes de hacer commit
-- ✅ Documenta tus experimentos en MLflow
-- ✅ Escribe mensajes de commit descriptivos ([Conventional Commits](https://www.conventionalcommits.org/))
-- ✅ Mantén el código limpio y con docstrings
-- ✅ Usa `make nb-hooks` para configurar hooks de notebooks
-- ✅ Escribe código en el módulo `acoustic_ml/`, no en notebooks
-- ✅ Siempre haz `dvc push` después de modificar datos
-- ✅ **Mantén los tests actualizados** cuando agregues funcionalidades
-- ✅ **NO commitees scripts temporales** (usa `scripts/temp/`)
-- ✅ **Verifica .gitignore** antes de hacer commit de artifacts
+#### ✅ DO
 
-### Convención de Commits
+- ✅ Ejecutar `make verify-sync` antes de comenzar
+- ✅ Usar `DatasetManager` para gestionar datos
+- ✅ Usar `create_sklearn_pipeline()` para producción
+- ✅ Ejecutar tests antes de commit
+- ✅ Documentar experimentos en MLflow
+- ✅ Mantener notebooks limpios (sin outputs)
+- ✅ Usar `RobustScaler` para outliers
+- ✅ Escribir docstrings completos
+- ✅ Seguir Conventional Commits
+- ✅ Hacer `dvc push` después de modificar datos
 
-Usamos [Conventional Commits](https://www.conventionalcommits.org/):
+#### ❌ DON'T
 
-```
-feat: agregar nueva funcionalidad
-fix: corregir bug
-docs: actualizar documentación
-style: cambios de formato (no afectan funcionalidad)
-refactor: reestructurar código sin cambiar comportamiento
-test: agregar o modificar tests
-chore: tareas de mantenimiento
-```
+- ❌ Modificar datos sin DVC tracking
+- ❌ Commitear archivos temporales
+- ❌ Usar código legacy sin revisar
+- ❌ Hacer commits sin tests
+- ❌ Push sin `dvc push` (si hay datos nuevos)
+- ❌ Commitear notebooks con outputs
+- ❌ Modificar `requirements.txt` manualmente
+- ❌ Ignorar warnings de validación
+
+### Code Review Checklist
+
+Antes de aprobar PR:
+- [ ] Tests pasan
+- [ ] Documentación actualizada
+- [ ] No hay archivos temporales
+- [ ] DVC en sync (si aplica)
+- [ ] Código sigue estándares del proyecto
+- [ ] Commit messages son claros
 
 ---
 
-## 👥 **Equipo de Desarrollo**
+## 👥 Equipo de Desarrollo
 
 <div align="center">
 
@@ -1160,21 +1024,21 @@ chore: tareas de mantenimiento
       <h3>David Cruz Beltrán</h3>
       <img src="https://img.shields.io/badge/ID-A01360416-667eea?style=for-the-badge" alt="Matrícula"/>
       <p><strong>🔧 Software Engineer</strong><br/>
-      <em>Data Pipeline & Versioning</em></p>
+      <em>Pipeline Architecture & Code Quality</em></p>
     </td>
     <td align="center" style="border:none; padding:20px 10px;">
       <img src="https://iili.io/KuvsGKx.png" alt="Javier Augusto Rebull Saucedo" width="160" style="border-radius: 50%; border: 5px solid #764ba2; box-shadow: 0 8px 16px rgba(118, 75, 162, 0.4);"/>
       <h3>Javier Augusto Rebull Saucedo</h3>
       <img src="https://img.shields.io/badge/ID-A01795838-764ba2?style=for-the-badge" alt="Matrícula"/>
       <p><strong>⚙️ SRE / Data Engineer</strong><br/>
-      <em>DevOps & Infrastructure</em></p>
+      <em>DevOps, Infrastructure & Data Versioning</em></p>
     </td>
     <td align="center" style="border:none; padding:20px 10px;">
       <img src="https://iili.io/Kw91d74.png" alt="Sandra Luz Cervantes Espinoza" width="160" style="border-radius: 50%; border: 5px solid #f093fb; box-shadow: 0 8px 16px rgba(240, 147, 251, 0.4);"/>
       <h3>Sandra Luz Cervantes Espinoza</h3>
       <img src="https://img.shields.io/badge/ID-A01796937-f093fb?style=for-the-badge" alt="Matrícula"/>
       <p><strong>🤖 ML Engineer / Data Scientist</strong><br/>
-      <em>Model Development & Analysis</em></p>
+      <em>Model Development & Experimentation</em></p>
     </td>
   </tr>
 </table>
@@ -1183,14 +1047,40 @@ chore: tareas de mantenimiento
 
 ---
 
+## 📚 Recursos Adicionales
+
+### Documentación
+
+- [Cookiecutter Data Science](https://drivendata.github.io/cookiecutter-data-science/)
+- [DVC Documentation](https://dvc.org/doc)
+- [MLflow Documentation](https://mlflow.org/docs/latest/index.html)
+- [Scikit-learn Pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html)
+
+### Referencias del Proyecto
+
+- `references/Diccionario_Variables_Musica_Turca.xlsx`: Diccionario de variables
+- `references/Fase 1_Equipo24.pdf`: Entrega Fase 1
+- `references/Fase 2_Equipo24.pdf`: Entrega Fase 2
+- `references/Team24_Machine Learning Canvas v1.0.pdf`: ML Canvas
+
+---
+
 <div align="center">
 
-**⭐ Si este proyecto te resulta útil, considera darle una estrella**
+**⭐ Si este proyecto te resulta útil, considera darle una estrella ⭐**
 
-Desarrollado con ❤️ por el Equipo 24 | Estructura basada en [Cookiecutter Data Science](https://drivendata.github.io/cookiecutter-data-science/)
+---
 
-**🏗️ Refactorizado con SOLID Principles & Design Patterns** | **🧪 100% Tested (37/37 passing)** | **🎯 Production-Ready Sklearn Pipeline** | **🧹 Clean & Professional Repository**
+**Desarrollado con ❤️ por MLOps Team 24**
 
-*Última actualización: Octubre 2024 - Fase 2 completada*
+🏗️ **Arquitectura Profesional** | 🧪 **Testing Comprehensivo** | 🎯 **Production-Ready**
+
+📊 **95.2% Cookiecutter Compliance** | ☁️ **Cloud-Native** | 🔄 **Fully Reproducible**
+
+---
+
+*Última actualización: Octubre 2024 - Fase 2 Completada*
+
+**Estructura basada en**: [Cookiecutter Data Science](https://drivendata.github.io/cookiecutter-data-science/)
 
 </div>
