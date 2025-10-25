@@ -113,12 +113,19 @@ class BaseModelTrainer(ModelTrainer):
             import numpy as np
             from mlflow.models import infer_signature
             
-            # Crear input example (primera fila de datos de entrenamiento)
-            input_example = X[:1] if len(X) > 0 else None
+            # Preparar muestra de datos (5 filas)
+            sample_size = min(5, len(X))
+            if hasattr(X, 'iloc'):  # DataFrame
+                X_sample = X.iloc[:sample_size]
+            else:  # numpy array
+                X_sample = X[:sample_size]
             
-            # Inferir signature del modelo
-            predictions = self.model.predict(X[:5] if len(X) >= 5 else X)
-            signature = infer_signature(X, predictions)
+            # Crear input example (primeras 5 filas)
+            input_example = X_sample
+            
+            # Inferir signature del modelo (usando la misma muestra)
+            predictions = self.model.predict(X_sample)
+            signature = infer_signature(X_sample, predictions)
             
             # Suprimir warning específicamente durante log_model
             import warnings

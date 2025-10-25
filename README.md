@@ -15,7 +15,7 @@
 [![notebooks](https://img.shields.io/badge/notebooks-clean%20outputs-success?logo=jupyter&logoColor=white)](#buenas-prácticas-con-notebooks)
 [![Tests](https://img.shields.io/badge/tests-37%2F37_passing-success?logo=pytest&logoColor=white)](#-testing-y-validación)
 [![Code Quality](https://img.shields.io/badge/code%20quality-production--ready-brightgreen?logo=python&logoColor=white)](#-arquitectura-del-código)
-[![Accuracy](https://img.shields.io/badge/accuracy-80.17%25-success?logo=tensorflow&logoColor=white)](#-sklearn-pipeline-end-to-end)
+[![Accuracy](https://img.shields.io/badge/accuracy-78.51%25-success?logo=tensorflow&logoColor=white)](#-sklearn-pipeline-end-to-end)
 [![Repo Status](https://img.shields.io/badge/repo-clean%20%26%20professional-success?logo=git&logoColor=white)](#-estructura-del-proyecto)
 
 </div>
@@ -58,7 +58,7 @@ Este repositorio contiene la implementación completa de un sistema MLOps para r
 - 🔄 **Pipelines reproducibles** automatizados y compatibles con scikit-learn
 - 📈 **Tracking de experimentos** con MLflow
 - ☁️ **Almacenamiento en la nube** (AWS S3: mlops24-haowei-bucket)
-- 🤖 **Modelos de Machine Learning** versionados (Accuracy: **80.17%**)
+- 🤖 **Modelos de Machine Learning** versionados (Accuracy: **78.51%**)
 - 🗂️ **Estructura modular** siguiendo estándares de la industria
 - 🏗️ **Arquitectura OOP** con SOLID principles
 - 🧪 **Testing comprehensivo** (37/37 tests passing)
