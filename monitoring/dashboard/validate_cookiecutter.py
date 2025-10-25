@@ -1,220 +1,396 @@
+#!/usr/bin/env python3
 """
-MLOps Project Structure Validator - Professional Edition
-Reconoce estructuras profesionales como acoustic_ml/ y pyproject.toml
-Team 24 - Tecnológico de Monterrey
+Script de Validación Cookiecutter Data Science
+MLOps Team 24 - Turkish Music Emotion Recognition
+Fase 2 - Avance de Proyecto
+
+Uso:
+    python validate_cookiecutter.py
+
+Este script valida que tu proyecto esté 100% alineado con Cookiecutter Data Science.
 """
 
 import os
+import sys
 from pathlib import Path
-from typing import Dict, List
+from typing import List, Tuple, Dict
+import subprocess
 import json
 
+# ANSI color codes
+GREEN = '\033[92m'
+RED = '\033[91m'
+YELLOW = '\033[93m'
+BLUE = '\033[94m'
+BOLD = '\033[1m'
+RESET = '\033[0m'
 
-class CookieCutterValidator:
-    """Validates project structure - recognizes professional alternatives"""
+
+class CookiecutterValidator:
+    """Valida la estructura Cookiecutter Data Science de un proyecto."""
     
-    EXPECTED_STRUCTURE = {
-        'directories': [
-            'data',
-            'data/raw',
-            'data/processed',
-            'data/external',
-            'notebooks',
-            ('src', 'acoustic_ml', 'app'),  # Acepta cualquiera de estos
-            'models',
-            'reports',
-            'reports/figures',
-            'references',
-            'docs',
-        ],
-        'files': [
-            'README.md',
-            'requirements.txt',
-            ('.gitignore', '.dvcignore'),  # Acepta cualquiera
-            ('Makefile', 'pyproject.toml'),  # Acepta cualquiera
-            ('setup.py', 'pyproject.toml'),  # Acepta cualquiera
-        ],
-        'optional': [
-            'LICENSE',
-            'tox.ini',
-            'setup.cfg',
-            '.env',
-            'data.dvc',
-            '.dvc/.gitignore',
-            '.dvc/config',
-            'dvc.yaml',
-            'params.yaml',
-            'mlruns',
+    def __init__(self, project_root: Path = None):
+        """Inicializa el validador con la raíz del proyecto."""
+        self.project_root = project_root or Path.cwd()
+        self.results = {
+            "total_checks": 0,
+            "passed": 0,
+            "failed": 0,
+            "warnings": 0,
+            "details": []
+        }
+    
+    def check_directory(self, path: str, description: str, required: bool = True) -> bool:
+        """Verifica si un directorio existe."""
+        self.results["total_checks"] += 1
+        dir_path = self.project_root / path
+        exists = dir_path.exists() and dir_path.is_dir()
+        
+        if exists:
+            self.results["passed"] += 1
+            self._log_success(f"✓ {description}: {path}")
+            return True
+        elif required:
+            self.results["failed"] += 1
+            self._log_error(f"✗ {description}: {path} NO ENCONTRADO")
+            return False
+        else:
+            self.results["warnings"] += 1
+            self._log_warning(f"⚠ {description}: {path} no encontrado (opcional)")
+            return False
+    
+    def check_file(self, path: str, description: str, required: bool = True) -> bool:
+        """Verifica si un archivo existe."""
+        self.results["total_checks"] += 1
+        file_path = self.project_root / path
+        exists = file_path.exists() and file_path.is_file()
+        
+        if exists:
+            self.results["passed"] += 1
+            self._log_success(f"✓ {description}: {path}")
+            return True
+        elif required:
+            self.results["failed"] += 1
+            self._log_error(f"✗ {description}: {path} NO ENCONTRADO")
+            return False
+        else:
+            self.results["warnings"] += 1
+            self._log_warning(f"⚠ {description}: {path} no encontrado (opcional)")
+            return False
+    
+    def check_git_repo(self) -> bool:
+        """Verifica que sea un repositorio Git."""
+        self.results["total_checks"] += 1
+        git_dir = self.project_root / ".git"
+        
+        if git_dir.exists():
+            self.results["passed"] += 1
+            self._log_success("✓ Repositorio Git inicializado")
+            return True
+        else:
+            self.results["failed"] += 1
+            self._log_error("✗ NO es un repositorio Git")
+            return False
+    
+    def check_dvc_config(self) -> bool:
+        """Verifica la configuración de DVC."""
+        self.results["total_checks"] += 1
+        dvc_config = self.project_root / ".dvc" / "config"
+        
+        if dvc_config.exists():
+            self.results["passed"] += 1
+            self._log_success("✓ DVC configurado")
+            return True
+        else:
+            self.results["warnings"] += 1
+            self._log_warning("⚠ DVC no configurado (recomendado)")
+            return False
+    
+    def check_python_module(self, module_name: str) -> bool:
+        """Verifica que el módulo Python tenga la estructura correcta."""
+        self.results["total_checks"] += 1
+        module_dir = self.project_root / module_name
+        
+        if not module_dir.exists():
+            self.results["failed"] += 1
+            self._log_error(f"✗ Módulo Python '{module_name}/' NO ENCONTRADO")
+            return False
+        
+        required_files = [
+            "__init__.py",
+            "config.py",
+            "dataset.py",
+            "features.py",
         ]
-    }
+        
+        all_exist = True
+        for file in required_files:
+            file_path = module_dir / file
+            if not file_path.exists():
+                self._log_error(f"  ✗ {module_name}/{file} faltante")
+                all_exist = False
+        
+        # Check modeling subdirectory
+        modeling_dir = module_dir / "modeling"
+        if modeling_dir.exists():
+            for file in ["__init__.py", "train.py", "predict.py"]:
+                file_path = modeling_dir / file
+                if not file_path.exists():
+                    self._log_error(f"  ✗ {module_name}/modeling/{file} faltante")
+                    all_exist = False
+        else:
+            self._log_error(f"  ✗ {module_name}/modeling/ NO ENCONTRADO")
+            all_exist = False
+        
+        if all_exist:
+            self.results["passed"] += 1
+            self._log_success(f"✓ Módulo Python '{module_name}/' correctamente estructurado")
+            return True
+        else:
+            self.results["failed"] += 1
+            return False
     
-    MLOPS_FILES = [
-        'dvc.yaml',
-        'params.yaml',
-        '.dvc/config',
-        'requirements.txt',
-    ]
-    
-    def __init__(self, repo_path: str = '.'):
-        self.repo_path = Path(repo_path).resolve()
+    def check_notebooks_naming(self) -> bool:
+        """Verifica que los notebooks sigan la convención de nombres."""
+        self.results["total_checks"] += 1
+        notebooks_dir = self.project_root / "notebooks"
         
-    def validate(self) -> Dict:
-        results = {
-            'repo_path': str(self.repo_path),
-            'exists': self.repo_path.exists(),
-            'directories': self._check_directories(),
-            'files': self._check_files(),
-            'optional': self._check_optional(),
-            'mlops': self._check_mlops(),
-            'summary': {}
-        }
+        if not notebooks_dir.exists():
+            self.results["warnings"] += 1
+            self._log_warning("⚠ No se encontró directorio notebooks/")
+            return False
         
-        total_dirs = len(self.EXPECTED_STRUCTURE['directories'])
-        total_files = len(self.EXPECTED_STRUCTURE['files'])
-        total_mlops = len(self.MLOPS_FILES)
+        notebooks = list(notebooks_dir.glob("*.ipynb"))
+        if not notebooks:
+            self.results["warnings"] += 1
+            self._log_warning("⚠ No se encontraron notebooks en notebooks/")
+            return False
         
-        present_dirs = len(results['directories']['present'])
-        present_files = len(results['files']['present'])
-        present_mlops = len(results['mlops']['present'])
+        # Convention: #.#-initials-description.ipynb
+        import re
+        pattern = re.compile(r'^\d+\.\d+-[a-z]+-[\w-]+\.ipynb$')
         
-        results['summary'] = {
-            'directories': {
-                'total': total_dirs,
-                'present': present_dirs,
-                'missing': total_dirs - present_dirs,
-                'percentage': round((present_dirs / total_dirs) * 100, 2)
-            },
-            'files': {
-                'total': total_files,
-                'present': present_files,
-                'missing': total_files - present_files,
-                'percentage': round((present_files / total_files) * 100, 2)
-            },
-            'mlops': {
-                'total': total_mlops,
-                'present': present_mlops,
-                'missing': total_mlops - present_mlops,
-                'percentage': round((present_mlops / total_mlops) * 100, 2)
-            }
-        }
+        correct = []
+        incorrect = []
         
-        total_items = total_dirs + total_files + total_mlops
-        present_items = present_dirs + present_files + present_mlops
-        results['summary']['overall'] = {
-            'total': total_items,
-            'present': present_items,
-            'score': round((present_items / total_items) * 100, 2)
-        }
-        
-        return results
-    
-    def _check_directories(self) -> Dict[str, List[str]]:
-        present = []
-        missing = []
-        
-        for item in self.EXPECTED_STRUCTURE['directories']:
-            # Si es tupla, acepta cualquiera de las alternativas
-            if isinstance(item, tuple):
-                found = False
-                for alt in item:
-                    if (self.repo_path / alt).exists():
-                        present.append(f"{item[0]} (found: {alt})")
-                        found = True
-                        break
-                if not found:
-                    missing.append(f"{item[0]} (or alternatives)")
+        for nb in notebooks:
+            if pattern.match(nb.name):
+                correct.append(nb.name)
             else:
-                if (self.repo_path / item).exists():
-                    present.append(item)
-                else:
-                    missing.append(item)
+                incorrect.append(nb.name)
         
-        return {'present': present, 'missing': missing}
+        if incorrect:
+            self.results["warnings"] += 1
+            self._log_warning(f"⚠ Notebooks con convención incorrecta:")
+            for name in incorrect:
+                print(f"    - {name}")
+            print(f"  {YELLOW}Convención esperada: #.#-iniciales-descripcion.ipynb{RESET}")
+        
+        if correct:
+            self.results["passed"] += 1
+            self._log_success(f"✓ {len(correct)} notebooks con convención correcta")
+            return True
+        
+        return False
     
-    def _check_files(self) -> Dict[str, List[str]]:
-        present = []
+    def check_readme_content(self) -> bool:
+        """Verifica contenido mínimo del README."""
+        self.results["total_checks"] += 1
+        readme = self.project_root / "README.md"
+        
+        if not readme.exists():
+            self.results["failed"] += 1
+            self._log_error("✗ README.md NO ENCONTRADO")
+            return False
+        
+        with open(readme, 'r', encoding='utf-8') as f:
+            content = f.read().lower()
+        
+        required_sections = [
+            ("project", "descripción del proyecto"),
+            ("install", "instrucciones de instalación"),
+            ("usage", "instrucciones de uso"),
+            ("structure", "estructura del proyecto"),
+        ]
+        
         missing = []
+        for keyword, description in required_sections:
+            if keyword not in content:
+                missing.append(description)
         
-        for item in self.EXPECTED_STRUCTURE['files']:
-            if isinstance(item, tuple):
-                found = False
-                for alt in item:
-                    if (self.repo_path / alt).exists():
-                        present.append(f"{item[0]} (found: {alt})")
-                        found = True
-                        break
-                if not found:
-                    missing.append(f"{item[0]} (or alternatives)")
-            else:
-                if (self.repo_path / item).exists():
-                    present.append(item)
-                else:
-                    missing.append(item)
+        if missing:
+            self.results["warnings"] += 1
+            self._log_warning("⚠ README.md podría mejorar con estas secciones:")
+            for section in missing:
+                print(f"    - {section}")
+            return False
         
-        return {'present': present, 'missing': missing}
+        self.results["passed"] += 1
+        self._log_success("✓ README.md tiene las secciones principales")
+        return True
     
-    def _check_optional(self) -> Dict[str, List[str]]:
-        present = []
-        missing = []
-        
-        for item in self.EXPECTED_STRUCTURE['optional']:
-            if (self.repo_path / item).exists():
-                present.append(item)
-            else:
-                missing.append(item)
-        
-        return {'present': present, 'missing': missing}
+    def _log_success(self, message: str):
+        """Imprime mensaje de éxito."""
+        print(f"{GREEN}{message}{RESET}")
+        self.results["details"].append(("success", message))
     
-    def _check_mlops(self) -> Dict[str, List[str]]:
-        present = []
-        missing = []
+    def _log_error(self, message: str):
+        """Imprime mensaje de error."""
+        print(f"{RED}{message}{RESET}")
+        self.results["details"].append(("error", message))
+    
+    def _log_warning(self, message: str):
+        """Imprime mensaje de advertencia."""
+        print(f"{YELLOW}{message}{RESET}")
+        self.results["details"].append(("warning", message))
+    
+    def _log_info(self, message: str):
+        """Imprime mensaje informativo."""
+        print(f"{BLUE}{message}{RESET}")
+    
+    def validate_all(self, module_name: str = "acoustic_ml") -> Dict:
+        """Ejecuta todas las validaciones."""
+        print(f"\n{BOLD}{'='*70}{RESET}")
+        print(f"{BOLD}{BLUE}VALIDACIÓN COOKIECUTTER DATA SCIENCE - FASE 2{RESET}")
+        print(f"{BOLD}{'='*70}{RESET}\n")
         
-        for file in self.MLOPS_FILES:
-            if (self.repo_path / file).exists():
-                present.append(file)
-            else:
-                missing.append(file)
+        print(f"{BOLD}Proyecto:{RESET} {self.project_root}")
+        print(f"{BOLD}Módulo Python:{RESET} {module_name}\n")
         
-        return {'present': present, 'missing': missing}
+        # 1. Estructura de directorios principal
+        print(f"\n{BOLD}[1] ESTRUCTURA DE DIRECTORIOS{RESET}")
+        print("-" * 50)
+        self.check_directory("data", "Directorio data")
+        self.check_directory("data/raw", "Directorio data/raw")
+        self.check_directory("data/processed", "Directorio data/processed")
+        self.check_directory("data/interim", "Directorio data/interim", required=False)
+        self.check_directory("data/external", "Directorio data/external", required=False)
+        
+        self.check_directory("models", "Directorio models")
+        self.check_directory("notebooks", "Directorio notebooks")
+        self.check_directory("reports", "Directorio reports")
+        self.check_directory("reports/figures", "Directorio reports/figures")
+        self.check_directory("references", "Directorio references", required=False)
+        
+        # 2. Archivos de configuración
+        print(f"\n{BOLD}[2] ARCHIVOS DE CONFIGURACIÓN{RESET}")
+        print("-" * 50)
+        self.check_file("README.md", "README principal")
+        self.check_file("requirements.txt", "requirements.txt", required=False)
+        self.check_file("pyproject.toml", "pyproject.toml", required=False)
+        self.check_file(".gitignore", ".gitignore")
+        self.check_file("Makefile", "Makefile", required=False)
+        
+        # 3. Control de versiones
+        print(f"\n{BOLD}[3] CONTROL DE VERSIONES{RESET}")
+        print("-" * 50)
+        self.check_git_repo()
+        self.check_dvc_config()
+        self.check_file(".dvcignore", ".dvcignore", required=False)
+        
+        # 4. Módulo Python
+        print(f"\n{BOLD}[4] MÓDULO PYTHON: {module_name}{RESET}")
+        print("-" * 50)
+        self.check_python_module(module_name)
+        
+        # 5. Notebooks
+        print(f"\n{BOLD}[5] NOTEBOOKS{RESET}")
+        print("-" * 50)
+        self.check_notebooks_naming()
+        
+        # 6. README content
+        print(f"\n{BOLD}[6] DOCUMENTACIÓN{RESET}")
+        print("-" * 50)
+        self.check_readme_content()
+        
+        # Resumen final
+        self._print_summary()
+        
+        return self.results
+    
+    def _print_summary(self):
+        """Imprime resumen de resultados."""
+        print(f"\n{BOLD}{'='*70}{RESET}")
+        print(f"{BOLD}RESUMEN DE VALIDACIÓN{RESET}")
+        print(f"{BOLD}{'='*70}{RESET}\n")
+        
+        total = self.results["total_checks"]
+        passed = self.results["passed"]
+        failed = self.results["failed"]
+        warnings = self.results["warnings"]
+        
+        print(f"Total de verificaciones: {BOLD}{total}{RESET}")
+        print(f"{GREEN}✓ Exitosas: {passed}{RESET}")
+        print(f"{RED}✗ Fallidas: {failed}{RESET}")
+        print(f"{YELLOW}⚠ Advertencias: {warnings}{RESET}\n")
+        
+        percentage = (passed / total * 100) if total > 0 else 0
+        
+        if percentage == 100:
+            print(f"{GREEN}{BOLD}🎉 ¡EXCELENTE! Tu proyecto está 100% alineado con Cookiecutter Data Science{RESET}")
+        elif percentage >= 80:
+            print(f"{BLUE}{BOLD}✓ Muy bien! Tu proyecto está {percentage:.1f}% alineado con Cookiecutter{RESET}")
+            print(f"{YELLOW}  Considera resolver las advertencias para mejorar{RESET}")
+        elif percentage >= 60:
+            print(f"{YELLOW}{BOLD}⚠ Tu proyecto está {percentage:.1f}% alineado con Cookiecutter{RESET}")
+            print(f"{YELLOW}  Es recomendable resolver los problemas identificados{RESET}")
+        else:
+            print(f"{RED}{BOLD}✗ Tu proyecto necesita mejoras ({percentage:.1f}% alineado){RESET}")
+            print(f"{RED}  Revisa los errores y reestructura según Cookiecutter Data Science{RESET}")
+        
+        print(f"\n{BOLD}{'='*70}{RESET}\n")
 
 
-    def get_tree_structure(self, max_depth: int = 3) -> str:
-        """Generate tree view of repository"""
-        def _tree(directory: Path, prefix: str = "", depth: int = 0) -> List[str]:
-            if depth > max_depth:
-                return []
-            
-            lines = []
-            try:
-                items = sorted(directory.iterdir(), key=lambda x: (not x.is_dir(), x.name))
-                items = [item for item in items if not item.name.startswith('.')]
-                
-                for i, item in enumerate(items):
-                    is_last = i == len(items) - 1
-                    current_prefix = "└── " if is_last else "├── "
-                    lines.append(f"{prefix}{current_prefix}{item.name}")
-                    
-                    if item.is_dir():
-                        extension = "    " if is_last else "│   "
-                        lines.extend(_tree(item, prefix + extension, depth + 1))
-            except PermissionError:
-                pass
-            
-            return lines
-        
-        tree_lines = [f"{self.repo_path.name}/"]
-        tree_lines.extend(_tree(self.repo_path))
-        return "\n".join(tree_lines)
-
-
-def validate_cookiecutter_structure(repo_path: str = '.') -> Dict:
-    validator = CookieCutterValidator(repo_path)
-    return validator.validate()
+def main():
+    """Función principal."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(
+        description="Valida estructura Cookiecutter Data Science"
+    )
+    parser.add_argument(
+        "--project-root",
+        type=str,
+        default=".",
+        help="Ruta raíz del proyecto (default: directorio actual)"
+    )
+    parser.add_argument(
+        "--module",
+        type=str,
+        default="acoustic_ml",
+        help="Nombre del módulo Python (default: acoustic_ml)"
+    )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Exportar resultados en formato JSON"
+    )
+    
+    args = parser.parse_args()
+    
+    project_root = Path(args.project_root).resolve()
+    
+    if not project_root.exists():
+        print(f"{RED}Error: El directorio '{project_root}' no existe{RESET}")
+        sys.exit(1)
+    
+    validator = CookiecutterValidator(project_root)
+    results = validator.validate_all(module_name=args.module)
+    
+    if args.json:
+        json_output = project_root / "cookiecutter_validation_report.json"
+        with open(json_output, 'w') as f:
+            json.dump(results, f, indent=2)
+        print(f"\n{GREEN}Reporte JSON guardado en: {json_output}{RESET}")
+    
+    # Exit code basado en resultados
+    if results["failed"] > 0:
+        sys.exit(1)
+    elif results["warnings"] > 0:
+        sys.exit(0)
+    else:
+        sys.exit(0)
 
 
 if __name__ == "__main__":
-    import sys
-    repo_path = sys.argv[1] if len(sys.argv) > 1 else '.'
-    validator = CookieCutterValidator(repo_path)
-    results = validator.validate()
-    print(json.dumps(results, indent=2))
+    main()

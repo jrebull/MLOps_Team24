@@ -1,9 +1,9 @@
 """
 MLOps Project Structure Dashboard
 Streamlit-based validation dashboard for Turkish Music Emotion Recognition project
+Actualizado para Fase 2 - Post Cleanup
 Team 24 - Tecnológico de Monterrey (ITESM)
 """
-
 import streamlit as st
 import subprocess
 import os
@@ -36,40 +36,35 @@ st.markdown("""
         border-radius: 10px;
         margin-bottom: 2rem;
     }
-    
     .metric-card {
         background: #f0f2f6;
         padding: 1rem;
         border-radius: 8px;
         border-left: 4px solid #667eea;
     }
-    
     .success-box {
         background: #d4edda;
         border-left: 4px solid #28a745;
         padding: 1rem;
-        border-radius: 4px;
-        margin: 0.5rem 0;
+        border-radius: 8px;
+        margin: 1rem 0;
     }
-    
-    .error-box {
-        background: #f8d7da;
-        border-left: 4px solid #dc3545;
+    .warning-box {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
         padding: 1rem;
-        border-radius: 4px;
-        margin: 0.5rem 0;
+        border-radius: 8px;
+        margin: 1rem 0;
     }
-    
     .info-box {
         background: #d1ecf1;
         border-left: 4px solid #17a2b8;
         padding: 1rem;
-        border-radius: 4px;
-        margin: 0.5rem 0;
+        border-radius: 8px;
+        margin: 1rem 0;
     }
-    
-    .stButton>button {
-        width: 100%;
+    .stProgress > div > div > div > div {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -77,420 +72,328 @@ st.markdown("""
 # Header
 st.markdown("""
 <div class="main-header">
-    <h1>🎵 MLOps Project Structure Validator</h1>
-    <p><b>Turkish Music Emotion Recognition</b></p>
-    <p>Team 24 | Tecnológico de Monterrey | MNA 2025</p>
+    <h1>🎵 MLOps Team 24 - Turkish Music Emotion Recognition</h1>
+    <p>Cookiecutter Data Science Structure Validator | Fase 2 - Post Cleanup</p>
+    <p><strong>Tecnológico de Monterrey (ITESM)</strong></p>
 </div>
 """, unsafe_allow_html=True)
 
 # Sidebar
 with st.sidebar:
-    st.image("https://img.icons8.com/color/96/000000/music.png", width=80)
-    st.header("⚙️ Configuration")
+    st.image("https://iili.io/Kw90kmB.png", width=80)
+    st.markdown("### 📊 Dashboard Options")
     
-    # Source selection
-    source = st.radio(
-        "📁 Data Source:",
-        ["Local Repository", "GitHub Repository"],
-        help="Choose where to validate from"
-    )
+    repo_path = st.text_input("Repository Path", value=".", help="Root path of the repository")
     
-    repo_path = None
+    if st.button("🔄 Run Validation", type="primary"):
+        st.session_state.run_validation = True
     
-    if source == "Local Repository":
-        default_path = str(Path.cwd())
-        repo_path = st.text_input(
-            "Repository Path:",
-            value=default_path,
-            help="Full path to your local repository"
-        )
-        
-        # Validate path exists
-        if repo_path and not Path(repo_path).exists():
-            st.warning("⚠️ Path does not exist!")
-            repo_path = None
-    
-    else:  # GitHub Repository
-        repo_url = st.text_input(
-            "GitHub URL:",
-            placeholder="https://github.com/username/repo",
-            help="Full GitHub repository URL"
-        )
-        
-        if st.button("📥 Clone Repository", type="secondary"):
-            if repo_url:
-                with st.spinner("Cloning repository..."):
-                    clone_path = Path("./temp_repo")
-                    
-                    # Remove if exists
-                    if clone_path.exists():
-                        import shutil
-                        shutil.rmtree(clone_path)
-                    
-                    try:
-                        result = subprocess.run(
-                            ["git", "clone", repo_url, str(clone_path)],
-                            capture_output=True,
-                            text=True,
-                            timeout=60
-                        )
-                        
-                        if result.returncode == 0:
-                            st.success("✅ Repository cloned successfully!")
-                            repo_path = str(clone_path)
-                            st.session_state['repo_path'] = repo_path
-                        else:
-                            st.error(f"❌ Clone failed: {result.stderr}")
-                    except subprocess.TimeoutExpired:
-                        st.error("❌ Clone timeout (60s)")
-                    except Exception as e:
-                        st.error(f"❌ Error: {str(e)}")
-            else:
-                st.warning("Please enter a GitHub URL")
-        
-        # Use previously cloned repo
-        if 'repo_path' in st.session_state:
-            repo_path = st.session_state['repo_path']
-            st.info(f"Using: {repo_path}")
-    
-    st.divider()
-    
-    # Team info
+    st.markdown("---")
     st.markdown("### 👥 Team 24")
     st.markdown("""
-    - David Cruz Beltrán
-    - Javier Rebull Saucedo  
-    - Sandra Cervantes Espinoza
+    - **David Cruz Beltrán**  
+      *Software Engineer*
+    - **Javier Augusto Rebull**  
+      *SRE / Data Engineer*
+    - **Sandra Cervantes**  
+      *ML Engineer*
     """)
     
-    st.divider()
-    
-    st.markdown("### 📚 Project Info")
-    st.markdown("""
-    **Emotion Classes:**
-    - 😊 Happy
-    - 😢 Sad
-    - 😠 Angry
-    - 😌 Relax
-    """)
+    st.markdown("---")
+    st.markdown("### 📅 Project Info")
+    st.markdown(f"**Last Updated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    st.markdown("**Phase:** Fase 2 - Completed ✅")
 
-# Main content area
-col1, col2 = st.columns([2, 1])
+# Main content
+if 'run_validation' not in st.session_state:
+    st.session_state.run_validation = False
 
-with col1:
-    st.header("📋 Professional MLOps Structure")
+if st.session_state.run_validation or st.sidebar.button("▶️ Auto-run"):
     
-    structure_tabs = st.tabs(["📁 Directories", "📄 Files", "🔧 MLOps"])
-    
-    with structure_tabs[0]:
-        st.markdown("""
-```
-        MLOps_Team24/
-        ├── data/
-        │   ├── raw/              # Datos originales inmutables
-        │   ├── processed/        # Datos limpios y transformados
-        │   └── external/         # Fuentes de datos externas
-        ├── notebooks/            # Jupyter notebooks (EDA, análisis)
-        ├── acoustic_ml/          # 🎵 Paquete Python principal
-        │   ├── config.py         # Configuraciones
-        │   ├── dataset.py        # Manejo de datos
-        │   ├── features.py       # Feature engineering
-        │   ├── modeling/         # Entrenamiento y predicción
-        │   └── plots.py          # Visualizaciones
-        ├── app/                  # 🚀 API FastAPI
-        │   ├── api/              # Endpoints
-        │   ├── core/             # Config y logging
-        │   └── services/         # Servicios de modelo
-        ├── models/               # Modelos entrenados
-        │   ├── baseline/         # Modelos baseline
-        │   └── optimized/        # Modelos optimizados
-        ├── reports/              # Reportes de análisis
-        │   └── figures/          # Figuras generadas
-        ├── references/           # Diccionarios, PDFs, referencias
-        └── docs/                 # Documentación del proyecto
-```
-        """)
-    
-    with structure_tabs[1]:
-        st.markdown("""
-        **Archivos Esenciales:**
-        - `README.md` - Documentación del proyecto
-        - `requirements.txt` - Dependencias Python
-        - `pyproject.toml` - Configuración moderna Python
-        - `.gitignore` / `.dvcignore` - Reglas Git/DVC
-        - `Makefile` - Comandos automatizados
-        """)
-    
-    with structure_tabs[2]:
-        st.markdown("""
-        **Configuración MLOps Team 24:**
-        - `dvc.yaml` - Pipeline de DVC
-        - `params.yaml` - Hiperparámetros
-        - `.dvc/config` - Configuración DVC remoto
-        - `mlruns/` - Experimentos MLflow
-        - `docker-compose.yml` - Deployment containers
-        """)
-with col2:
-    st.header("🚀 Actions")
-    
-    # Validation button
-    if st.button("🔍 Run Validation", type="primary", use_container_width=True):
-        if repo_path and Path(repo_path).exists():
-            with st.spinner("Validating structure..."):
-                try:
-                    validator = CookieCutterValidator(repo_path)
-                    result = validator.validate()
-                    
-                    # Store in session
-                    st.session_state['validation_result'] = result
-                    st.session_state['validation_time'] = datetime.now()
-                    st.session_state['validated_path'] = repo_path
-                    
-                    st.success("✅ Validation complete!")
-                    st.rerun()
-                    
-                except Exception as e:
-                    st.error(f"❌ Validation error: {str(e)}")
-        else:
-            st.warning("⚠️ Please select a valid repository path")
-    
-    # Export button
-    if 'validation_result' in st.session_state:
-        result = st.session_state['validation_result']
-        
-        st.download_button(
-            label="📥 Download JSON Report",
-            data=json.dumps(result, indent=2),
-            file_name=f"validation_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
-            mime="application/json",
-            use_container_width=True
-        )
-        
-        if st.button("🗑️ Clear Results", use_container_width=True):
-            del st.session_state['validation_result']
-            del st.session_state['validation_time']
-            st.rerun()
-
-# Results section
-if 'validation_result' in st.session_state:
-    st.divider()
-    
-    result = st.session_state['validation_result']
-    summary = result['summary']
-    
-    # Header with score
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.header("📊 Validation Results")
-    with col2:
-        score = summary['overall']['score']
-        if score >= 90:
-            st.success(f"🎯 Score: {score}%")
-        elif score >= 70:
-            st.warning(f"⚠️ Score: {score}%")
-        else:
-            st.error(f"❌ Score: {score}%")
-    
-    # Metrics row
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.metric(
-            label="📁 Directories",
-            value=f"{summary['directories']['present']}/{summary['directories']['total']}",
-            delta=f"{summary['directories']['percentage']}%"
-        )
-    
-    with col2:
-        st.metric(
-            label="📄 Files",
-            value=f"{summary['files']['present']}/{summary['files']['total']}",
-            delta=f"{summary['files']['percentage']}%"
-        )
-    
-    with col3:
-        st.metric(
-            label="🔧 MLOps",
-            value=f"{summary['mlops']['present']}/{summary['mlops']['total']}",
-            delta=f"{summary['mlops']['percentage']}%"
-        )
-    
-    with col4:
-        st.metric(
-            label="🎯 Overall",
-            value=f"{summary['overall']['present']}/{summary['overall']['total']}",
-            delta=f"{summary['overall']['score']}%"
-        )
-    
-    # Progress bar
-    st.progress(summary['overall']['score'] / 100, text=f"Project Completeness: {summary['overall']['score']}%")
-    
-    # Visualization
-    st.subheader("📈 Completeness Breakdown")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        # Pie chart
-        categories = ['Directories', 'Files', 'MLOps']
-        percentages = [
-            summary['directories']['percentage'],
-            summary['files']['percentage'],
-            summary['mlops']['percentage']
-        ]
-        
-        fig = go.Figure(data=[go.Pie(
-            labels=categories,
-            values=percentages,
-            hole=.3,
-            marker=dict(colors=['#667eea', '#764ba2', '#f093fb'])
-        )])
-        
-        fig.update_layout(
-            title="Completion by Category",
-            height=300
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-    
-    with col2:
-        # Bar chart
-        fig = go.Figure()
-        
-        fig.add_trace(go.Bar(
-            name='Present',
-            x=categories,
-            y=[summary['directories']['present'], 
-               summary['files']['present'],
-               summary['mlops']['present']],
-            marker_color='#28a745'
-        ))
-        
-        fig.add_trace(go.Bar(
-            name='Missing',
-            x=categories,
-            y=[summary['directories']['missing'],
-               summary['files']['missing'],
-               summary['mlops']['missing']],
-            marker_color='#dc3545'
-        ))
-        
-        fig.update_layout(
-            title="Items Status",
-            barmode='stack',
-            height=300
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-    
-    # Detailed results
-    st.divider()
-    st.subheader("🔍 Detailed Results")
-    
-    detail_tabs = st.tabs(["📁 Directories", "📄 Files", "🔧 MLOps Files", "📋 Optional", "🌳 Tree View"])
-    
-    with detail_tabs[0]:
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("### ✅ Present Directories")
-            if result['directories']['present']:
-                for item in result['directories']['present']:
-                    st.markdown(f"- ✓ `{item}`")
-            else:
-                st.info("None found")
-        
-        with col2:
-            st.markdown("### ❌ Missing Directories")
-            if result['directories']['missing']:
-                for item in result['directories']['missing']:
-                    st.markdown(f"- ✗ `{item}`")
-            else:
-                st.success("All directories present! 🎉")
-    
-    with detail_tabs[1]:
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("### ✅ Present Files")
-            if result['files']['present']:
-                for item in result['files']['present']:
-                    st.markdown(f"- ✓ `{item}`")
-            else:
-                st.info("None found")
-        
-        with col2:
-            st.markdown("### ❌ Missing Files")
-            if result['files']['missing']:
-                for item in result['files']['missing']:
-                    st.markdown(f"- ✗ `{item}`")
-            else:
-                st.success("All files present! 🎉")
-    
-    with detail_tabs[2]:
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("### ✅ Present MLOps Files")
-            if result['mlops']['present']:
-                for item in result['mlops']['present']:
-                    st.markdown(f"- ✓ `{item}`")
-            else:
-                st.warning("No MLOps files found")
-        
-        with col2:
-            st.markdown("### ❌ Missing MLOps Files")
-            if result['mlops']['missing']:
-                for item in result['mlops']['missing']:
-                    st.markdown(f"- ✗ `{item}`")
-            else:
-                st.success("All MLOps files present! 🎉")
-    
-    with detail_tabs[3]:
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("### ✅ Present Optional Items")
-            if result['optional']['present']:
-                for item in result['optional']['present']:
-                    st.markdown(f"- ✓ `{item}`")
-            else:
-                st.info("None found")
-        
-        with col2:
-            st.markdown("### ❌ Missing Optional Items")
-            if result['optional']['missing']:
-                for item in result['optional']['missing']:
-                    st.markdown(f"- ○ `{item}`")
-            else:
-                st.info("All optional items present")
-    
-    with detail_tabs[4]:
-        st.markdown("### 🌳 Repository Structure")
+    with st.spinner("🔍 Validating project structure..."):
         try:
-            validator = CookieCutterValidator(st.session_state['validated_path'])
-            tree = validator.get_tree_structure(max_depth=3)
-            st.code(tree, language="text")
+            validator = CookieCutterValidator(repo_path)
+            results = validator.validate()
+            
+            # Overall Score
+            overall_score = results['summary']['overall_score']
+            
+            st.markdown("## 📊 Validation Results")
+            
+            # Score gauge
+            col1, col2, col3 = st.columns([1, 2, 1])
+            
+            with col2:
+                fig = go.Figure(go.Indicator(
+                    mode="gauge+number+delta",
+                    value=overall_score,
+                    domain={'x': [0, 1], 'y': [0, 1]},
+                    title={'text': "Overall Compliance Score", 'font': {'size': 24}},
+                    delta={'reference': 90, 'increasing': {'color': "green"}},
+                    gauge={
+                        'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': "darkblue"},
+                        'bar': {'color': "#667eea"},
+                        'bgcolor': "white",
+                        'borderwidth': 2,
+                        'bordercolor': "gray",
+                        'steps': [
+                            {'range': [0, 50], 'color': '#ffcccc'},
+                            {'range': [50, 80], 'color': '#fff9c4'},
+                            {'range': [80, 100], 'color': '#d4edda'}
+                        ],
+                        'threshold': {
+                            'line': {'color': "red", 'width': 4},
+                            'thickness': 0.75,
+                            'value': 90
+                        }
+                    }
+                ))
+                fig.update_layout(height=300)
+                st.plotly_chart(fig, use_container_width=True)
+            
+            # Status message
+            if overall_score >= 90:
+                st.markdown("""
+                <div class="success-box">
+                    <h3>✅ Excellent! Project structure is highly compliant</h3>
+                    <p>Your project follows Cookiecutter Data Science best practices and MLOps standards.</p>
+                </div>
+                """, unsafe_allow_html=True)
+            elif overall_score >= 70:
+                st.markdown("""
+                <div class="warning-box">
+                    <h3>⚠️ Good structure, minor improvements needed</h3>
+                    <p>Most requirements are met, but some files/directories are missing.</p>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown("""
+                <div class="warning-box">
+                    <h3>❌ Structure needs improvement</h3>
+                    <p>Several required components are missing. Review the details below.</p>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            # Detailed metrics
+            st.markdown("## 📈 Detailed Metrics")
+            
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                dirs_pct = results['summary']['directories']['percentage']
+                st.metric(
+                    "Directories",
+                    f"{results['summary']['directories']['present']}/{results['summary']['directories']['total']}",
+                    f"{dirs_pct}%",
+                    delta_color="normal" if dirs_pct >= 80 else "inverse"
+                )
+                st.progress(dirs_pct / 100)
+            
+            with col2:
+                files_pct = results['summary']['files']['percentage']
+                st.metric(
+                    "Required Files",
+                    f"{results['summary']['files']['present']}/{results['summary']['files']['total']}",
+                    f"{files_pct}%",
+                    delta_color="normal" if files_pct >= 80 else "inverse"
+                )
+                st.progress(files_pct / 100)
+            
+            with col3:
+                mlops_pct = results['summary']['mlops']['percentage']
+                st.metric(
+                    "MLOps Files",
+                    f"{results['summary']['mlops']['present']}/{results['summary']['mlops']['total']}",
+                    f"{mlops_pct}%",
+                    delta_color="normal" if mlops_pct >= 80 else "inverse"
+                )
+                st.progress(mlops_pct / 100)
+            
+            # Tabs for detailed breakdown
+            tab1, tab2, tab3, tab4, tab5 = st.tabs([
+                "📁 Directories", 
+                "📄 Files", 
+                "🔧 MLOps", 
+                "🚫 .gitignore Status",
+                "🌳 Tree View"
+            ])
+            
+            with tab1:
+                st.markdown("### Directory Structure")
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown("#### ✅ Present")
+                    if results['directories']['present']:
+                        for item in results['directories']['present']:
+                            st.markdown(f"- ✅ `{item}`")
+                    else:
+                        st.info("No directories found")
+                
+                with col2:
+                    st.markdown("#### ❌ Missing")
+                    if results['directories']['missing']:
+                        for item in results['directories']['missing']:
+                            st.markdown(f"- ❌ `{item}`")
+                    else:
+                        st.success("All required directories present!")
+            
+            with tab2:
+                st.markdown("### Required Files")
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown("#### ✅ Present")
+                    if results['files']['present']:
+                        for item in results['files']['present']:
+                            st.markdown(f"- ✅ `{item}`")
+                    else:
+                        st.info("No files found")
+                
+                with col2:
+                    st.markdown("#### ❌ Missing")
+                    if results['files']['missing']:
+                        for item in results['files']['missing']:
+                            st.markdown(f"- ❌ `{item}`")
+                    else:
+                        st.success("All required files present!")
+                
+                # Optional files
+                st.markdown("### 📋 Optional Files")
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown("#### ✅ Present")
+                    if results['optional']['present']:
+                        for item in results['optional']['present']:
+                            st.markdown(f"- ✅ `{item}`")
+                    else:
+                        st.info("No optional files found")
+                
+                with col2:
+                    st.markdown("#### ⚪ Not Present")
+                    if results['optional']['missing']:
+                        for item in results['optional']['missing']:
+                            st.markdown(f"- ⚪ `{item}`")
+            
+            with tab3:
+                st.markdown("### MLOps-Specific Files")
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown("#### ✅ Present")
+                    if results['mlops']['present']:
+                        for item in results['mlops']['present']:
+                            st.markdown(f"- ✅ `{item}`")
+                    else:
+                        st.info("No MLOps files found")
+                
+                with col2:
+                    st.markdown("#### ❌ Missing")
+                    if results['mlops']['missing']:
+                        for item in results['mlops']['missing']:
+                            st.markdown(f"- ❌ `{item}`")
+                    else:
+                        st.success("All MLOps files present!")
+            
+            with tab4:
+                st.markdown("### .gitignore Status (Fase 2 Cleanup)")
+                
+                if 'gitignore_status' in results:
+                    gitignore = results['gitignore_status']
+                    
+                    st.markdown("""
+                    <div class="info-box">
+                        <p><strong>Best Practice:</strong> Artifacts like mlruns/, mlartifacts/, dvcstore/, 
+                        and *.egg-info/ should NOT be versioned in Git.</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        st.markdown("#### ✅ Properly Ignored")
+                        if gitignore['properly_ignored']:
+                            for item in gitignore['properly_ignored']:
+                                st.markdown(f"- ✅ `{item}/` is gitignored")
+                        else:
+                            st.success("No artifacts need to be ignored (or already cleaned)")
+                    
+                    with col2:
+                        st.markdown("#### ⚠️ Should Be Ignored")
+                        if gitignore['should_be_ignored']:
+                            for item in gitignore['should_be_ignored']:
+                                st.markdown(f"- ⚠️ `{item}/` exists but not gitignored")
+                        else:
+                            st.success("All artifacts properly gitignored!")
+                    
+                    if gitignore.get('note'):
+                        st.info(gitignore['note'])
+            
+            with tab5:
+                st.markdown("### Repository Tree Structure")
+                st.markdown("""
+                <div class="info-box">
+                    <p>Tree view shows the clean directory structure (hidden files and ignored dirs omitted).</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                tree = validator.get_tree_structure(max_depth=3)
+                st.code(tree, language="text")
+            
+            # Download results
+            st.markdown("## 💾 Export Results")
+            
+            results_json = json.dumps(results, indent=2)
+            st.download_button(
+                label="📥 Download Results (JSON)",
+                data=results_json,
+                file_name=f"validation_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+                mime="application/json"
+            )
+            
         except Exception as e:
-            st.error(f"Could not generate tree: {str(e)}")
+            st.error(f"❌ Error during validation: {str(e)}")
+            st.exception(e)
+
+else:
+    st.info("👈 Click 'Run Validation' in the sidebar to start")
     
-    # Timestamp
-    st.divider()
-    col1, col2 = st.columns(2)
-    with col1:
-        st.caption(f"🕐 Last validated: {st.session_state['validation_time'].strftime('%Y-%m-%d %H:%M:%S')}")
-    with col2:
-        st.caption(f"📂 Path: {st.session_state['validated_path']}")
+    st.markdown("""
+    ## 🎯 About This Dashboard
+    
+    This dashboard validates your MLOps project structure against **Cookiecutter Data Science** 
+    best practices and MLOps standards.
+    
+    ### ✨ What's New in Fase 2
+    
+    - ✅ **Repository Cleanup**: Validates that artifacts are properly gitignored
+    - ✅ **Professional Structure**: Recognizes `acoustic_ml/` module
+    - ✅ **MLOps Standards**: Checks DVC, MLflow, and versioning setup
+    - ✅ **Comprehensive Metrics**: Overall compliance score
+    
+    ### 📊 Validation Criteria
+    
+    The dashboard checks for:
+    
+    1. **Directory Structure** (data/, models/, notebooks/, etc.)
+    2. **Required Files** (README.md, requirements.txt, etc.)
+    3. **MLOps Files** (dvc.yaml, params.yaml, data.dvc)
+    4. **.gitignore Status** (artifacts properly ignored)
+    5. **Optional Files** (LICENSE, docker-compose.yml, etc.)
+    
+    ### 🏆 Scoring
+    
+    - **90-100%**: Excellent compliance ✅
+    - **70-89%**: Good, minor improvements needed ⚠️
+    - **<70%**: Structure needs improvement ❌
+    """)
 
 # Footer
-st.divider()
+st.markdown("---")
 st.markdown("""
-<div style='text-align: center; color: #666; padding: 2rem;'>
-    <p><b>MLOps Team 24</b> | Tecnológico de Monterrey (ITESM)</p>
-    <p>🎓 Master in Applied Artificial Intelligence (MNA) | 2025</p>
-    <p>🎵 Turkish Music Emotion Recognition Project</p>
-    <p style='font-size: 0.8em; margin-top: 1rem;'>
-        Supervisors: Dr. Gerardo Rodríguez Hernández & Mtro. Ricardo Valdez Hernández
-    </p>
+<div style="text-align: center; color: #666;">
+    <p><strong>MLOps Team 24</strong> | Tecnológico de Monterrey | Fase 2 - 2024</p>
+    <p>Developed with ❤️ using Streamlit</p>
 </div>
 """, unsafe_allow_html=True)
