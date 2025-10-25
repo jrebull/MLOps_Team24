@@ -31,7 +31,7 @@ class TrainingConfig:
     """Configuración de entrenamiento."""
     cv_folds: int = 5
     scoring: str = "accuracy"
-    mlflow_tracking_uri: str = "http://127.0.0.1:5001"
+    mlflow_tracking_uri: str = "http://127.0.0.1:5000"
     mlflow_experiment: str = "Equipo24-MER"
 
 
@@ -93,15 +93,46 @@ class BaseModelTrainer(ModelTrainer):
         return y
     
     def _log_to_mlflow(self, X, y):
+        import warnings
+        # Suprimir warning deprecation cosmético de artifact_path
+        warnings.filterwarnings('ignore', category=FutureWarning, module='mlflow')
+        
         mlflow.set_tracking_uri(self.training_config.mlflow_tracking_uri)
         mlflow.set_experiment(self.training_config.mlflow_experiment)
         with mlflow.start_run(run_name=self.model_config.name):
+            # Log parameters
             for k, v in self.model_config.hyperparameters.items():
                 mlflow.log_param(k, v if v is not None else "None")
+            
+            # Log metrics
             metrics = self.evaluate(X, y)
             for metric_name, value in metrics.items():
                 mlflow.log_metric(metric_name, value)
+            
+            # Log model as artifact (con signature y example)
+            import numpy as np
+            from mlflow.models import infer_signature
+            
+            # Crear input example (primera fila de datos de entrenamiento)
+            input_example = X[:1] if len(X) > 0 else None
+            
+            # Inferir signature del modelo
+            predictions = self.model.predict(X[:5] if len(X) >= 5 else X)
+            signature = infer_signature(X, predictions)
+            
+            # Suprimir warning específicamente durante log_model
+            import warnings
+            with warnings.catch_warnings():
+                warnings.filterwarnings('ignore', message='.*artifact_path.*')
+                mlflow.sklearn.log_model(
+                    self.model,
+                    "model",
+                    signature=signature,
+                    input_example=input_example
+                )
+            
             logger.info(f"MLflow: {metrics}")
+            logger.info(f"Model logged to MLflow artifacts")
 
 
 def train_baseline_model(X_train, y_train):
