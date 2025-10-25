@@ -1,9 +1,10 @@
-stages:
-  train:
-    cmd: python scripts/train_baseline.py
-    deps:
-      - scripts/train_baseline.py
-    outs:
-      - models/baseline_model.pkl
-    metrics:
-      - metrics/metrics.json
+# Stages comentados - usando run_mlflow_experiments.py directamente con MLflow
+# stages:
+#   train:
+#     cmd: python scripts/train_baseline.py
+#     deps:
+#       - scripts/train_baseline.py
+#     outs:
+#       - models/baseline_model.pkl
+#     metrics:
+#       - metrics/metrics.json
