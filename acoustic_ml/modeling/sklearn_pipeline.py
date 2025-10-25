@@ -137,8 +137,8 @@ class SklearnMLPipeline(BaseEstimator):
         training_config = TrainingConfig(
             cv_folds=5,
             scoring="accuracy",
-            mlflow_tracking_uri="",  # Deshabilitado por ahora
-            mlflow_experiment="sklearn_pipeline"
+            mlflow_tracking_uri="http://127.0.0.1:5000",  # ✅ Habilitado
+            mlflow_experiment="Equipo24-MER"  # Experimento del equipo
         )
         
         # 3. Entrenar modelo
