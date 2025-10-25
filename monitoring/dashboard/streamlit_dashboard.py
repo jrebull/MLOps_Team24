@@ -14,6 +14,10 @@ from datetime import datetime
 import plotly.graph_objects as go
 import plotly.express as px
 
+# Add current directory to path for imports
+current_dir = Path(__file__).parent
+sys.path.insert(0, str(current_dir))
+
 # Import validator
 from validate_cookiecutter import CookieCutterValidator
 
