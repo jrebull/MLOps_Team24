@@ -68,6 +68,11 @@ Se utiliza con `Depends()` para inyectar la dependencia en los endpoints.
 ➡️ *Dependency Injection Pattern* — Mejora la mantenibilidad y testabilidad del código.
 
 ---
+**Execute api**  
+```python
+uvicorn main:app --reload
+```
+---
 
 ## 🩺 Endpoint: `GET /health` — Verificación de estado
 

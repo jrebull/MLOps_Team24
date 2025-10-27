@@ -6,7 +6,7 @@ from app.core.config import settings
 app = FastAPI(title=settings.APP_NAME)
 app.include_router(api_router, prefix="/api/v1")
 
-@app.lifespan("startup")
+@app.on_event("startup")
 async def startup_event():
     logger.info("Starting app %s", settings.APP_NAME)
 
