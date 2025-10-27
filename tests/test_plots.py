@@ -61,3 +61,15 @@ def test_plot_manager_save_figure(tmp_path):
     
     # Es una buena práctica cerrar la figura para liberar memoria.
     plt.close(fig)
+
+def test_save_figure_raises_error_for_none_fig(tmp_path):
+    """Verifica que save_figure lanza un ValueError si la figura es None."""
+    # 1. Arrange
+    manager = PlotManager(reports_dir=tmp_path)
+    
+    # 2. Act & 3. Assert
+    # pytest.raises es un "context manager" que espera una excepción.
+    # El test pasa si se lanza un ValueError con el mensaje esperado.
+    # El test falla si no se lanza ninguna excepción o si se lanza una diferente.
+    with pytest.raises(ValueError, match="La figura no puede ser None"):
+        manager.save_figure(None, "some_file.png")
