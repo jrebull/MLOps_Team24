@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Importamos la clase que vamos a probar
-from acoustic_ml.plots import PlotManager
+from acoustic_ml.plots import PlotManager, FeatureImportancePlotter
 
 def test_plot_manager_init():
     """
@@ -73,3 +73,18 @@ def test_save_figure_raises_error_for_none_fig(tmp_path):
     # El test falla si no se lanza ninguna excepción o si se lanza una diferente.
     with pytest.raises(ValueError, match="La figura no puede ser None"):
         manager.save_figure(None, "some_file.png")
+
+# --- FeatureImportancePlotter Tests ---
+
+def test_feature_importance_plotter_init():
+    """Verifica que FeatureImportancePlotter se inicializa correctamente."""
+    # 1. Arrange
+    manager = PlotManager() # Necesitamos una instancia de PlotManager
+    
+    # 2. Act
+    plotter = FeatureImportancePlotter(manager, default_top_n=10, figsize=(12, 10))
+    
+    # 3. Assert
+    assert plotter.manager is manager
+    assert plotter.default_top_n == 10
+    assert plotter.figsize == (12, 10)
