@@ -76,6 +76,21 @@ def test_save_figure_raises_error_for_none_fig(tmp_path):
 
 # --- FeatureImportancePlotter Tests ---
 
+@pytest.fixture
+def sample_feature_importance_data():
+    """Proporciona un diccionario de prueba con importancias de features."""
+    return {
+        'spectral_centroid_mean': 0.25,
+        'mfcc_1_mean': 0.20,
+        'rms_mean': 0.15,
+        'zero_crossing_rate_mean': 0.12,
+        'spectral_rolloff_mean': 0.10,
+        'tempo': 0.08,
+        'chroma_stft_mean': 0.05,
+        'spectral_bandwidth_mean': 0.03,
+        'mfcc_2_mean': 0.02
+    }
+
 def test_feature_importance_plotter_init():
     """Verifica que FeatureImportancePlotter se inicializa correctamente."""
     # 1. Arrange
@@ -88,3 +103,31 @@ def test_feature_importance_plotter_init():
     assert plotter.manager is manager
     assert plotter.default_top_n == 10
     assert plotter.figsize == (12, 10)
+
+def test_feature_importance_plotter_plot_basic(sample_feature_importance_data):
+    """Verifica que el método plot genera una figura con las propiedades correctas."""
+    # 1. Arrange
+    manager = PlotManager()
+    plotter = FeatureImportancePlotter(manager)
+    
+    # 2. Act
+    fig = plotter.plot(sample_feature_importance_data, top_n=5, title="Test Plot", xlabel="Score")
+    
+    # 3. Assert
+    # Verificamos que se devuelve un objeto de figura
+    assert isinstance(fig, plt.Figure)
+    
+    # Obtenemos los ejes para inspeccionar el gráfico
+    ax = fig.get_axes()[0]
+    assert ax.get_title() == "Test Plot"
+    assert ax.get_xlabel() == "Score"
+    
+    # Verificamos que se dibujaron el número correcto de barras (top_n=5)
+    assert len(ax.patches) == 5
+    
+    # Verificamos que las features están ordenadas correctamente (de mayor a menor importancia)
+    expected_features = ['spectral_centroid_mean', 'mfcc_1_mean', 'rms_mean', 'zero_crossing_rate_mean', 'spectral_rolloff_mean']
+    actual_features = [label.get_text() for label in ax.get_yticklabels()]
+    assert actual_features == expected_features
+    
+    plt.close(fig)
