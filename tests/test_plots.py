@@ -153,3 +153,30 @@ def test_feature_importance_plotter_plot_none_data_raises_error():
     # 2. Act & 3. Assert
     with pytest.raises(ValueError, match="Los datos no pueden ser None"):
         plotter.plot(None)
+
+def test_feature_importance_plotter_plot_and_save(tmp_path, sample_feature_importance_data):
+    """Verifica que plot_and_save genera y guarda la figura correctamente."""
+    # 1. Arrange
+    # Inicializamos PlotManager con tmp_path para que guarde en un directorio temporal
+    manager = PlotManager(reports_dir=tmp_path)
+    plotter = FeatureImportancePlotter(manager)
+    
+    filename = "feature_importance_test.png"
+    
+    # 2. Act
+    # Llamamos al método que queremos probar.
+    # Le pasamos top_n=3 para que el plot sea pequeño y rápido.
+    saved_path = plotter.plot_and_save(sample_feature_importance_data, filename, top_n=3)
+    
+    # 3. Assert
+    # Construimos la ruta esperada (PlotManager guarda en 'figures' por defecto)
+    expected_path = tmp_path / "figures" / filename
+    
+    # Verificamos que la ruta devuelta es la correcta
+    assert saved_path == expected_path
+    # Verificamos que el archivo existe y no está vacío
+    assert expected_path.exists()
+    assert expected_path.stat().st_size > 0
+    
+    # Nota: El método plot_and_save ya cierra la figura internamente,
+    # por lo que no necesitamos plt.close(fig) aquí.
