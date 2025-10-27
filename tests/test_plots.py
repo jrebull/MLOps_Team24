@@ -4,9 +4,10 @@ import pytest
 from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 # Importamos la clase que vamos a probar
-from acoustic_ml.plots import PlotManager, FeatureImportancePlotter
+from acoustic_ml.plots import PlotManager, FeatureImportancePlotter, BasePlotter
 
 def test_plot_manager_init():
     """
@@ -75,6 +76,32 @@ def test_save_figure_raises_error_for_none_fig(tmp_path):
     # El test falla si no se lanza ninguna excepción o si se lanza una diferente.
     with pytest.raises(ValueError, match="La figura no puede ser None"):
         manager.save_figure(None, "some_file.png")
+
+def test_plot_manager_create_subplot_grid():
+    """Verifica que create_subplot_grid devuelve una figura y ejes correctos para una grilla."""
+    # 1. Arrange
+    manager = PlotManager()
+    
+    # 2. Act
+    fig, axes = manager.create_subplot_grid(nrows=2, ncols=2, figsize=(10, 8))
+    
+    # 3. Assert
+    assert isinstance(fig, plt.Figure)
+    assert isinstance(axes, np.ndarray)  # Para 2x2, axes es un array de Axes
+    assert axes.shape == (2, 2)
+    assert fig.get_size_inches().tolist() == [10.0, 8.0]  # Verificar figsize
+    
+    plt.close(fig)
+
+def test_plot_manager_create_subplot_grid_single_plot():
+    """Verifica create_subplot_grid para un solo plot."""
+    manager = PlotManager()
+    fig, ax = manager.create_subplot_grid(nrows=1, ncols=1)
+    
+    assert isinstance(fig, plt.Figure)
+    assert isinstance(ax, plt.Axes)  # Para 1x1, ax es un solo objeto Axes
+    
+    plt.close(fig)
 
 # --- FeatureImportancePlotter Tests ---
 
