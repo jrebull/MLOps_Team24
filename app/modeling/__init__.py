@@ -1,1 +1,1 @@
-from .ml_pipeline import DataLoader, Preprocessor, ModelTrainer
+from app.modeling.ml_pipeline import DataLoader, Preprocessor, ModelTrainer

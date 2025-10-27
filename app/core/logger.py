@@ -1,21 +1,16 @@
 import logging
-import sys
-from logging.config import dictConfig
-from .config import settings
+from logging.handlers import RotatingFileHandler
 
-def setup_logging():
-    level = getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO)
-    dictConfig({
-        "version": 1,
-        "disable_existing_loggers": False,
-        "formatters": {
-            "default": {"format": "%(asctime)s %(levelname)s %(name)s %(message)s"}
-        },
-        "handlers": {
-            "default": {"class": "logging.StreamHandler", "stream": sys.stdout, "formatter": "default"}
-        },
-        "root": {"level": level, "handlers": ["default"]},
-    })
+logger = logging.getLogger("mlops")
+logger.setLevel(logging.INFO)
 
-setup_logging()
-logger = logging.getLogger(__name__)
+
+def get_logger(name: str) -> logging.Logger:
+    logger = logging.getLogger(name)
+    if not logger.hasHandlers():
+        logger.setLevel(logging.INFO)
+        handler = RotatingFileHandler("logs/app.log", maxBytes=5_000_000, backupCount=3)
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    return logger
