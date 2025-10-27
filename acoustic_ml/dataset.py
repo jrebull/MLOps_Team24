@@ -1,48 +1,8 @@
-"""
-Módulo de gestión de datasets para clasificación de emociones en música turca.
-
-Este módulo implementa un sistema robusto de gestión de datos con:
-- Patrón Singleton thread-safe para gestión centralizada
-- Validación comprehensiva de datasets
-- Análisis estadístico de datos
-- Carga/guardado con múltiples formatos
-- Context managers para operaciones seguras
-
-Implementa principios SOLID:
-- Single Responsibility: Clases separadas para config, validación, stats, gestión
-- Open/Closed: Extensible mediante herencia
-- Liskov Substitution: Todos los loaders son intercambiables
-- Interface Segregation: Interfaces específicas y mínimas
-- Dependency Inversion: Depende de abstracciones
-
-Arquitectura:
-    DatasetConfig: Configuración centralizada
-    SingletonMeta: Metaclase thread-safe para Singleton
-    DatasetValidator: Validación robusta de datos
-    DatasetStatistics: Análisis estadístico
-    DatasetManager: Gestor principal con Singleton
-
-Ejemplo básico:
-    >>> from acoustic_ml.dataset import DatasetManager
-    >>> manager = DatasetManager()
-    >>> df = manager.load_processed(version='v2')
-    >>> manager.dataset_info(df)
-
-Ejemplo avanzado:
-    >>> manager = DatasetManager()
-    >>> X_train, X_test, y_train, y_test = manager.load_train_test_split()
-    >>> stats = manager.get_statistics(X_train)
-    >>> manager.validate_dataset(X_train, required_cols=['Class'])
-
-Author: MLOps Team 24
-Date: 2024-10
-"""
-
 from pathlib import Path
 import pandas as pd
 import numpy as np
 import logging
-from typing import Optional, Dict, List, Tuple, Union, Any
+from typing import Optional, Dict, List, Tuple, Any
 from contextlib import contextmanager
 import threading
 import warnings
