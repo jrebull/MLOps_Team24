@@ -3,11 +3,12 @@ matplotlib.use('Agg')  # Configurar backend no interactivo antes de importar pyp
 import pytest
 from pathlib import Path
 import matplotlib.pyplot as plt
+from unittest.mock import patch, MagicMock
 import seaborn as sns
 import numpy as np
 
 # Importamos la clase que vamos a probar
-from acoustic_ml.plots import PlotManager, FeatureImportancePlotter, BasePlotter
+from acoustic_ml.plots import PlotManager, FeatureImportancePlotter, BasePlotter, save_figure, plot_feature_importance
 
 def test_plot_manager_init():
     """
@@ -207,3 +208,54 @@ def test_feature_importance_plotter_plot_and_save(tmp_path, sample_feature_impor
     
     # Nota: El método plot_and_save ya cierra la figura internamente,
     # por lo que no necesitamos plt.close(fig) aquí.
+
+# --- Legacy Functions Tests ---
+
+@pytest.mark.filterwarnings("always::DeprecationWarning")
+def test_legacy_save_figure_warns_and_calls_new_method(tmp_path):
+    """Verifica que la función legacy save_figure emite un DeprecationWarning y llama a PlotManager.save_figure."""
+    # 1. Arrange
+    # Creamos una instancia "mock" (simulada) de PlotManager que podemos controlar.
+    mock_manager_instance = MagicMock(spec=PlotManager)
+    
+    # "Parcheamos" la clase PlotManager. Cuando la función legacy la llame, obtendrá nuestro mock.
+    with patch('acoustic_ml.plots.PlotManager', return_value=mock_manager_instance) as MockPlotManagerClass:
+        # Verificamos que se emite la advertencia correcta.
+        with pytest.warns(DeprecationWarning, match=r"save_figure\(\) está deprecated"):
+            # 2. Act
+            fig, ax = plt.subplots()
+            filename = "legacy_test.png"
+            save_figure(fig, filename) # Llamamos a la función legacy
+            
+            # 3. Assert
+            # Verificamos que PlotManager() fue llamado una vez.
+            MockPlotManagerClass.assert_called_once()
+            # Verificamos que el método save_figure de nuestro mock fue llamado con los argumentos correctos.
+            mock_manager_instance.save_figure.assert_called_once_with(fig, filename, "figures")
+            
+            plt.close(fig)
+
+@pytest.mark.filterwarnings("always::DeprecationWarning")
+def test_legacy_plot_feature_importance_warns_and_calls_new_method(sample_feature_importance_data):
+    """Verifica que la función legacy plot_feature_importance emite un DeprecationWarning y llama a FeatureImportancePlotter.plot."""
+    # 1. Arrange
+    mock_manager_instance = MagicMock(spec=PlotManager)
+    mock_plotter_instance = MagicMock(spec=FeatureImportancePlotter)
+    
+    # Configuramos el mock para que devuelva una figura real, para poder cerrarla después.
+    real_fig_for_mock, _ = plt.subplots()
+    mock_plotter_instance.plot.return_value = real_fig_for_mock
+
+    # Parcheamos ambas clases
+    with patch('acoustic_ml.plots.PlotManager', return_value=mock_manager_instance) as MockPlotManagerClass:
+        with patch('acoustic_ml.plots.FeatureImportancePlotter', return_value=mock_plotter_instance) as MockFeatureImportancePlotterClass:
+            with pytest.warns(DeprecationWarning, match=r"plot_feature_importance\(\) está deprecated"):
+                # 2. Act
+                fig_returned = plot_feature_importance(sample_feature_importance_data, top_n=3)
+                
+                # 3. Assert
+                MockPlotManagerClass.assert_called_once()
+                MockFeatureImportancePlotterClass.assert_called_once_with(mock_manager_instance)
+                mock_plotter_instance.plot.assert_called_once_with(sample_feature_importance_data, 3)
+                assert fig_returned is real_fig_for_mock
+                plt.close(fig_returned)
