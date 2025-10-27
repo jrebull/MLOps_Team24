@@ -72,6 +72,11 @@ Se utiliza con `Depends()` para inyectar la dependencia en los endpoints.
 ```python
 uvicorn main:app --reload
 ```
+
+**Swagger api**  
+```python
+http://127.0.0.1:8000/docs
+```
 ---
 
 ## 🩺 Endpoint: `GET /health` — Verificación de estado
