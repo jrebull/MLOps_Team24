@@ -1,12 +1,8 @@
-"""
-Módulo de evaluación de modelos con métricas completas e integración con MLflow.
-"""
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import (

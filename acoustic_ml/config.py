@@ -1,7 +1,3 @@
-"""
-Configuración del proyecto
-"""
-import os
 from pathlib import Path
 
 # Directorios base

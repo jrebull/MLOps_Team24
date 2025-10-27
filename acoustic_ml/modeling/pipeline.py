@@ -8,61 +8,36 @@ from typing import Dict, Tuple, Optional
 import pandas as pd
 from sklearn.base import BaseEstimator
 
-from acoustic_ml.config import MODELS_DIR, REPORTS_DIR
+from acoustic_ml.config import MODELS_DIR
 from acoustic_ml.dataset import DatasetManager
 from acoustic_ml.modeling.train import BaseModelTrainer, ModelConfig, TrainingConfig
 from acoustic_ml.modeling.predict import ModelPredictor
 from acoustic_ml.modeling.evaluate import ModelEvaluator
 
-# Configurar logging
 logger = logging.getLogger(__name__)
 
 
 class MLPipeline:
-    """
-    Pipeline completo de Machine Learning que orquesta:
-    - Carga de datos
-    - Entrenamiento de modelos
-    - Predicción
-    - Evaluación
-    - Persistencia de resultados
-    
-    Atributos:
-        model_config (ModelConfig): Configuración del modelo
-        training_config (TrainingConfig): Configuración de entrenamiento
-        dataset_manager (DatasetManager): Gestor de datos
-        trainer (BaseModelTrainer): Entrenador del modelo
-        model (BaseEstimator): Modelo entrenado
-        predictor (ModelPredictor): Predictor del modelo
-        evaluator (ModelEvaluator): Evaluador del modelo
-    """
-    
+
     def __init__(
         self,
         model_config: ModelConfig,
         training_config: TrainingConfig,
         model_filename: str = "baseline_model.pkl"
     ):
-        """
-        Inicializar el pipeline de ML.
-        
-        Args:
-            model_config: Configuración del modelo a entrenar
-            training_config: Configuración del proceso de entrenamiento
-            model_filename: Nombre del archivo donde guardar el modelo
-        """
+      
         self.model_config = model_config
         self.training_config = training_config
         self.model_filename = model_filename
         
-        # Inicializar componentes
+
         self.dataset_manager = DatasetManager()
         self.trainer = None
         self.model = None
         self.predictor = None
         self.evaluator = None
         
-        # Datos
+
         self.X_train = None
         self.X_test = None
         self.y_train = None
@@ -71,15 +46,7 @@ class MLPipeline:
         logger.info(f"🚀 MLPipeline inicializado: {model_config.name}")
     
     def load_data(self) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-        """
-        Cargar los datos de entrenamiento y prueba.
-        
-        Returns:
-            Tupla con (X_train, X_test, y_train, y_test)
-        
-        Raises:
-            FileNotFoundError: Si los archivos de datos no existen
-        """
+
         logger.info("📊 Paso 1/5: Cargando datos...")
         
         try:
