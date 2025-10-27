@@ -1,25 +1,30 @@
+# Imports de terceros
 import joblib
+import numpy as np
 from pathlib import Path
-from typing import Any
-from modeling.ml_pipeline import DataLoader, Preprocessor, ModelTrainer
+from typing import Any, Optional, List
+
+# Imports del proyecto
+from app.modeling.ml_pipeline import DataLoader, Preprocessor, ModelTrainer
 from app.core.config import settings
 from app.core.logger import logger
-import numpy as np
 
 MODEL_DIR = Path(settings.MODEL_PATH).parent
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
 
 class ModelService:
-    def __init__(self, model_path: str = settings.MODEL_PATH):
+    def __init__(self, model_path: str = settings.MODEL_PATH) -> None:
         self.model_path = model_path
-        self.model = None
+        self.model: Optional[Any] = None
 
     def train(self, data_path: str, model_name: str = "model_v1") -> str:
         logger.info("Starting training pipeline")
-        
+
+        # Cargar datos
         loader = DataLoader(data_path)
         df = loader.load_csv()
-        
+
+        # Preprocesamiento
         pre = Preprocessor(df)
         pre.encode_labels()
         pre.drop_duplicates()
@@ -29,23 +34,25 @@ class ModelService:
         pre.normalize_skewed()
         cleaned = pre.get_clean_df()
 
+        # Entrenamiento
         trainer = ModelTrainer(cleaned)
         trainer.split_and_scale()
-        trainer.train_logistic()  # o según configuración
-        model = trainer.get_trained_model()  # retorna sklearn estimator
+        trainer.train_logistic()
+        model = trainer.get_trained_model()
 
+        # Guardar modelo
         path = MODEL_DIR / f"{model_name}.joblib"
         joblib.dump(model, path)
         logger.info("Saved model to %s", path)
         return str(path)
 
-    def load(self, model_path: str | None = None) -> Any:
+    def load(self, model_path: Optional[str] = None) -> Any:
         path = model_path or self.model_path
         logger.info("Loading model from %s", path)
         self.model = joblib.load(path)
         return self.model
 
-    def predict(self, features: list[float]) -> dict:
+    def predict(self, features: List[float]) -> dict:
         if self.model is None:
             self.load()
         X = np.array(features).reshape(1, -1)
