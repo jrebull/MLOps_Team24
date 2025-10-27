@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')  # Configurar backend no interactivo antes de importar pyplot
 import pytest
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -131,3 +133,23 @@ def test_feature_importance_plotter_plot_basic(sample_feature_importance_data):
     assert actual_features == expected_features
     
     plt.close(fig)
+
+def test_feature_importance_plotter_plot_empty_data_raises_error():
+    """Verifica que plot lanza ValueError con un diccionario vacío."""
+    # 1. Arrange
+    manager = PlotManager()
+    plotter = FeatureImportancePlotter(manager)
+    
+    # 2. Act & 3. Assert
+    with pytest.raises(ValueError, match="El diccionario de feature importance está vacío"):
+        plotter.plot({})
+
+def test_feature_importance_plotter_plot_none_data_raises_error():
+    """Verifica que plot lanza ValueError con datos None."""
+    # 1. Arrange
+    manager = PlotManager()
+    plotter = FeatureImportancePlotter(manager)
+    
+    # 2. Act & 3. Assert
+    with pytest.raises(ValueError, match="Los datos no pueden ser None"):
+        plotter.plot(None)
