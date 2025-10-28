@@ -129,8 +129,8 @@ def main():
         from acoustic_ml.modeling.sklearn_pipeline import create_sklearn_pipeline
         from acoustic_ml.dataset import DatasetManager
         
-        # Cargar datos
-        print("   📂 Cargando datos...")
+        # Cargar datos usando DatasetManager (mejor práctica MLOps)
+        print("   📂 Cargando datos con DatasetManager...")
         dm = DatasetManager()
         X_train, X_test, y_train, y_test = dm.get_train_test_split()
         all_checks_passed &= check_mark(True, f"Datos cargados: {len(X_train)} train, {len(X_test)} test")
