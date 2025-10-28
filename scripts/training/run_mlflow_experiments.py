@@ -19,6 +19,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import tempfile
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Tuple
@@ -213,13 +214,12 @@ class MLflowExperimentRunner:
             annot=True,
             fmt='d',
             cmap='Blues',
-            xticklabels=labels,
-            yticklabels=labels,
-            cbar_kws={'label': 'Count'}
+            xticklabels=['Happy', 'Sad', 'Angry', 'Relax'],
+            yticklabels=['Happy', 'Sad', 'Angry', 'Relax']
         )
-        plt.title('Confusion Matrix', fontsize=14, fontweight='bold')
-        plt.ylabel('True Label', fontsize=12)
-        plt.xlabel('Predicted Label', fontsize=12)
+        plt.title('Confusion Matrix')
+        plt.ylabel('True Label')
+        plt.xlabel('Predicted Label')
         plt.tight_layout()
         plt.savefig(save_path, dpi=150, bbox_inches='tight')
         plt.close()
@@ -236,62 +236,57 @@ class MLflowExperimentRunner:
         run_number: int
     ) -> Dict:
         """
-        Run a single experiment with MLflow logging.
+        Run a single MLflow experiment.
         
         Args:
             config: Model configuration dictionary
-            X_train, X_test: Training and test features
-            y_train, y_test: Training and test labels
+            X_train: Training features
+            X_test: Test features
+            y_train: Training labels
+            y_test: Test labels
             run_number: Experiment run number
             
         Returns:
             Dictionary with experiment results
         """
-        model_name = config['name']
+        model_name = f"exp_{run_number:02d}_{config['name']}"
+        
         print(f"\n{'='*70}")
-        print(f"🔬 Experiment {run_number}/7: {model_name}")
-        print(f"   {config['description']}")
+        print(f"🚀 Experiment {run_number}: {config['name']}")
+        print(f"   Description: {config['description']}")
         print(f"{'='*70}")
         
-        # Start MLflow run
-        with mlflow.start_run(run_name=f"exp_{run_number:02d}_{model_name}"):
-            
-            # ===== LOG DATASET INFORMATION =====
-            mlflow.log_param("dataset_source", "acoustic_ml.DatasetManager")
+        with mlflow.start_run(run_name=model_name):
+            # ===== LOG PARAMETERS =====
+            print(f"   📝 Logging parameters...")
+            mlflow.log_param("model_type", config['model_type'])
+            mlflow.log_param("scale_method", "robust")
+            mlflow.log_param("n_features", X_train.shape[1])
             mlflow.log_param("n_train_samples", len(X_train))
             mlflow.log_param("n_test_samples", len(X_test))
-            mlflow.log_param("n_features", X_train.shape[1])
-            mlflow.log_param("n_classes", len(y_train.unique()))
-            mlflow.log_param("test_split_ratio", 0.2)
-            mlflow.log_param("split_strategy", "stratified")
-            mlflow.log_param("preprocessing", "acoustic_ml pipeline")
             
-            # ===== LOG MODEL CONFIGURATION =====
-            mlflow.log_param("model_name", model_name)
-            mlflow.log_param("model_type", config['model_type'])
-            mlflow.log_param("scaler_type", "robust")  # Hardcoded in acoustic_ml pipeline
-            mlflow.log_param("description", config['description'])
-            
-            # Log model hyperparameters
+            # Log all model hyperparameters
             for param_name, param_value in config['model_params'].items():
                 mlflow.log_param(f"model_{param_name}", param_value)
             
-            # ===== CREATE PIPELINE USING EXISTING INFRASTRUCTURE =====
-            print(f"   🔧 Creating pipeline (RobustScaler + {config['model_type']})...")
+            # ===== TRAIN MODEL =====
+            print(f"   🎯 Training {config['model_type']} pipeline...")
+            
+            # Create pipeline using existing infrastructure
             pipeline = create_sklearn_pipeline(
                 model_type=config['model_type'],
-                model_params=config['model_params']
+                model_params=config['model_params'],
+                scale_method="robust"
             )
             
-            # ===== TRAIN MODEL =====
-            print(f"   🎓 Training {model_name}...")
+            # Train with timing
             start_time = datetime.now()
             pipeline.fit(X_train, y_train)
             training_time = (datetime.now() - start_time).total_seconds()
             
-            mlflow.log_metric("training_time_seconds", training_time)
+            print(f"   ✅ Training completed in {training_time:.2f}s")
             
-            # ===== MAKE PREDICTIONS =====
+            # ===== PREDICTIONS =====
             print(f"   🔮 Making predictions...")
             y_train_pred = pipeline.predict(X_train)
             y_test_pred = pipeline.predict(X_test)
@@ -314,45 +309,49 @@ class MLflowExperimentRunner:
             # Overfitting indicator
             overfitting_gap = train_accuracy - test_accuracy
             
-            # ===== LOG TRAINING METRICS =====
+            # ===== LOG METRICS =====
+            print(f"   💾 Logging metrics to MLflow...")
+            
+            # Training metrics
             mlflow.log_metric("train_accuracy", train_accuracy)
             mlflow.log_metric("train_precision", train_precision)
             mlflow.log_metric("train_recall", train_recall)
             mlflow.log_metric("train_f1", train_f1)
             
-            # ===== LOG TEST METRICS =====
+            # Test metrics
             mlflow.log_metric("test_accuracy", test_accuracy)
             mlflow.log_metric("test_precision", test_precision)
             mlflow.log_metric("test_recall", test_recall)
             mlflow.log_metric("test_f1", test_f1)
             
-            # ===== LOG OVERFITTING METRIC =====
+            # Other metrics
             mlflow.log_metric("overfitting_gap", overfitting_gap)
+            mlflow.log_metric("training_time_seconds", training_time)
             
-            # Print results
             print(f"\n   📈 Results:")
-            print(f"      Training Time:  {training_time:.2f}s")
             print(f"      Train Accuracy: {train_accuracy:.4f}")
             print(f"      Test Accuracy:  {test_accuracy:.4f}")
-            print(f"      Test Precision: {test_precision:.4f}")
-            print(f"      Test Recall:    {test_recall:.4f}")
-            print(f"      Test F1:        {test_f1:.4f}")
+            print(f"      Test F1-Score:  {test_f1:.4f}")
             print(f"      Overfitting:    {overfitting_gap:.4f}")
             
             # ===== CREATE ARTIFACTS =====
-            print(f"   📦 Generating artifacts...")
+            print(f"   🎨 Creating visualization artifacts...")
             
             # Create artifacts directory
-            artifacts_dir = Path("mlflow_artifacts") / f"exp_{run_number:02d}_{model_name}"
+            artifacts_dir = Path("mlflow_artifacts") / model_name
             artifacts_dir.mkdir(parents=True, exist_ok=True)
             
-            # Generate and save confusion matrix
+            # Confusion matrix
             cm_path = artifacts_dir / "confusion_matrix.png"
-            labels = sorted(y_test.unique())
-            self.plot_confusion_matrix(y_test, y_test_pred, labels, cm_path)
+            self.plot_confusion_matrix(
+                y_test,
+                y_test_pred,
+                labels=sorted(y_test.unique()),
+                save_path=cm_path
+            )
             mlflow.log_artifact(str(cm_path))
             
-            # Save classification report
+            # Classification report
             report = classification_report(y_test, y_test_pred)
             report_path = artifacts_dir / "classification_report.txt"
             with open(report_path, 'w') as f:
@@ -386,27 +385,41 @@ class MLflowExperimentRunner:
                 f.write(f"Training Time: {training_time:.2f}s\n")
             mlflow.log_artifact(str(metrics_path))
             
-            # ===== LOG MODEL =====
+            # ===== LOG MODEL (MLflow 3.4.0 compatible) =====
             print(f"   💾 Logging model to MLflow...")
             
-            # Preparar signature e input_example
-            sample_size = min(5, len(X_train))
-            if hasattr(X_train, 'iloc'):  # DataFrame
-                X_sample = X_train.iloc[:sample_size]
-            else:  # numpy array
-                X_sample = X_train[:sample_size]
-            
-            # Inferir signature
-            predictions = pipeline.predict(X_sample)
-            signature = infer_signature(X_sample, predictions)
-            
-            mlflow.sklearn.log_model(
-                pipeline,
-                name="model",  # Usar 'name' en lugar de 'artifact_path' (deprecated)
-                signature=signature,
-                input_example=X_sample,
-                registered_model_name=None  # Manual registration later
-            )
+            try:
+                # Prepare signature and input example
+                sample_size = min(5, len(X_train))
+                if hasattr(X_train, 'iloc'):  # DataFrame
+                    X_sample = X_train.iloc[:sample_size]
+                else:  # numpy array
+                    X_sample = X_train[:sample_size]
+                
+                # Infer signature
+                predictions = pipeline.predict(X_sample)
+                signature = infer_signature(X_sample, predictions)
+                
+                # MLflow 3.4.0: Use save_model + log_artifacts for robust saving
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    model_path = Path(tmpdir) / "model"
+                    
+                    # Save model to temporary directory
+                    mlflow.sklearn.save_model(
+                        sk_model=pipeline,
+                        path=str(model_path),
+                        signature=signature,
+                        input_example=X_sample
+                    )
+                    
+                    # Log entire model directory as artifact
+                    mlflow.log_artifacts(str(model_path), artifact_path="model")
+                    
+                print(f"   ✅ Model saved successfully as artifact 'model/'")
+                
+            except Exception as e:
+                print(f"   ⚠️  Warning: Model logging failed - {str(e)}")
+                print(f"   ℹ️  Experiment metrics still logged, continuing...")
             
             # ===== LOG TAGS =====
             mlflow.set_tag("team", "MLOps Team 24")
