@@ -132,8 +132,8 @@ print("\n[CHECK 3/6] Tests funcionando...")
 print("-" * 70)
 
 test_files = [
-    "test_sklearn_pipeline.py",
-    "test_full_integration.py"
+    "tests/test_sklearn_pipeline.py",
+    "tests/test_full_integration.py"
 ]
 
 tests_ok = True
