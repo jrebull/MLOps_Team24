@@ -132,7 +132,7 @@ def main():
         # Cargar datos usando DatasetManager (mejor práctica MLOps)
         print("   📂 Cargando datos con DatasetManager...")
         dm = DatasetManager()
-        X_train, X_test, y_train, y_test = dm.get_train_test_split()
+        X_train, X_test, y_train, y_test = dm.load_train_test_split(validate=True)
         all_checks_passed &= check_mark(True, f"Datos cargados: {len(X_train)} train, {len(X_test)} test")
         
         # Crear pipeline
