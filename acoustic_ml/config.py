@@ -29,4 +29,5 @@ RANDOM_STATE = 42
 
 # Nombres de archivos procesados
 CLEANED_FILENAME = "turkish_music_emotion_cleaned.csv"
-PROCESSED_PATTERN = "turkish_music_emotion_{version}_cleaned_full.csv"
+NORMALIZED_FILENAME = "turkish_music_emotion_{version}_normalized.csv"
+FEATURES_FILENAME = "turkish_music_emotion_{version}_features.csv"

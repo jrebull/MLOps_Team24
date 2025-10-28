@@ -26,7 +26,7 @@ from acoustic_ml.modeling.sklearn_pipeline import create_sklearn_pipeline
 
 
 class MLflowRunner:
-    def __init__(self, experiment_name="acoustic_ml_experiments", tracking_uri="./mlruns"):
+    def __init__(self, experiment_name="/Users/scervantes/Documents/Operaciones de aprendizaje automático/MLOps_Team24/acoustic_ml/training/run_mlflow_experiments.py", tracking_uri="./mlruns"):
         self.experiment_name = experiment_name
         self.tracking_uri = tracking_uri
         mlflow.set_tracking_uri(tracking_uri)
@@ -36,7 +36,7 @@ class MLflowRunner:
 
     def load_data(self) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
         dm = DatasetManager()
-        X_train, X_test, y_train, y_test = dm.get_train_test_split(validate=True)
+        X_train, X_test, y_train, y_test = dm.get_train_test_split()
         print(f"Loaded data: {len(X_train)} train samples, {len(X_test)} test samples")
         return X_train, X_test, y_train, y_test
 

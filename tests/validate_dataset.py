@@ -386,7 +386,6 @@ try:
         TURKISH_ORIGINAL = "original.csv"
         TURKISH_MODIFIED = "modified.csv"
         CLEANED_FILENAME = "cleaned.csv"
-        PROCESSED_PATTERN = "processed_{version}.csv"
         
         @classmethod
         def validate_directories(cls):
