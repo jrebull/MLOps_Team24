@@ -14,7 +14,7 @@ EXTERNAL_DATA_DIR = DATA_DIR / "external"
 
 # Configuración de MLflow
 MLFLOW_TRACKING_URI = "file:///" + str(PROJECT_DIR / "mlruns")
-MLFLOW_EXPERIMENT_NAME = "acoustic_ml_experiments"
+MLFLOW_EXPERIMENT_NAME = "turkish-music-emotion-recognition"
 
 # Configuración de DVC
 DVC_REMOTE_NAME = "local"
