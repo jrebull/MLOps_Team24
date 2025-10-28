@@ -285,7 +285,7 @@ class MLOpsValidator:
             'data/raw',
             'data/processed',
             'models',
-            'src',
+            'acoustic_ml',  # Custom module instead of src/
             'tests',
             'mlruns',
             'scripts'
@@ -340,8 +340,7 @@ class MLOpsValidator:
         files_status = {}
         important_files = [
             'requirements.txt',
-            'setup.py',
-            'pyproject.toml',
+            'pyproject.toml',  # Modern Python packaging (PEP 518)
             'dvc.yaml',
             '.dvc/config',
             'README.md',
