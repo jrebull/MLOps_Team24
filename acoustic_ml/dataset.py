@@ -5,7 +5,7 @@ import logging
 from datetime import datetime
 from contextlib import contextmanager
 import threading
-from acoustic_ml.config import RAW_DATA_DIR, INTERIM_DATA_DIR, TURKISH_ORIGINAL, CLEANED_FILENAME
+from acoustic_ml.config import RAW_DATA_DIR, INTERIM_DATA_DIR, PROCESSED_DATA_DIR, TURKISH_ORIGINAL, CLEANED_FILENAME
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ class SingletonMeta(type):
 class DatasetManager(metaclass=SingletonMeta):
     def __init__(self):
         self.raw_dir = RAW_DATA_DIR
-        self.processed_dir = INTERIM_DATA_DIR
+        self.processed_dir = PROCESSED_DATA_DIR
 
     def _load_csv(self, path: Path) -> pd.DataFrame:
         if not path.exists():
