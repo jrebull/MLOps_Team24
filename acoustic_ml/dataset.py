@@ -56,16 +56,6 @@ class DatasetManager(metaclass=SingletonMeta):
         y = df[target_column]
         return train_test_split(X, y, test_size=test_size, random_state=random_state, stratify=y)
 
-    def get_train_test_split(
-        self, target_column: str = "Class", test_size: float = 0.2, random_state: int = 42
-    ):
-        df = self.load_processed()
-        if target_column not in df.columns:
-            raise ValueError(f"Target column {target_column} no existe")
-        X = df.drop(columns=[target_column])
-        y = df[target_column]
-        return train_test_split(X, y, test_size=test_size, random_state=random_state, stratify=y)
-
     def load_train_test_split(self, validate: bool = False):
         """
         Load pre-saved train-test split files from PROCESSED_DATA_DIR.
@@ -102,11 +92,41 @@ class DatasetManager(metaclass=SingletonMeta):
                 f"Run get_train_test_split() first to generate splits."
             )
         
-        # Load all splits
-        X_train = pd.read_csv(split_files['X_train'])
-        X_test = pd.read_csv(split_files['X_test'])
-        y_train = pd.read_csv(split_files['y_train']).squeeze()  # Series
-        y_test = pd.read_csv(split_files['y_test']).squeeze()    # Series
+        # Load X splits with index_col=0
+        X_train = pd.read_csv(split_files['X_train'], index_col=0)
+        X_test = pd.read_csv(split_files['X_test'], index_col=0)
+        
+        # Load y splits - try different formats
+        # Format 1: CSV with index and one column (most common)
+        try:
+            y_train = pd.read_csv(split_files['y_train'], index_col=0)
+            if isinstance(y_train, pd.DataFrame) and len(y_train.columns) == 1:
+                y_train = y_train.iloc[:, 0]  # Extract first column as Series
+            elif isinstance(y_train, pd.DataFrame) and len(y_train.columns) == 0:
+                # If empty DataFrame, file might be: index,value without header
+                y_train = pd.read_csv(split_files['y_train'], header=None, index_col=0, squeeze=True)
+        except Exception:
+            # Format 2: CSV without index_col
+            y_train = pd.read_csv(split_files['y_train']).squeeze()
+        
+        try:
+            y_test = pd.read_csv(split_files['y_test'], index_col=0)
+            if isinstance(y_test, pd.DataFrame) and len(y_test.columns) == 1:
+                y_test = y_test.iloc[:, 0]
+            elif isinstance(y_test, pd.DataFrame) and len(y_test.columns) == 0:
+                y_test = pd.read_csv(split_files['y_test'], header=None, index_col=0, squeeze=True)
+        except Exception:
+            y_test = pd.read_csv(split_files['y_test']).squeeze()
+        
+        # Convert to numpy arrays if still DataFrame
+        if isinstance(y_train, pd.DataFrame):
+            y_train = y_train.values.ravel()
+        if isinstance(y_test, pd.DataFrame):
+            y_test = y_test.values.ravel()
+        
+        # Convert back to Series for consistency
+        y_train = pd.Series(y_train, name='Class')
+        y_test = pd.Series(y_test, name='Class')
         
         logger.info(f"Loaded splits: X_train{X_train.shape}, X_test{X_test.shape}, "
                     f"y_train{y_train.shape}, y_test{y_test.shape}")
@@ -114,7 +134,7 @@ class DatasetManager(metaclass=SingletonMeta):
         # Validation checks
         if validate:
             # Check no empty datasets
-            if X_train.empty or X_test.empty or y_train.empty or y_test.empty:
+            if X_train.empty or X_test.empty or len(y_train) == 0 or len(y_test) == 0:
                 raise ValueError("One or more splits are empty")
             
             # Check X and y have matching samples

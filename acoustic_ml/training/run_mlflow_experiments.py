@@ -29,8 +29,13 @@ class MLflowRunner:
         print(f"Experiment: {experiment_name}")
 
     def load_data(self) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+        """Load train/test splits using DatasetManager.
+        
+        Returns:
+            Tuple of (X_train, X_test, y_train, y_test)
+        """
         dm = DatasetManager()
-        X_train, X_test, y_train, y_test = dm.get_train_test_split(target_column="Class")
+        X_train, X_test, y_train, y_test = dm.load_train_test_split()
         print(f"Loaded data: {len(X_train)} train samples, {len(X_test)} test samples")
         return X_train, X_test, y_train, y_test
 
