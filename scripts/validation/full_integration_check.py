@@ -44,7 +44,7 @@ required_files = {
     "sklearn_pipeline.py": "acoustic_ml/modeling/sklearn_pipeline.py",
     "scripts/analysis/analyze_outliers.py": "scripts/analysis/analyze_outliers.py",
     "scripts/analysis/compare_scalers.py": "scripts/analysis/compare_scalers.py",
-    "tests/test_sklearn_pipeline.py": "tests/test_sklearn_pipeline.py",
+    "validate_sklearn_pipeline.py": "scripts/validation/validate_sklearn_pipeline.py",
     "outlier_analysis.png": "reports/figures/outlier_analysis.png",
     "outlier_report": "reports/figures/outlier_analysis_report.txt",
     "scaler_comparison": "reports/figures/scaler_comparison_results.txt"
