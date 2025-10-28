@@ -30,7 +30,7 @@ class TrainingConfig:
     cv_folds: int = 5
     scoring: str = "accuracy"
     mlflow_tracking_uri: str = "file:///mlruns"
-    mlflow_experiment: str = "acoustic_ml_experiments"
+    mlflow_experiment: str = "turkish-music-emotion-recognition"
 
 
 class ModelTrainer(ABC):
