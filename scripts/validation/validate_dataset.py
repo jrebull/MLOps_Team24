@@ -253,9 +253,9 @@ try:
     print(f"✅ Summary generado correctamente")
     print(f"   • Shape: {summary['shape']}")
     print(f"   • Memory MB: {summary['memory_mb']:.2f}")
-    print(f"   • Null count: {summary['null_count']}")
-    print(f"   • Numeric cols: {len(summary['numeric_columns'])}")
-    print(f"   • Categorical cols: {len(summary['categorical_columns'])}")
+    print(f"   • Null count: {summary['total_nulls']}")
+    print(f"   • Numeric cols: {summary['n_numeric']}")
+    print(f"   • Categorical cols: {summary['n_categorical']}")
     
     assert summary['shape'] == test_df.shape
     assert 'memory_mb' in summary
