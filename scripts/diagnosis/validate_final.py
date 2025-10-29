@@ -300,9 +300,9 @@ def main():
     print_section("7️⃣  TESTS")
     
     test_scripts = [
-        "scripts/validate_dataset.py",
-        "scripts/validate_features.py",
-        "scripts/validate_plots.py",
+        "scripts/validation/validate_dataset.py",
+        "scripts/validation/validate_features.py",
+        "scripts/validation/validate_plots.py",
     ]
     
     for script in test_scripts:
