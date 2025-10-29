@@ -137,7 +137,7 @@ try:
     print(f"✅ OutlierRemover funciona")
     print(f"   • Shape antes: {X_numeric_clean.shape}")
     print(f"   • Shape después: {X_no_outliers.shape}")
-    print(f"   • Outliers removidos: {remover.n_outliers_removed_}")
+    #     print(f"   • Outliers removidos: {remover.n_outliers_removed_}")
     print(f"   • % removido: {remover.n_outliers_removed_/len(X_numeric_clean)*100:.2f}%")
     
     assert X_no_outliers.shape[0] < X_numeric_clean.shape[0], "Debería remover filas"
