@@ -134,6 +134,9 @@ class FeatureScaler(FeatureTransformer):
     def __init__(self, method: str = 'standard'):
         super().__init__()
         self.method = method
+        valid_methods = ["standard", "minmax", "robust"]
+        if method not in valid_methods:
+            raise ValueError(f"Método inválido: {method}. Usa: {valid_methods}")
         self.scaler = None
 
     def fit(self, X, y=None):
