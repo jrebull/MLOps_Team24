@@ -127,6 +127,7 @@ class OutlierRemover(FeatureTransformer):
         self._check_is_fitted()
         X_array = X.values if isinstance(X, pd.DataFrame) else X
         mask = np.all((X_array >= self.lower_bounds_) & (X_array <= self.upper_bounds_), axis=1)
+        self.n_outliers_removed_ = len(X) - mask.sum()
         return X[mask] if isinstance(X, pd.DataFrame) else X_array[mask]
 
 class FeatureScaler(FeatureTransformer):
