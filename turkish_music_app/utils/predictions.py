@@ -1,14 +1,13 @@
 import logging
 import pandas as pd
-from typing import Dict, Optional
-import mlflow
+from typing import Dict
 from pathlib import Path
 
 from utils.audio_feature_extractor import AudioFeatureExtractor
 
 logger = logging.getLogger(__name__)
 
-# Mapeo de clases numéricas a nombres
+# Mapeo de clases numéricas
 CLASS_MAPPING = {
     0: "happy",
     1: "sad",
@@ -16,22 +15,20 @@ CLASS_MAPPING = {
     3: "relax"
 }
 
-
-
 class MusicEmotionPredictor:
-    def __init__(self):
+    def __init__(self, model_path=None):
         self.model = None
+        self.model_path = model_path or Path(__file__).parent.parent / 'models' / 'production_model.pkl'
         self.feature_extractor = AudioFeatureExtractor(sr=22050)
     
     def load_model(self):
         try:
-            model_path = Path(__file__).parent.parent / 'models' / 'production_model.pkl'
             import joblib
-            self.model = joblib.load(model_path)
-            logger.info(f'✅ Modelo cargado desde: {model_path}')
+            self.model = joblib.load(self.model_path)
+            logger.info(f'✅ Modelo cargado desde: {self.model_path.name}')
+            return str(self.model_path.name)
         except Exception as e:
             logger.error(f'Error cargando modelo: {e}')
-            raise
             raise
     
     def predict(self, features_df: pd.DataFrame) -> Dict:
@@ -39,72 +36,72 @@ class MusicEmotionPredictor:
             self.load_model()
         
         try:
-            # Predicción numérica del modelo
-            prediction_num = self.model.predict(features_df)[0]
+            prediction = self.model.predict(features_df)[0]
             probabilities = self.model.predict_proba(features_df)[0]
             
-            # Mapear número a emoción
-            emotion = CLASS_MAPPING.get(int(prediction_num), str(prediction_num)).lower()
+            # Detectar tipo de modelo y obtener clases
+            if hasattr(self.model, 'model_trainer'):
+                # SklearnMLPipeline
+                classes = self.model.model_trainer.label_encoder.classes_
+                classes = [str(c).lower() for c in classes]
+            elif hasattr(self.model, 'classes_'):
+                # Modelo sklearn estándar - SIEMPRE convertir usando mapeo
+                raw_classes = self.model.classes_
+                classes = []
+                for c in raw_classes:
+                    try:
+                        # Intentar convertir a int y mapear
+                        classes.append(CLASS_MAPPING.get(int(c), str(c)).lower())
+                    except (ValueError, TypeError):
+                        # Si no es número, usar como string
+                        classes.append(str(c).lower())
+            else:
+                # Fallback
+                classes = ['happy', 'sad', 'angry', 'relax']
             
-            # El índice de probabilidad corresponde al número de predicción
-            pred_idx = int(prediction_num)
+            # Convertir predicción a emoción (forzar conversión de números)
+            try:
+                pred_num = int(prediction)
+                emotion = CLASS_MAPPING.get(pred_num, f"class_{pred_num}").lower()
+            except (ValueError, TypeError):
+                emotion = str(prediction).lower()
+            
+            pred_idx = classes.index(emotion) if emotion in classes else 0
             confidence = float(probabilities[pred_idx])
             
-            # Crear dict de probabilidades usando el mapeo
-            proba_dict = {
-                CLASS_MAPPING.get(i, str(i)).lower(): float(prob) 
-                for i, prob in enumerate(probabilities)
-            }
+            proba_dict = {cls: float(prob) for cls, prob in zip(classes, probabilities)}
             
-            logger.info(f"✅ Predicción: {emotion} ({confidence:.1%})")
+            logger.info(f"✅ Predicción: {emotion} ({confidence:.1%}) usando {self.model_path.name}")
             
             return {
                 "emotion": emotion,
                 "confidence": confidence,
-                "probabilities": proba_dict
+                "probabilities": proba_dict,
+                "model_used": str(self.model_path.name)
             }
         except Exception as e:
             logger.error(f"Error en predicción: {e}")
             raise
-    def predict_from_audio(
-        self, 
-        audio_path: Path,
-        return_probabilities: bool = True
-    ) -> Dict:
-        """
-        Predict emotion from audio file.
-        
-        Args:
-            audio_path: Path to audio file
-            return_probabilities: Whether to return probabilities
-            
-        Returns:
-            Dictionary with prediction results
-        """
+    
+    def predict_from_audio(self, audio_path: Path, return_probabilities: bool = True) -> Dict:
         try:
-            # Extract features
             logger.info(f"📊 Extracting features from: {audio_path.name}")
             features_dict = self.feature_extractor.extract_features(audio_path)
-            
-            # Convert to DataFrame
             features_df = pd.DataFrame([features_dict])
             
-            # Predict
             result = self.predict(features_df)
             
-            # Format response to match expected API
             response = {
                 "predicted_emotion": result["emotion"].capitalize(),
-                "confidence": result["confidence"]
+                "confidence": result["confidence"],
+                "model_used": result["model_used"]
             }
             
             if return_probabilities:
-                # Capitalize emotion names for consistency
                 response["probabilities"] = {
                     emotion.capitalize(): prob 
                     for emotion, prob in result["probabilities"].items()
                 }
-                # Add features if requested
                 response["features"] = features_dict
             
             return response
