@@ -523,7 +523,7 @@ def main():
                     
                     # Results table
                     st.markdown("### 📋 Detailed Results")
-                    st.dataframe(df_results, use_container_width=True)
+                    st.dataframe(df_results, width="stretch")
                     
                     # Download results
                     csv = df_results.to_csv(index=False)

@@ -203,15 +203,7 @@ def display_model_info(selected_model):
     st.sidebar.markdown("---")
     # Model selector
     st.sidebar.markdown("### 🎯 Select Model")
-        format_func=lambda x: AVAILABLE_MODELS[x]["name"],
-        index=list(AVAILABLE_MODELS.keys()).index(DEFAULT_MODEL)
-    )
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### 🤖 Model Information")
-    
     model_info = AVAILABLE_MODELS[selected_model]
-    
-    st.sidebar.metric("Model Type", model_info["name"])
     st.sidebar.metric("Accuracy", f"{model_info['accuracy']:.1%}")
     st.sidebar.metric("Features", model_info["n_features"])
     
@@ -361,6 +353,7 @@ def main():
                         st.metric("True Emotion", f"{EMOTION_EMOJIS.get(selected_emotion.lower(), "🎵")} {selected_emotion}")
                     with col2:
                         st.metric("Predicted", f"{EMOTION_EMOJIS.get(result['predicted_emotion'].lower(), '🎵')} {result['predicted_emotion']}")
+                        st.caption(f"🤖 Model: {result.get('model_used', 'Unknown')}")
                     with col3:
                         if is_correct:
                             st.success("✅ Correct!")
