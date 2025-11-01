@@ -39,23 +39,21 @@ class MusicEmotionPredictor:
             self.load_model()
         
         try:
-            prediction = self.model.predict(features_df)[0]
+            # Predicción numérica del modelo
+            prediction_num = self.model.predict(features_df)[0]
             probabilities = self.model.predict_proba(features_df)[0]
             
             # Mapear número a emoción
-            emotion = CLASS_MAPPING.get(int(prediction), str(prediction)).lower()
+            emotion = CLASS_MAPPING.get(int(prediction_num), str(prediction_num)).lower()
             
-            # Obtener classes del modelo
-            classes = [str(c).lower() for c in self.model.classes_]
-            
-            # Encontrar índice de la predicción
-            pred_idx = classes.index(emotion)
+            # El índice de probabilidad corresponde al número de predicción
+            pred_idx = int(prediction_num)
             confidence = float(probabilities[pred_idx])
             
-            # Crear dict de probabilidades
+            # Crear dict de probabilidades usando el mapeo
             proba_dict = {
-                cls: float(prob) 
-                for cls, prob in zip(classes, probabilities)
+                CLASS_MAPPING.get(i, str(i)).lower(): float(prob) 
+                for i, prob in enumerate(probabilities)
             }
             
             logger.info(f"✅ Predicción: {emotion} ({confidence:.1%})")
@@ -68,7 +66,6 @@ class MusicEmotionPredictor:
         except Exception as e:
             logger.error(f"Error en predicción: {e}")
             raise
-    
     def predict_from_audio(
         self, 
         audio_path: Path,
