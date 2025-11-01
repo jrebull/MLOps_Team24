@@ -16,19 +16,13 @@ class MusicEmotionPredictor:
     
     def load_model(self):
         try:
-            import sys
-            sys.path.insert(0, str(Path(__file__).parent.parent))
-            from config import MLFLOW_RUN_ID
-            
-            project_root = Path(__file__).parent.parent.parent
-            tracking_uri = f"file://{project_root}/mlruns"
-            mlflow.set_tracking_uri(tracking_uri)
-            
-            model_uri = f"runs:/{MLFLOW_RUN_ID}/model"
-            self.model = mlflow.sklearn.load_model(model_uri)
-            logger.info(f"✅ Modelo cargado: {MLFLOW_RUN_ID}")
+            model_path = Path(__file__).parent.parent / 'models' / 'production_model.pkl'
+            import joblib
+            self.model = joblib.load(model_path)
+            logger.info(f'✅ Modelo cargado desde: {model_path}')
         except Exception as e:
-            logger.error(f"Error cargando modelo: {e}")
+            logger.error(f'Error cargando modelo: {e}')
+            raise
             raise
     
     def predict(self, features_df: pd.DataFrame) -> Dict:
