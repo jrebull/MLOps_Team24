@@ -8,6 +8,15 @@ from utils.audio_feature_extractor import AudioFeatureExtractor
 
 logger = logging.getLogger(__name__)
 
+# Mapeo de clases numéricas a nombres
+CLASS_MAPPING = {
+    0: "happy",
+    1: "sad",
+    2: "angry",
+    3: "relax"
+}
+
+
 
 class MusicEmotionPredictor:
     def __init__(self):
@@ -33,8 +42,8 @@ class MusicEmotionPredictor:
             prediction = self.model.predict(features_df)[0]
             probabilities = self.model.predict_proba(features_df)[0]
             
-            # El modelo devuelve strings directamente
-            emotion = str(prediction).lower()
+            # Mapear número a emoción
+            emotion = CLASS_MAPPING.get(int(prediction), str(prediction)).lower()
             
             # Obtener classes del modelo
             classes = [str(c).lower() for c in self.model.classes_]
