@@ -1,0 +1,323 @@
+"""
+Model Loading Module
+
+Loads trained models and preprocessing pipelines following MLOps best practices.
+Integrates with acoustic_ml preprocessing pipeline.
+
+Author: MLOps Team 24
+Date: November 2024
+"""
+
+import pickle
+import logging
+from pathlib import Path
+from typing import Optional, Dict, Any
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import RobustScaler, PowerTransformer
+from sklearn.pipeline import Pipeline
+
+logger = logging.getLogger(__name__)
+
+
+class FeaturePreprocessor:
+    """
+    Replicates the acoustic_ml feature preprocessing pipeline.
+    
+    Pipeline: PowerTransform (Yeo-Johnson) → RobustScaler
+    """
+    
+    def __init__(self):
+        """Initialize preprocessing pipeline matching acoustic_ml."""
+        self.pipeline = self._build_pipeline()
+        self.is_fitted = False
+        
+    def _build_pipeline(self) -> Pipeline:
+        """
+        Build preprocessing pipeline matching acoustic_ml.features module.
+        
+        Returns:
+            Sklearn Pipeline
+        """
+        steps = [
+            ('power_transform', PowerTransformer(
+                method='yeo-johnson',
+                standardize=True
+            )),
+            ('robust_scaler', RobustScaler())
+        ]
+        
+        return Pipeline(steps)
+    
+    def fit(self, X: pd.DataFrame) -> 'FeaturePreprocessor':
+        """
+        Fit the preprocessing pipeline.
+        
+        Args:
+            X: Training features
+            
+        Returns:
+            self
+        """
+        self.pipeline.fit(X)
+        self.is_fitted = True
+        logger.info("✅ Preprocessing pipeline fitted")
+        return self
+    
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        """
+        Transform features using fitted pipeline.
+        
+        Args:
+            X: Features to transform
+            
+        Returns:
+            Transformed features as DataFrame
+        """
+        if not self.is_fitted:
+            logger.warning("⚠️  Pipeline not fitted, fitting on input data")
+            self.fit(X)
+        
+        X_transformed = self.pipeline.transform(X)
+        
+        # Preserve DataFrame format
+        return pd.DataFrame(
+            X_transformed,
+            columns=X.columns,
+            index=X.index
+        )
+    
+    def fit_transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        """Fit and transform in one step."""
+        return self.fit(X).transform(X)
+
+
+class ModelLoader:
+    """
+    Handles loading and management of trained ML models.
+    
+    Single Responsibility: Model loading and initialization
+    Dependency Inversion: Depends on abstractions (Path, pipeline interfaces)
+    """
+    
+    def __init__(self, model_path: Path, apply_preprocessing: bool = True):
+        """
+        Initialize model loader.
+        
+        Args:
+            model_path: Path to trained model file (.pkl)
+            apply_preprocessing: Whether to apply feature preprocessing
+        """
+        self.model_path = Path(model_path)
+        self.apply_preprocessing = apply_preprocessing
+        self.model = None
+        self.preprocessor = FeaturePreprocessor() if apply_preprocessing else None
+        self.metadata: Dict[str, Any] = {}
+        
+    def load_model(self) -> Any:
+        """
+        Load trained model from disk.
+        
+        Returns:
+            Loaded model
+            
+        Raises:
+            FileNotFoundError: If model file doesn't exist
+            Exception: If model loading fails
+        """
+        if not self.model_path.exists():
+            raise FileNotFoundError(
+                f"Model file not found: {self.model_path}\n"
+                f"Expected location: {self.model_path.absolute()}"
+            )
+        
+        try:
+            with open(self.model_path, 'rb') as f:
+                self.model = pickle.load(f)
+            
+            logger.info(f"✅ Model loaded successfully: {self.model_path.name}")
+            
+            # Try to extract model info
+            self._extract_model_info()
+            
+            return self.model
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to load model: {e}")
+            raise
+    
+    def _extract_model_info(self) -> None:
+        """Extract metadata from loaded model."""
+        if self.model is None:
+            return
+        
+        try:
+            self.metadata = {
+                "model_type": type(self.model).__name__,
+                "has_predict_proba": hasattr(self.model, 'predict_proba'),
+                "has_classes": hasattr(self.model, 'classes_'),
+            }
+            
+            if hasattr(self.model, 'classes_'):
+                self.metadata["classes"] = list(self.model.classes_)
+            
+            if hasattr(self.model, 'n_features_in_'):
+                self.metadata["n_features"] = self.model.n_features_in_
+                
+            logger.info(f"📊 Model info: {self.metadata.get('model_type', 'Unknown')}")
+            
+        except Exception as e:
+            logger.warning(f"⚠️  Could not extract model info: {e}")
+    
+    def predict(self, X: pd.DataFrame) -> np.ndarray:
+        """
+        Make predictions using loaded model.
+        
+        Args:
+            X: Feature DataFrame
+            
+        Returns:
+            Predictions array
+            
+        Raises:
+            ValueError: If model not loaded or invalid input
+        """
+        if self.model is None:
+            raise ValueError("Model not loaded. Call load_model() first.")
+        
+        # Validate input
+        if not isinstance(X, pd.DataFrame):
+            raise ValueError("Input must be a pandas DataFrame")
+        
+        if X.empty:
+            raise ValueError("Input DataFrame is empty")
+        
+        # Apply preprocessing if enabled
+        if self.apply_preprocessing and self.preprocessor is not None:
+            X_processed = self.preprocessor.transform(X)
+        else:
+            X_processed = X
+        
+        # Make predictions
+        try:
+            predictions = self.model.predict(X_processed)
+            logger.info(f"✅ Predictions generated for {len(X)} samples")
+            return predictions
+            
+        except Exception as e:
+            logger.error(f"❌ Prediction failed: {e}")
+            raise
+    
+    def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
+        """
+        Predict class probabilities.
+        
+        Args:
+            X: Feature DataFrame
+            
+        Returns:
+            Probability array [n_samples, n_classes]
+            
+        Raises:
+            ValueError: If model doesn't support predict_proba
+        """
+        if self.model is None:
+            raise ValueError("Model not loaded. Call load_model() first.")
+        
+        if not hasattr(self.model, 'predict_proba'):
+            raise ValueError("Model doesn't support probability predictions")
+        
+        # Apply preprocessing if enabled
+        if self.apply_preprocessing and self.preprocessor is not None:
+            X_processed = self.preprocessor.transform(X)
+        else:
+            X_processed = X
+        
+        try:
+            probas = self.model.predict_proba(X_processed)
+            logger.info(f"✅ Probabilities generated for {len(X)} samples")
+            return probas
+            
+        except Exception as e:
+            logger.error(f"❌ Probability prediction failed: {e}")
+            raise
+    
+    def get_feature_importance(self, feature_names: list) -> Optional[pd.DataFrame]:
+        """
+        Get feature importance if model supports it.
+        
+        Args:
+            feature_names: List of feature names
+            
+        Returns:
+            DataFrame with features and importance scores, or None
+        """
+        if self.model is None:
+            return None
+        
+        if not hasattr(self.model, 'feature_importances_'):
+            logger.warning("⚠️  Model doesn't have feature_importances_ attribute")
+            return None
+        
+        try:
+            importances = self.model.feature_importances_
+            
+            importance_df = pd.DataFrame({
+                'feature': feature_names,
+                'importance': importances
+            }).sort_values('importance', ascending=False)
+            
+            return importance_df
+            
+        except Exception as e:
+            logger.warning(f"⚠️  Could not extract feature importance: {e}")
+            return None
+    
+    def get_model_params(self) -> Dict[str, Any]:
+        """
+        Get model hyperparameters.
+        
+        Returns:
+            Dictionary of model parameters
+        """
+        if self.model is None:
+            return {}
+        
+        if hasattr(self.model, 'get_params'):
+            return self.model.get_params()
+        
+        return {}
+
+
+# ============================================================================
+# CONVENIENCE FUNCTIONS
+# ============================================================================
+
+def load_production_model(model_path: Path) -> ModelLoader:
+    """
+    Load production model with preprocessing.
+    
+    Args:
+        model_path: Path to model file
+        
+    Returns:
+        Initialized ModelLoader
+    """
+    loader = ModelLoader(model_path, apply_preprocessing=True)
+    loader.load_model()
+    return loader
+
+
+def quick_predict(model_path: Path, X: pd.DataFrame) -> np.ndarray:
+    """
+    Quick prediction convenience function.
+    
+    Args:
+        model_path: Path to model file
+        X: Features to predict
+        
+    Returns:
+        Predictions
+    """
+    loader = load_production_model(model_path)
+    return loader.predict(X)
