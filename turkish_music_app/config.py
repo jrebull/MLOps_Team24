@@ -8,31 +8,18 @@ DATA_DIR = BASE_DIR / "data"
 ASSETS_DIR = BASE_DIR / "assets"
 AUDIO_DIR = ASSETS_DIR / "sample_audio"
 
+# Solo modelos compatibles con Streamlit Cloud (sin dependencias de acoustic_ml)
 AVAILABLE_MODELS = {
-    "RandomForest_Best": {
-        "path": MODELS_DIR / "rf_best.pkl",
-        "name": "🏆 Random Forest (Best) - 84.3%",
-        "accuracy": 0.843,
-        "n_features": 50,
-        "description": "Best performing RF model"
-    },
-    "Production_Model": {
-        "path": MODELS_DIR / "production_model.pkl",
-        "name": "⚡ Production Model - 84.3%",
-        "accuracy": 0.843,
-        "n_features": 50,
-        "description": "Current production model"
-    },
     "Baseline_Model": {
         "path": MODELS_DIR / "baseline_model.pkl",
-        "name": "📊 Baseline Model - 76.9%",
+        "name": "🎯 Random Forest Model - 76.9%",
         "accuracy": 0.769,
         "n_features": 50,
-        "description": "Initial baseline for comparison"
+        "description": "Production-ready sklearn model"
     }
 }
 
-DEFAULT_MODEL = "RandomForest_Best"
+DEFAULT_MODEL = "Baseline_Model"
 EMOTION_CLASSES = ["angry", "happy", "relax", "sad"]
 
 EMOTION_COLORS = {"angry": "#DC143C", "happy": "#FFD700", "relax": "#32CD32", "sad": "#4682B4"}
@@ -44,4 +31,4 @@ SAMPLE_SONGS = {"Angry": [{"name": "Adanali", "file": "adanali.mp3"}, {"name": "
 
 UI_CONFIG = {"page_title": "Turkish Music Emotion Recognition", "page_icon": "🎸", "layout": "wide", "initial_sidebar_state": "expanded"}
 
-MLOPS_INFO = {"team": "MLOps Team 24", "project": "Turkish Music Emotion Recognition", "phase": "Phase 2 - Production Demo", "institution": "Tecnologico de Monterrey", "model_version": "v2.2 - Multiple Models", "last_updated": "2025-11-01"}
+MLOPS_INFO = {"team": "MLOps Team 24", "project": "Turkish Music Emotion Recognition", "phase": "Phase 2 - Production Demo", "institution": "Tecnologico de Monterrey", "model_version": "v2.2 - Streamlit Cloud", "last_updated": "2025-11-01"}
