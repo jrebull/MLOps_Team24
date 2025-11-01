@@ -22,7 +22,7 @@ sys.path.append(str(Path(__file__).parent))
 
 from config import (
     UI_CONFIG, EMOTION_CLASSES, EMOTION_COLORS, EMOTION_EMOJIS,
-    SAMPLE_SONGS, MODEL_CONFIG, MLOPS_INFO, AUDIO_DIR
+    SAMPLE_SONGS, AVAILABLE_MODELS, DEFAULT_MODEL, MLOPS_INFO, AUDIO_DIR
 )
 from utils import (
     MusicEmotionPredictor,
@@ -106,11 +106,12 @@ if 'selected_audio_path' not in st.session_state:
 # ============================================================================
 
 @st.cache_resource
-def load_predictor():
+def load_predictor(model_path=None):
     """Load the model predictor (cached)."""
     try:
-        predictor = MusicEmotionPredictor()
-        predictor.load_model()
+        predictor = MusicEmotionPredictor(model_path=model_path)
+        model_name = predictor.load_model()
+        st.sidebar.success(f"🎯 Using: {model_name}")
         logger.info("✅ Predictor loaded successfully")
         return predictor
     except Exception as e:
@@ -197,14 +198,12 @@ def display_emotion_result(emotion: str, confidence: float, probabilities: dict)
         )
 
 
-def display_model_info():
+def display_model_info(selected_model):
     """Display model information in sidebar."""
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### 🤖 Model Information")
-    
-    model_info = MODEL_CONFIG["production_model"]
-    
-    st.sidebar.metric("Model Type", model_info["name"])
+    # Model selector
+    st.sidebar.markdown("### 🎯 Select Model")
+    model_info = AVAILABLE_MODELS[selected_model]
     st.sidebar.metric("Accuracy", f"{model_info['accuracy']:.1%}")
     st.sidebar.metric("Features", model_info["n_features"])
     
@@ -233,6 +232,16 @@ def display_team_info():
 # ============================================================================
 
 def main():
+    # Model selector (debe estar primero)
+    st.sidebar.markdown("### 🎯 Select Model")
+    selected_model = st.sidebar.selectbox(
+        "Choose a model:",
+        options=list(AVAILABLE_MODELS.keys()),
+        format_func=lambda x: AVAILABLE_MODELS[x]["name"],
+        index=list(AVAILABLE_MODELS.keys()).index(DEFAULT_MODEL)
+    )
+    st.sidebar.markdown("---")
+    
     """Main application logic."""
     
     # Header
@@ -247,7 +256,7 @@ def main():
     
     # Load predictor
     with st.spinner("Loading AI model..."):
-        predictor = load_predictor()
+        predictor = load_predictor(AVAILABLE_MODELS[selected_model]["path"])
         if predictor is None:
             st.error("❌ Failed to load model. Please check model file exists.")
             return
@@ -261,7 +270,7 @@ def main():
     )
     
     # Display model and team info
-    display_model_info()
+    display_model_info(selected_model)
     display_team_info()
     
     # ========================================================================
@@ -344,6 +353,7 @@ def main():
                         st.metric("True Emotion", f"{EMOTION_EMOJIS.get(selected_emotion.lower(), "🎵")} {selected_emotion}")
                     with col2:
                         st.metric("Predicted", f"{EMOTION_EMOJIS.get(result['predicted_emotion'].lower(), '🎵')} {result['predicted_emotion']}")
+                        st.caption(f"🤖 Model: {result.get('model_used', 'Unknown')}")
                     with col3:
                         if is_correct:
                             st.success("✅ Correct!")
