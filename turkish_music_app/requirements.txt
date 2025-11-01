@@ -26,3 +26,6 @@ pathlib>=1.0.1
 # MLflow for model tracking
 mlflow>=2.17.2
 protobuf>=3.20.0
+
+# MLOps package
+mlflow>=2.17.2
