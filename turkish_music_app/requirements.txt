@@ -1,0 +1,24 @@
+# Core ML/Data Science
+numpy>=1.26.4
+pandas>=2.3.3
+scikit-learn>=1.7.2
+scipy>=1.16.2
+
+# Audio Processing
+librosa>=0.10.0
+soundfile>=0.12.0
+
+# Visualization
+matplotlib>=3.10.0
+seaborn>=0.13.2
+plotly>=5.18.0
+
+# Streamlit
+streamlit>=1.40.0
+
+# Model persistence
+joblib>=1.5.2
+
+# Utilities
+python-dotenv>=1.1.1
+pathlib>=1.0.1
