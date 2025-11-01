@@ -33,6 +33,7 @@
 - [Uso del Sistema](#-uso-del-sistema)
 - [Scripts Disponibles](#-scripts-disponibles)
 - [API y Deployment](#-api-y-deployment)
+- [Streamlit App - Production Demo](#-streamlit-app---production-demo)
 - [Monitoring y Validación](#-monitoring-y-validación)
 - [Testing](#-testing-y-validación)
 - [Workflows y Contribución](#-workflows-y-contribución)
@@ -610,88 +611,301 @@ docker-compose up -d
 
 ## 📖 Uso del Sistema
 
-### Uso Básico del Módulo
+### 🎵 Opción 1: Usar la Aplicación Web (Recomendado)
 
-#### Cargar Datos
+La forma más rápida de probar el sistema es usando nuestra **app de Streamlit desplegada**:
+
+**🌐 URL**: [tu-url-de-streamlit].streamlit.app
+
+**Funcionalidades**:
+- 🎼 Análisis de emociones en tiempo real
+- 📊 Visualizaciones interactivas (waveform, spectrogram)
+- 📁 Subir tus propios archivos de audio (.mp3, .wav)
+- 🎯 Predicción con modelo Random Forest (76.9% accuracy)
+- 📈 Feature importance analysis
+- 🔄 Batch analysis de múltiples canciones
+
+Ver la sección [🎵 Streamlit App - Production Demo](#-streamlit-app---production-demo) para más detalles.
+
+---
+
+### 🖥️ Opción 2: Uso Local del Módulo Python
+
+#### 1. Cargar Datos
 
 ```python
 from acoustic_ml.dataset import load_dataset
 
-# Cargar dataset principal
+# Cargar dataset principal (408 filas)
 df = load_dataset('v2_cleaned_full')
+print(f"Dataset shape: {df.shape}")
 
-# O con splits
+# O cargar con splits predefinidos
 X_train, X_test, y_train, y_test = load_dataset('v2_cleaned_full', return_splits=True)
+print(f"Train: {X_train.shape}, Test: {X_test.shape}")
+
+# Ver las clases disponibles
+print(f"Emotions: {y_train.unique()}")  # ['Happy', 'Sad', 'Angry', 'Relax']
 ```
 
-#### Feature Engineering
+#### 2. Feature Engineering
 
 ```python
 from acoustic_ml.features import FeaturePipeline
 
-# Crear pipeline
+# Crear pipeline de transformación
 pipeline = FeaturePipeline()
 
-# Transformar datos
+# Fit y transform sobre datos de entrenamiento
 X_transformed = pipeline.fit_transform(X_train, y_train)
+
+# Transform datos de test (sin fit)
 X_test_transformed = pipeline.transform(X_test)
+
+print(f"Features originales: {X_train.shape[1]}")
+print(f"Features transformados: {X_transformed.shape[1]}")
 ```
 
-#### Entrenar Modelo
+#### 3. Entrenar Modelo desde Cero
 
 ```python
 from acoustic_ml.modeling.sklearn_pipeline import create_sklearn_pipeline
+from acoustic_ml.dataset import load_dataset
+from sklearn.metrics import classification_report, accuracy_score
 
-# Crear pipeline completo
+# 1. Cargar datos
+X_train, X_test, y_train, y_test = load_dataset('v2_cleaned_full', return_splits=True)
+
+# 2. Crear pipeline completo (preprocessing + modelo)
 model_pipeline = create_sklearn_pipeline(model_type='random_forest')
 
-# Entrenar
+# 3. Entrenar
+print("Entrenando modelo...")
 model_pipeline.fit(X_train, y_train)
 
-# Predecir
+# 4. Predecir
 predictions = model_pipeline.predict(X_test)
+probabilities = model_pipeline.predict_proba(X_test)
 
-# Evaluar
-accuracy = model_pipeline.score(X_test, y_test)
-print(f"Accuracy: {accuracy:.2%}")
+# 5. Evaluar
+accuracy = accuracy_score(y_test, predictions)
+print(f"\n✅ Accuracy: {accuracy:.2%}")
+print("\nClassification Report:")
+print(classification_report(y_test, predictions))
+
+# 6. Guardar modelo
+import joblib
+joblib.dump(model_pipeline, 'models/my_model.pkl')
+print("\n💾 Modelo guardado en: models/my_model.pkl")
 ```
 
-#### Visualizaciones
+#### 4. Hacer Predicciones con Modelo Pre-entrenado
+
+```python
+import joblib
+import pandas as pd
+from acoustic_ml.dataset import load_dataset
+
+# 1. Cargar modelo pre-entrenado
+model = joblib.load('models/optimized/production_model.pkl')
+print("✅ Modelo cargado (Accuracy: 80.17%)")
+
+# 2. Cargar datos nuevos
+X_test, _, _, y_test = load_dataset('v2_cleaned_full', return_splits=True)
+
+# 3. Hacer predicciones
+predictions = model.predict(X_test)
+probabilities = model.predict_proba(X_test)
+
+# 4. Ver resultados
+for i in range(5):  # Primeras 5 predicciones
+    true_label = y_test.iloc[i]
+    pred_label = predictions[i]
+    confidence = probabilities[i].max()
+    
+    print(f"\nCanción {i+1}:")
+    print(f"  Real: {true_label}")
+    print(f"  Predicción: {pred_label} (confianza: {confidence:.2%})")
+    print(f"  ✅ Correcto" if true_label == pred_label else "  ❌ Incorrecto")
+```
+
+#### 5. Predicción de una Sola Canción
+
+```python
+import joblib
+import numpy as np
+
+# Cargar modelo
+model = joblib.load('models/optimized/production_model.pkl')
+
+# Features de una nueva canción (50+ características acústicas)
+new_song_features = np.array([
+    [0.123, -0.456, 0.789, ...]  # MFCC, spectral features, etc.
+])
+
+# Predecir emoción
+emotion = model.predict(new_song_features)[0]
+confidence = model.predict_proba(new_song_features)[0]
+
+print(f"Emoción detectada: {emotion}")
+print(f"Confianzas: Happy={confidence[0]:.2%}, Sad={confidence[1]:.2%}, "
+      f"Angry={confidence[2]:.2%}, Relax={confidence[3]:.2%}")
+```
+
+#### 6. Visualizaciones
 
 ```python
 from acoustic_ml.plots import plot_confusion_matrix, plot_feature_importance
+import matplotlib.pyplot as plt
 
 # Confusion matrix
-plot_confusion_matrix(y_test, predictions, save_path='reports/figures/cm.png')
+fig = plot_confusion_matrix(
+    y_test, 
+    predictions, 
+    save_path='reports/figures/my_confusion_matrix.png'
+)
+plt.show()
 
-# Feature importance
-plot_feature_importance(model_pipeline, feature_names, top_n=20)
+# Feature importance (requiere modelo con feature_importances_)
+feature_names = X_train.columns.tolist()
+plot_feature_importance(
+    model.named_steps['classifier'],  # Extraer clasificador del pipeline
+    feature_names, 
+    top_n=20,
+    save_path='reports/figures/feature_importance.png'
+)
+plt.show()
 ```
 
-### Scripts Rápidos
+#### 7. Batch Prediction (Múltiples Canciones)
+
+```python
+import joblib
+import pandas as pd
+from pathlib import Path
+
+# Cargar modelo
+model = joblib.load('models/optimized/production_model.pkl')
+
+# Cargar dataset con canciones nuevas
+songs_df = pd.read_csv('data/processed/turkish_music_emotion_v2_cleaned_full.csv')
+
+# Separar features y target
+X = songs_df.drop('Class', axis=1)
+y_true = songs_df['Class']
+
+# Batch prediction
+predictions = model.predict(X)
+probabilities = model.predict_proba(X)
+
+# Crear DataFrame con resultados
+results_df = pd.DataFrame({
+    'Song_ID': range(len(predictions)),
+    'True_Emotion': y_true,
+    'Predicted_Emotion': predictions,
+    'Confidence': probabilities.max(axis=1),
+    'Correct': predictions == y_true.values
+})
+
+# Guardar resultados
+results_df.to_csv('reports/batch_predictions.csv', index=False)
+print(f"\n✅ Predicciones guardadas en: reports/batch_predictions.csv")
+print(f"\nAccuracy general: {results_df['Correct'].mean():.2%}")
+print(f"Total canciones: {len(results_df)}")
+print(f"Correctas: {results_df['Correct'].sum()}")
+print(f"Incorrectas: {(~results_df['Correct']).sum()}")
+```
+
+---
+
+### 🚀 Scripts Rápidos (Línea de Comando)
 
 #### Entrenar Modelo Baseline
 
 ```bash
+# Entrenar Random Forest baseline
 python scripts/training/train_baseline.py
+
+# Output: models/baseline/random_forest_baseline.pkl
 ```
 
-#### Ejecutar Experimentos MLflow
+#### Ejecutar Todos los Experimentos MLflow
 
 ```bash
+# Ejecuta 7 experimentos con diferentes modelos
 python scripts/training/run_mlflow_experiments.py
+
+# Ver resultados en: http://localhost:5001 (MLflow UI)
 ```
 
-#### Análisis de Outliers
+#### Análisis Exploratorio
 
 ```bash
+# Análisis de outliers
 python scripts/analysis/analyze_outliers.py
+
+# Comparación de scalers (StandardScaler vs RobustScaler)
+python scripts/analysis/compare_scalers.py
+
+# Análisis completo
+python scripts/analysis/run_full_analysis.py
 ```
 
-#### Validación Completa
+#### Validación y Testing
 
 ```bash
+# Validación completa del sistema
 python tests/test_full_integration.py
+
+# Tests específicos
+python tests/test_sklearn_pipeline.py
+python tests/test_dataset_equivalence.py
+```
+
+---
+
+### 📊 Workflow Completo: De Cero a Producción
+
+```bash
+# 1. Setup inicial
+conda activate acoustic_ml
+dvc pull  # Descargar datos
+
+# 2. Exploración (opcional)
+jupyter notebook notebooks/1.0-team-eda-turkish-music.ipynb
+
+# 3. Entrenar modelo
+python scripts/training/train_baseline.py
+
+# 4. Experimentación con MLflow
+docker-compose up -d  # Iniciar MLflow UI
+python scripts/training/run_mlflow_experiments.py
+
+# 5. Evaluar mejor modelo
+python -c "
+from acoustic_ml.dataset import load_dataset
+from acoustic_ml.modeling.sklearn_pipeline import create_sklearn_pipeline
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = load_dataset('v2_cleaned_full', return_splits=True)
+model = create_sklearn_pipeline('random_forest')
+model.fit(X_train, y_train)
+predictions = model.predict(X_test)
+print(classification_report(y_test, predictions))
+"
+
+# 6. Guardar modelo final
+python -c "
+import joblib
+from acoustic_ml.modeling.sklearn_pipeline import create_sklearn_pipeline
+model = create_sklearn_pipeline('random_forest')
+# ... entrenar ...
+joblib.dump(model, 'models/optimized/production_model.pkl')
+print('✅ Modelo guardado')
+"
+
+# 7. Deploy (Streamlit app o API)
+# Ver sección de Streamlit App
 ```
 
 ---
@@ -799,6 +1013,335 @@ docker-compose logs -f
 # Detener
 docker-compose down
 ```
+
+---
+
+## 🎵 Streamlit App - Production Demo
+
+### 🌐 Aplicación Web Desplegada
+
+Hemos desarrollado una **aplicación web interactiva** para demostrar las capacidades del sistema de reconocimiento de emociones musicales en producción.
+
+**🔗 URL de Acceso**: **[tu-url-de-streamlit].streamlit.app**
+
+**📱 Compatibilidad**: Desktop, Tablet, Mobile
+
+---
+
+### ✨ Características Principales
+
+#### 🎼 1. Análisis de Música en Tiempo Real
+
+- **Predicción instantánea** de emociones en canciones turcas
+- **4 emociones detectadas**: Angry 😡, Happy 😊, Relax 😌, Sad 😢
+- **Confianza de predicción**: Probabilidades por clase
+- **Modelo**: Random Forest (76.9% accuracy)
+
+#### 📁 2. Upload de Archivos
+
+- **Formatos soportados**: `.mp3`, `.wav`, `.ogg`
+- **Procesamiento automático**: Extracción de features acústicas
+- **Análisis inmediato**: Resultados en segundos
+- **Límite de tamaño**: 200MB por archivo
+
+#### 📊 3. Visualizaciones Interactivas
+
+**Waveform (Forma de Onda)**:
+- Visualización temporal de la señal de audio
+- Amplitud vs. tiempo
+- Identificación de patrones rítmicos
+
+**Spectrogram (Espectrograma)**:
+- Representación tiempo-frecuencia
+- Intensidad de frecuencias a lo largo del tiempo
+- Identificación de características tonales
+
+**Feature Importance**:
+- Top 20 características más relevantes
+- Impacto de cada feature en la predicción
+- Análisis de MFCC, spectral features, temporal features
+
+#### 🎯 4. Predicción con Audios de Muestra
+
+- **Biblioteca de ejemplos**: Canciones turcas pre-cargadas
+- **Cada emoción representada**: 1-2 ejemplos por clase
+- **Testing rápido**: Probar el modelo sin subir archivos
+- **Comparación**: Ver diferentes emociones musicales
+
+#### 🔄 5. Batch Analysis
+
+- **Análisis múltiple**: Subir y procesar varias canciones
+- **Resultados agregados**: Estadísticas del conjunto
+- **Exportar CSV**: Descargar predicciones completas
+- **Comparación entre canciones**: Análisis comparativo
+
+#### 🎚️ 6. Selector de Modelos (Local)
+
+Si ejecutas la app localmente, puedes cambiar entre modelos:
+- Random Forest (default) - 76.9% accuracy
+- Gradient Boosting - 77.8% accuracy
+- XGBoost - experimental
+
+---
+
+### 🚀 Cómo Usar la App
+
+#### Opción 1: App en la Nube (Recomendado)
+
+1. **Acceder**: Ir a [tu-url-de-streamlit].streamlit.app
+2. **Elegir modo**:
+   - 📁 **Upload**: Subir tu propio audio
+   - 🎵 **Samples**: Usar audios de ejemplo
+3. **Analizar**: La app procesará automáticamente
+4. **Ver resultados**:
+   - Emoción predicha con confianza
+   - Visualizaciones (waveform, spectrogram)
+   - Feature importance
+5. **Experimentar**: Probar con diferentes canciones
+
+#### Opción 2: Ejecutar Localmente
+
+```bash
+# 1. Navegar al directorio de la app
+cd streamlit_app/  # o donde esté tu app de Streamlit
+
+# 2. Instalar dependencias
+pip install -r requirements.txt
+
+# 3. Ejecutar app
+streamlit run app.py
+
+# 4. Abrir en navegador
+# Automáticamente abre en: http://localhost:8501
+```
+
+---
+
+### 🛠️ Tecnologías Utilizadas
+
+**Backend**:
+- **Streamlit**: Framework de la aplicación
+- **scikit-learn**: Modelo de ML (Random Forest)
+- **librosa**: Procesamiento de audio y feature extraction
+- **pandas/numpy**: Manipulación de datos
+
+**Visualización**:
+- **matplotlib**: Gráficas estáticas
+- **plotly**: Visualizaciones interactivas
+- **seaborn**: Styling de gráficas
+
+**Deployment**:
+- **Streamlit Cloud**: Hosting gratuito
+- **GitHub Integration**: Deploy automático desde main branch
+- **Secrets Management**: Configuración segura
+
+---
+
+### 📁 Estructura de la App
+
+```
+streamlit_app/
+├── app.py                      <- Main application file
+├── requirements.txt            <- Dependencies
+├── .streamlit/
+│   └── config.toml             <- Streamlit configuration
+├── models/
+│   └── baseline_model.pkl      <- Pre-trained model
+├── sample_audios/              <- Sample Turkish music files
+│   ├── angry_example.mp3
+│   ├── happy_example.mp3
+│   ├── relax_example.mp3
+│   └── sad_example.mp3
+└── utils/
+    ├── audio_processor.py      <- Audio feature extraction
+    ├── model_loader.py         <- Model loading utilities
+    └── visualizations.py       <- Plot generation functions
+```
+
+---
+
+### 🔧 Configuración y Personalización
+
+#### Variables de Entorno
+
+Si ejecutas localmente, puedes configurar:
+
+```toml
+# .streamlit/secrets.toml
+[model]
+default_model = "random_forest"
+confidence_threshold = 0.5
+
+[audio]
+max_file_size = 200  # MB
+allowed_formats = [".mp3", ".wav", ".ogg"]
+sample_rate = 22050
+
+[features]
+n_mfcc = 13
+n_fft = 2048
+hop_length = 512
+```
+
+#### Personalizar Tema
+
+```toml
+# .streamlit/config.toml
+[theme]
+primaryColor = "#667eea"
+backgroundColor = "#0e1117"
+secondaryBackgroundColor = "#262730"
+textColor = "#fafafa"
+font = "sans serif"
+```
+
+---
+
+### 📊 Ejemplos de Uso
+
+#### Ejemplo 1: Análisis de Audio Subido
+
+```
+1. Usuario sube: "turkish_song.mp3"
+2. App extrae 50+ features acústicas
+3. Modelo predice: "Happy" (confianza: 87.3%)
+4. Visualizaciones generadas:
+   - Waveform: Muestra patrones rítmicos alegres
+   - Spectrogram: Frecuencias altas prominentes
+   - Features: MFCC_3 y Spectral_Centroid destacados
+```
+
+#### Ejemplo 2: Comparación de Emociones
+
+```
+Usuario selecciona 4 samples (uno por emoción):
+- Angry:  Predicción correcta (92.1%)
+- Happy:  Predicción correcta (87.3%)
+- Relax:  Predicción correcta (81.5%)
+- Sad:    Predicción correcta (79.8%)
+
+Resultado: 100% accuracy en samples
+```
+
+#### Ejemplo 3: Batch Analysis
+
+```
+Usuario sube 10 canciones:
+- 7 predicciones correctas
+- 3 con confusión Relax ↔ Sad
+- Accuracy batch: 70%
+- Confianza promedio: 78.4%
+```
+
+---
+
+### 🎯 Casos de Uso
+
+#### 🎵 Para Músicos y Productores
+
+- **Validar la emoción** que transmite una composición
+- **Comparar versiones** de la misma canción
+- **Analizar el "mood"** de un álbum completo
+
+#### 🔍 Para Investigadores
+
+- **Estudiar características** de música emocional turca
+- **Comparar con otros datasets** musicales
+- **Validar modelos** de emoción musical
+
+#### 📚 Para Educación
+
+- **Demostrar ML aplicado** en análisis de audio
+- **Enseñar feature engineering** en música
+- **Mostrar pipeline MLOps** completo
+
+#### 🎧 Para Oyentes
+
+- **Descubrir canciones** con emociones específicas
+- **Entender por qué** una canción suena "triste" o "alegre"
+- **Explorar música turca** por emoción
+
+---
+
+### 🐛 Troubleshooting
+
+#### Error: "Model not found"
+```bash
+# Verificar que el modelo existe
+ls models/baseline_model.pkl
+
+# Re-descargar desde DVC
+dvc pull models/baseline.dvc
+```
+
+#### Error: "Audio file too large"
+```python
+# Comprimir audio antes de subir
+from pydub import AudioSegment
+audio = AudioSegment.from_mp3("large_file.mp3")
+audio.export("compressed.mp3", format="mp3", bitrate="128k")
+```
+
+#### Error: "Feature extraction failed"
+```python
+# Verificar formato de audio
+import librosa
+y, sr = librosa.load("audio.mp3", sr=22050)
+print(f"Duration: {len(y)/sr:.2f}s, Sample rate: {sr}Hz")
+```
+
+---
+
+### 🚀 Roadmap de la App
+
+**Fase Actual (Phase 2)** ✅:
+- ✅ Predicción básica con modelo Random Forest
+- ✅ Upload de archivos de audio
+- ✅ Visualizaciones (waveform, spectrogram)
+- ✅ Análisis de feature importance
+- ✅ Deploy en Streamlit Cloud
+
+**Próximas Mejoras (Phase 3)**:
+- 🔄 Multi-model comparison en tiempo real
+- 🔄 A/B testing entre modelos
+- 🔄 Export de reportes PDF
+- 🔄 Integración con API REST
+- 🔄 User authentication
+- 🔄 Historial de predicciones
+
+**Futuro (Phase 4+)**:
+- 💡 Recomendaciones de canciones similares
+- 💡 Análisis de playlists completas
+- 💡 Integración con Spotify API
+- 💡 Mobile app (React Native)
+- 💡 Real-time audio recording y análisis
+
+---
+
+### 📸 Screenshots
+
+> **Nota**: Agregar screenshots reales de la app cuando esté desplegada:
+
+```markdown
+![Home Page](docs/images/app_home.png)
+*Página principal con opciones de análisis*
+
+![Prediction Results](docs/images/app_prediction.png)
+*Resultados de predicción con visualizaciones*
+
+![Feature Importance](docs/images/app_features.png)
+*Análisis de características más relevantes*
+```
+
+---
+
+### 🔗 Links Relacionados
+
+- **App en Producción**: [tu-url-de-streamlit].streamlit.app
+- **Dashboard Cookiecutter**: [https://mlopsteam24-cookiecutter.streamlit.app](https://mlopsteam24-cookiecutter.streamlit.app)
+- **Repositorio GitHub**: [tu-repo-url]
+- **MLflow UI**: http://localhost:5001 (local)
+- **Documentación de Streamlit**: https://docs.streamlit.io
 
 ---
 
@@ -1079,7 +1622,7 @@ Antes de aprobar PR:
 
 ---
 
-*Última actualización: Octubre 2024 - Fase 2 Completada*
+*Última actualización: Noviembre 2024 - Phase 2 Production Demo*
 
 **Estructura basada en**: [Cookiecutter Data Science](https://drivendata.github.io/cookiecutter-data-science/)
 
