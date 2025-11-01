@@ -61,26 +61,26 @@ FEATURE_NAMES = [
 
 SAMPLE_SONGS = {
     "Angry": [
-        {"name": "Adanalı", "file": "angry/adanali.mp3"},
-        {"name": "Cemberin İçinde", "file": "angry/cemberin_icinde_dizi_muzigi.mp3"}
+        {"name": "Adanalı", "file": "adanali.mp3"},
+        {"name": "Cemberin İçinde", "file": "cemberin_icinde_dizi_muzigi.mp3"}
     ],
     "Happy": [
-        {"name": "Adana Köprü Başı", "file": "happy/adana_kopru_basi_murat_kursun.mp3"},
-        {"name": "Çit Çit Çetene", "file": "happy/cit_cit_cetene_ahmet_kurt.mp3"}
+        {"name": "Adana Köprü Başı", "file": "adana_kopru_basi_murat_kursun.mp3"},
+        {"name": "Çit Çit Çetene", "file": "cit_cit_cetene_ahmet_kurt.mp3"}
     ],
     "Relax": [
-        {"name": "Elvan Günaydın", "file": "relax/elvan_gunaydin.mp3"},
-        {"name": "Fikret Kızılok", "file": "relax/fikret_kizilok_gonul.mp3"}
+        {"name": "Elvan Günaydın", "file": "elvan_gunaydin.mp3"},
+        {"name": "Fikret Kızılok", "file": "fikret_kizilok_gonul.mp3"}
     ],
     "Sad": [
-        {"name": "Al Yazmalım", "file": "sad/al_yazmali_m.mp3"},
-        {"name": "Derdimi Kimlere", "file": "sad/derdimi_kimlere_desem_rusen_yilmaz.mp3"}
+        {"name": "Al Yazmalım", "file": "al_yazmalim.mp3"},
+        {"name": "Derdimi Kimlere", "file": "derdimi_kimlere_desem_rusen_yilmaz.mp3"}
     ]
 }
 
 UI_CONFIG = {
     "page_title": "Turkish Music Emotion Recognition",
-    "page_icon": "🎵",
+    "page_icon": "🎸",
     "layout": "wide",
     "initial_sidebar_state": "expanded"
 }
@@ -88,6 +88,8 @@ UI_CONFIG = {
 MLOPS_INFO = {
     "team": "MLOps Team 24",
     "project": "Turkish Music Emotion Recognition",
+    "phase": "Phase 2 - Production Demo",
+    "institution": "Tecnológico de Monterrey",
     "model_version": "v2.1 - Ensemble",
     "last_updated": "2025-11-01"
 }

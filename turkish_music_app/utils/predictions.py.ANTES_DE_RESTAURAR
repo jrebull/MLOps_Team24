@@ -1,19 +1,15 @@
 import logging
 import pandas as pd
-from typing import Dict, Optional
+from typing import Dict
 import mlflow
 from pathlib import Path
 
-from utils.audio_feature_extractor import AudioFeatureExtractor
-
 logger = logging.getLogger(__name__)
-
 
 class MusicEmotionPredictor:
     def __init__(self):
         self.model = None
-        self.feature_extractor = AudioFeatureExtractor(sr=22050)
-    
+        
     def load_model(self):
         try:
             import sys
@@ -30,11 +26,11 @@ class MusicEmotionPredictor:
         except Exception as e:
             logger.error(f"Error cargando modelo: {e}")
             raise
-    
+            
     def predict(self, features_df: pd.DataFrame) -> Dict:
         if self.model is None:
             self.load_model()
-        
+            
         try:
             prediction = self.model.predict(features_df)[0]
             probabilities = self.model.predict_proba(features_df)[0]
@@ -62,53 +58,7 @@ class MusicEmotionPredictor:
                 "confidence": confidence,
                 "probabilities": proba_dict
             }
+            
         except Exception as e:
             logger.error(f"Error en predicción: {e}")
-            raise
-    
-    def predict_from_audio(
-        self, 
-        audio_path: Path,
-        return_probabilities: bool = True
-    ) -> Dict:
-        """
-        Predict emotion from audio file.
-        
-        Args:
-            audio_path: Path to audio file
-            return_probabilities: Whether to return probabilities
-            
-        Returns:
-            Dictionary with prediction results
-        """
-        try:
-            # Extract features
-            logger.info(f"📊 Extracting features from: {audio_path.name}")
-            features_dict = self.feature_extractor.extract_features(audio_path)
-            
-            # Convert to DataFrame
-            features_df = pd.DataFrame([features_dict])
-            
-            # Predict
-            result = self.predict(features_df)
-            
-            # Format response to match expected API
-            response = {
-                "predicted_emotion": result["emotion"].capitalize(),
-                "confidence": result["confidence"]
-            }
-            
-            if return_probabilities:
-                # Capitalize emotion names for consistency
-                response["probabilities"] = {
-                    emotion.capitalize(): prob 
-                    for emotion, prob in result["probabilities"].items()
-                }
-                # Add features if requested
-                response["features"] = features_dict
-            
-            return response
-            
-        except Exception as e:
-            logger.error(f"❌ Error in predict_from_audio: {e}")
             raise
