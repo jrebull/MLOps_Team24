@@ -48,7 +48,7 @@ st.set_page_config(
 
 # Custom logo in sidebar
 with st.sidebar:
-    st.image("assets/logo.png", width=200)
+    st.image(str(Path(__file__).parent / "assets" / "logo.png"), width=200)
     import matplotlib.pyplot as plt
     plt.close("all")  # Clear any stray figures
     st.markdown("---")
