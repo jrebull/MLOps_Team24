@@ -5,7 +5,7 @@ Este módulo integra todos los componentes de acoustic_ml en un pipeline
 end-to-end compatible con scikit-learn.
 
 Autor: MLOps Team 24
-Fecha: Octubre 2024
+Fecha: Octubre 2025
 """
 
 from typing import Optional, Dict, Any, Tuple
@@ -161,11 +161,13 @@ class SklearnMLPipeline(BaseEstimator):
         """
         Realiza predicciones con el pipeline entrenado.
         
+        IMPORTANTE: Devuelve labels decodificados (strings), no números.
+        
         Args:
-            X: DataFrame con features
+            X: DataFrame con features RAW (sin transformar)
             
         Returns:
-            Array con predicciones
+            Array con predicciones como strings (e.g., 'happy', 'sad')
         """
         if not self.is_fitted_:
             raise ValueError("El pipeline debe ser entrenado primero (llamar fit)")
@@ -173,11 +175,51 @@ class SklearnMLPipeline(BaseEstimator):
         # 1. Transformar features usando el pipeline entrenado
         X_transformed = self.feature_pipeline.transform(X)
         
-        # 2. Predecir usando el modelo entrenado
-        predictions = self.model_trainer.model.predict(X_transformed)
+        # 2. Predecir usando el modelo entrenado (devuelve números encoded)
+        predictions_encoded = self.model_trainer.model.predict(X_transformed)
         
-        return predictions
+        # 3. ✅ DECODIFICAR a strings usando label_encoder
+        if hasattr(self.model_trainer, 'label_encoder') and self.model_trainer.label_encoder is not None:
+            predictions_decoded = self.model_trainer.label_encoder.inverse_transform(predictions_encoded)
+            return predictions_decoded
+        else:
+            # Si no hay label_encoder, devolver números
+            return predictions_encoded
     
+    def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
+        """
+        Predice probabilidades por clase.
+        
+        Args:
+            X: DataFrame con features RAW (sin transformar)
+            
+        Returns:
+            Array con probabilidades [n_samples, n_classes]
+        """
+        if not self.is_fitted_:
+            raise ValueError("El pipeline debe ser entrenado primero")
+        
+        X_transformed = self.feature_pipeline.transform(X)
+        probas = self.model_trainer.model.predict_proba(X_transformed)
+        
+        return probas
+    
+    def get_classes(self) -> np.ndarray:
+        """
+        Retorna las clases del modelo (labels decodificados).
+        
+        Returns:
+            Array con nombres de clases
+        """
+        if not self.is_fitted_:
+            raise ValueError("El pipeline debe ser entrenado primero")
+        
+        if hasattr(self.model_trainer, 'label_encoder') and self.model_trainer.label_encoder is not None:
+            return self.model_trainer.label_encoder.classes_
+        else:
+            return self.model_trainer.model.classes_
+
+        
     def score(self, X: pd.DataFrame, y: pd.Series) -> float:
         """
         Calcula el accuracy del pipeline.
