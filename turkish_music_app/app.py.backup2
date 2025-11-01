@@ -1,0 +1,545 @@
+"""
+Turkish Music Emotion Recognition - Streamlit App
+
+Professional web application for predicting emotions in Turkish music.
+Built following MLOps best practices by Team 24.
+
+Author: MLOps Team 24
+Date: November 2024
+Institution: Tecnológico de Monterrey
+"""
+
+import streamlit as st
+import pandas as pd
+import numpy as np
+from pathlib import Path
+import logging
+import sys
+import json
+
+# Add parent directory to path for imports
+sys.path.append(str(Path(__file__).parent))
+
+from config import (
+    UI_CONFIG, EMOTION_CLASSES, EMOTION_COLORS, EMOTION_EMOJIS,
+    SAMPLE_SONGS, AVAILABLE_MODELS, DEFAULT_MODEL, MLOPS_INFO, AUDIO_DIR
+)
+from utils import (
+    MusicEmotionPredictor,
+    AudioVisualizer,
+    AudioFeatureExtractor
+)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# ============================================================================
+# PAGE CONFIGURATION
+# ============================================================================
+
+st.set_page_config(
+    page_title=UI_CONFIG["page_title"],
+    page_icon="🎸",
+    layout=UI_CONFIG["layout"],
+    initial_sidebar_state=UI_CONFIG["initial_sidebar_state"]
+)
+
+
+# Custom logo in sidebar
+with st.sidebar:
+    st.image(str(Path(__file__).parent / "assets" / "logo.png"), width=200)
+    import matplotlib.pyplot as plt
+    plt.close("all")  # Clear any stray figures
+    st.markdown("---")
+# Custom CSS for better styling
+st.markdown("""
+    <style>
+    .main-header {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #1f77b4;
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+    .sub-header {
+        font-size: 1.2rem;
+        color: #666;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .emotion-card {
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .metric-card {
+        background-color: #f0f2f6;
+        padding: 1rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+    .stButton>button {
+        width: 100%;
+        border-radius: 8px;
+        height: 3rem;
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# ============================================================================
+# SESSION STATE INITIALIZATION
+# ============================================================================
+
+if 'predictor' not in st.session_state:
+    st.session_state.predictor = None
+if 'prediction_result' not in st.session_state:
+    st.session_state.prediction_result = None
+if 'selected_audio_path' not in st.session_state:
+    st.session_state.selected_audio_path = None
+
+# ============================================================================
+# HELPER FUNCTIONS
+# ============================================================================
+
+@st.cache_resource
+def load_predictor(model_path=None):
+    """Load the model predictor (cached)."""
+    try:
+        predictor = MusicEmotionPredictor(model_path=model_path)
+        model_name = predictor.load_model()
+        st.sidebar.success(f"🎯 Using: {model_name}")
+        logger.info("✅ Predictor loaded successfully")
+        return predictor
+    except Exception as e:
+        logger.error(f"❌ Failed to load predictor: {e}")
+        st.error(f"Error loading model: {e}")
+        return None
+
+
+
+
+
+
+def get_audio_files():
+    """Get available audio files organized by emotion (loads ALL songs dynamically)."""
+    from pathlib import Path
+    
+    audio_catalog = {}
+    emotions = ["Angry", "Happy", "Relax", "Sad"]
+    
+    for emotion in emotions:
+        audio_catalog[emotion] = []
+        emotion_dir = AUDIO_DIR / emotion.lower()
+        
+        if emotion_dir.exists():
+            # Get all .mp3 files in the directory
+            mp3_files = sorted(emotion_dir.glob("*.mp3"))
+            
+            for audio_path in mp3_files:
+                # Use filename without extension as display name
+                display_name = audio_path.stem.replace("_", " ").title()
+                
+                audio_catalog[emotion].append({
+                    "name": display_name,
+                    "path": audio_path
+                })
+    
+    return audio_catalog
+
+def display_emotion_result(emotion: str, confidence: float, probabilities: dict):
+    """Display prediction result in a beautiful format."""
+    col1, col2, col3 = st.columns([1, 2, 1])
+    
+    with col2:
+        # Main prediction
+        emoji = EMOTION_EMOJIS.get(emotion, "🎵")
+        st.markdown(
+            f"""
+            <div class="emotion-card" style="background-color: {EMOTION_COLORS.get(emotion, '#808080')}20; border-left: 5px solid {EMOTION_COLORS.get(emotion, '#808080')};">
+                <h1 style="text-align: center; margin: 0;">{emoji}</h1>
+                <h2 style="text-align: center; margin: 0.5rem 0;">{emotion}</h2>
+                <h3 style="text-align: center; color: #666; margin: 0;">
+                    Confidence: {confidence:.1%}
+                </h3>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    
+    # Probability bars
+    st.markdown("### 📊 Emotion Probabilities")
+    
+    for emo, prob in probabilities.items():
+        color = EMOTION_COLORS.get(emo, '#808080')
+        is_predicted = emo == emotion
+        
+        st.markdown(
+            f"""
+            <div style="margin: 0.5rem 0;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.2rem;">
+                    <span style="font-weight: {'bold' if is_predicted else 'normal'};">
+                        {EMOTION_EMOJIS.get(emo, '🎵')} {emo}
+                    </span>
+                    <span style="font-weight: {'bold' if is_predicted else 'normal'};">
+                        {prob:.1%}
+                    </span>
+                </div>
+                <div style="background-color: #e0e0e0; border-radius: 5px; overflow: hidden;">
+                    <div style="background-color: {color}; width: {prob*100}%; height: 25px; border-radius: 5px;
+                         {'border: 2px solid black;' if is_predicted else ''}"></div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+def display_model_info(selected_model):
+    """Display model information in sidebar."""
+    st.sidebar.markdown("---")
+    # Model selector
+    st.sidebar.markdown("### 🎯 Select Model")
+    model_info = AVAILABLE_MODELS[selected_model]
+    st.sidebar.metric("Accuracy", f"{model_info['accuracy']:.1%}")
+    st.sidebar.metric("Features", model_info["n_features"])
+    
+    with st.sidebar.expander("📊 Model Details"):
+        st.write(f"**Description:** {model_info['description']}")
+        st.write(f"**Classes:** {', '.join(EMOTION_CLASSES)}")
+
+
+def display_team_info():
+    """Display team information in sidebar."""
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### 👥 About")
+    
+    st.sidebar.info(f"""
+    **{MLOPS_INFO['project']}**
+    
+    🏫 {MLOPS_INFO['institution']}  
+    👥 {MLOPS_INFO['team']}  
+    📅 Phase: {MLOPS_INFO['phase']}  
+    🔄 Updated: {MLOPS_INFO['last_updated']}
+    """)
+
+
+# ============================================================================
+# MAIN APPLICATION
+# ============================================================================
+
+def main():
+    # Model selector (debe estar primero)
+    st.sidebar.markdown("### 🎯 Select Model")
+    selected_model = st.sidebar.selectbox(
+        "Choose a model:",
+        options=list(AVAILABLE_MODELS.keys()),
+        format_func=lambda x: AVAILABLE_MODELS[x]["name"],
+        index=list(AVAILABLE_MODELS.keys()).index(DEFAULT_MODEL)
+    )
+    st.sidebar.markdown("---")
+    
+    """Main application logic."""
+    
+    # Header
+    st.markdown('<p class="main-header">🎵 Turkish Music Emotion Recognition</p>', unsafe_allow_html=True)
+    st.markdown(
+        '<p class="sub-header">AI-powered emotion detection in Turkish music using MLOps best practices</p>',
+        unsafe_allow_html=True
+    )
+    
+    # Sidebar
+    st.sidebar.title("⚙️ Configuration")
+    
+    # Load predictor
+    with st.spinner("Loading AI model..."):
+        predictor = load_predictor(AVAILABLE_MODELS[selected_model]["path"])
+        if predictor is None:
+            st.error("❌ Failed to load model. Please check model file exists.")
+            return
+        st.session_state.predictor = predictor
+    
+    # Mode selection
+    mode = st.sidebar.radio(
+        "Select Mode",
+        ["🎵 Predict from Sample", "🎤 Predict from Upload", "📊 Batch Analysis"],
+        index=0
+    )
+    
+    # Display model and team info
+    display_model_info(selected_model)
+    display_team_info()
+    
+    # ========================================================================
+    # MODE 1: PREDICT FROM SAMPLE
+    # ========================================================================
+    if mode == "🎵 Predict from Sample":
+        st.markdown("## 🎵 Select a Sample Song")
+        st.markdown("Choose an emotion category and a song to analyze.")
+        
+        # Get available audio files
+        audio_catalog = get_audio_files()
+        
+        if not audio_catalog or all(len(songs) == 0 for songs in audio_catalog.values()):
+            st.warning("""
+            ⚠️ **No audio files found!**
+            
+            Please add audio files to the `assets/sample_audio/` directory:
+            - `assets/sample_audio/angry/` - 4 songs
+            - `assets/sample_audio/happy/` - 4 songs
+            - `assets/sample_audio/relax/` - 4 songs
+            - `assets/sample_audio/sad/` - 4 songs
+            """)
+            return
+        
+        # Emotion selector
+        col1, col2 = st.columns([1, 2])
+        
+        with col1:
+            selected_emotion = st.selectbox(
+                "Select Emotion Category",
+                options=list(audio_catalog.keys()),
+                format_func=lambda x: f"{EMOTION_EMOJIS.get(x, '🎵')} {x}"
+            )
+        
+        with col2:
+            songs_in_category = audio_catalog.get(selected_emotion, [])
+            if songs_in_category:
+                selected_song = st.selectbox(
+                    "Select Song",
+                    options=range(len(songs_in_category)),
+                    format_func=lambda i: songs_in_category[i]["name"]
+                )
+                audio_path = songs_in_category[selected_song]["path"]
+                st.session_state.selected_audio_path = audio_path
+            else:
+                st.warning(f"No songs found for {selected_emotion}")
+                return
+        
+        # Audio player
+        if st.session_state.selected_audio_path:
+            st.markdown("### 🎧 Preview")
+            st.audio(str(st.session_state.selected_audio_path))
+        # Predict button
+        if st.button("🎯 Analyze Emotion", type="primary"):
+            with st.spinner("🧠 Analyzing musical features and predicting emotion..."):
+                try:
+                    # Make prediction
+                    result = predictor.predict_from_audio(
+                        audio_path=st.session_state.selected_audio_path,
+                        return_probabilities=True
+                    )
+                    st.session_state.prediction_result = result
+                    
+                    # Display results
+                    st.success("✅ Analysis complete!")
+                    
+                    # Main result
+                    display_emotion_result(
+                        emotion=result['predicted_emotion'],
+                        confidence=result['confidence'],
+                        probabilities=result['probabilities']
+                    )
+                    
+                    # Ground truth comparison
+                    st.markdown("### 🎯 Accuracy Check")
+                    is_correct = result['predicted_emotion'] == selected_emotion
+                    
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.metric("True Emotion", f"{EMOTION_EMOJIS.get(selected_emotion.lower(), "🎵")} {selected_emotion}")
+                    with col2:
+                        st.metric("Predicted", f"{EMOTION_EMOJIS.get(result['predicted_emotion'].lower(), '🎵')} {result['predicted_emotion']}")
+                        st.caption(f"🤖 Model: {result.get('model_used', 'Unknown')}")
+                    with col3:
+                        if is_correct:
+                            st.success("✅ Correct!")
+                        else:
+                            st.error("❌ Incorrect")
+                    
+                    # Visualizations
+                    st.markdown("---")
+                    st.markdown("### 📊 Audio Analysis")
+                    
+                    viz = AudioVisualizer()
+                    
+                    tab1, tab2, tab3 = st.tabs(["🌊 Waveform", "🎨 Spectrogram", "🎼 Features"])
+                    
+                    with tab1:
+                        fig_wave = viz.plot_waveform(st.session_state.selected_audio_path)
+                        st.pyplot(fig_wave)
+                    
+                    with tab2:
+                        fig_spec = viz.plot_spectrogram(st.session_state.selected_audio_path)
+                        st.pyplot(fig_spec)
+                    
+                    with tab3:
+                        fig_features = viz.plot_top_features(result['features'], top_n=10)
+                        st.pyplot(fig_features)
+                    
+                except Exception as e:
+                    st.error(f"❌ Prediction failed: {e}")
+                    logger.error(f"Prediction error: {e}")
+    
+    # ========================================================================
+    # MODE 2: UPLOAD AUDIO
+    # ========================================================================
+    elif mode == "🎤 Predict from Upload":
+        st.markdown("## 🎤 Upload Your Own Audio")
+        st.markdown("Upload an audio file (.mp3, .wav) to analyze its emotional content.")
+        
+        uploaded_file = st.file_uploader(
+            "Choose an audio file",
+            type=['mp3', 'wav', 'flac'],
+            help="Upload a Turkish music file to analyze"
+        )
+        
+        if uploaded_file is not None:
+            # Save temporarily
+            temp_path = Path("temp_upload.mp3")
+            with open(temp_path, 'wb') as f:
+                f.write(uploaded_file.read())
+            
+            # Audio player
+            st.markdown("### 🎧 Preview")
+            st.audio(uploaded_file, format=f'audio/{uploaded_file.type.split("/")[-1]}')
+            
+            # Predict button
+            if st.button("🎯 Analyze Emotion", type="primary"):
+                with st.spinner("🧠 Analyzing..."):
+                    try:
+                        result = predictor.predict_from_audio(
+                            audio_path=temp_path,
+                            return_probabilities=True
+                        )
+                        
+                        st.success("✅ Analysis complete!")
+                        
+                        display_emotion_result(
+                            emotion=result['predicted_emotion'],
+                            confidence=result['confidence'],
+                            probabilities=result['probabilities']
+                        )
+                        
+                        # Visualizations
+                        st.markdown("---")
+                        st.markdown("### 📊 Audio Analysis")
+                        
+                        viz = AudioVisualizer()
+                        
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            fig_wave = viz.plot_waveform(temp_path)
+                            st.pyplot(fig_wave)
+                        
+                        with col2:
+                            fig_spec = viz.plot_spectrogram(temp_path)
+                            st.pyplot(fig_spec)
+                        
+                        # Clean up
+                        temp_path.unlink()
+                        
+                    except Exception as e:
+                        st.error(f"❌ Analysis failed: {e}")
+                        if temp_path.exists():
+                            temp_path.unlink()
+    
+    # ========================================================================
+    # MODE 3: BATCH ANALYSIS
+    # ========================================================================
+    elif mode == "📊 Batch Analysis":
+        st.markdown("## 📊 Batch Analysis")
+        st.markdown("Analyze multiple songs at once and compare results.")
+        
+        audio_catalog = get_audio_files()
+        
+        if not audio_catalog or all(len(songs) == 0 for songs in audio_catalog.values()):
+            st.warning("⚠️ No audio files found for batch analysis.")
+            return
+        
+        # Select songs for batch analysis
+        st.markdown("### Select Songs")
+        
+        selected_songs = []
+        for emotion, songs in audio_catalog.items():
+            if songs:
+                with st.expander(f"{EMOTION_EMOJIS.get(emotion, '🎵')} {emotion} ({len(songs)} songs)"):
+                    for i, song in enumerate(songs):
+                        if st.checkbox(f"{song['name']}", key=f"{emotion}_{i}"):
+                            selected_songs.append({
+                                "name": song["name"],
+                                "path": song["path"],
+                                "true_emotion": emotion
+                            })
+        
+        if selected_songs:
+            st.info(f"📌 Selected {len(selected_songs)} songs for analysis")
+            
+            if st.button("🚀 Run Batch Analysis", type="primary"):
+                with st.spinner(f"Analyzing {len(selected_songs)} songs..."):
+                    results = []
+                    progress_bar = st.progress(0)
+                    
+                    for i, song_info in enumerate(selected_songs):
+                        try:
+                            result = predictor.predict_from_audio(
+                                audio_path=song_info["path"],
+                                return_probabilities=True
+                            )
+                            
+                            results.append({
+                                "Song": song_info["name"],
+                                "True Emotion": song_info["true_emotion"],
+                                "Predicted": result['predicted_emotion'],
+                                "Confidence": f"{result['confidence']:.1%}",
+                                "Correct": "✅" if result['predicted_emotion'] == song_info["true_emotion"] else "❌"
+                            })
+                            
+                        except Exception as e:
+                            st.warning(f"Failed to analyze {song_info['name']}: {e}")
+                        
+                        progress_bar.progress((i + 1) / len(selected_songs))
+                    
+                    # Display results
+                    st.success("✅ Batch analysis complete!")
+                    
+                    df_results = pd.DataFrame(results)
+                    
+                    # Metrics
+                    correct_count = df_results['Correct'].str.contains('✅').sum()
+                    accuracy = correct_count / len(df_results) * 100
+                    
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.metric("Total Songs", len(df_results))
+                    with col2:
+                        st.metric("Correct Predictions", correct_count)
+                    with col3:
+                        st.metric("Accuracy", f"{accuracy:.1f}%")
+                    
+                    # Results table
+                    st.markdown("### 📋 Detailed Results")
+                    st.dataframe(df_results, width="stretch")
+                    
+                    # Download results
+                    csv = df_results.to_csv(index=False)
+                    st.download_button(
+                        label="📥 Download Results (CSV)",
+                        data=csv,
+                        file_name="batch_analysis_results.csv",
+                        mime="text/csv"
+                    )
+        else:
+            st.info("👆 Select songs from the categories above to start batch analysis")
+
+
+# ============================================================================
+# RUN APPLICATION
+# ============================================================================
+
+if __name__ == "__main__":
+    main()
