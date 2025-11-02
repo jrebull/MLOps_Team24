@@ -1,0 +1,139 @@
+graph TB
+    %% ============================================
+    %% MLOPS TEAM 24 - TURKISH MUSIC EMOTION RECOGNITION
+    %% Pipeline Visual Architecture
+    %% ============================================
+    
+    subgraph DATA["📊 DATA LAYER"]
+        direction TB
+        RAW[("🎵 Raw Data<br/>data/raw/<br/>turkish_music_emotion_*.csv")]
+        PROC[("✨ Processed Data<br/>data/processed/<br/>X_train.csv, X_test.csv<br/>y_train.csv, y_test.csv")]
+        DVC_DATA[("☁️ DVC Storage<br/>AWS S3<br/>mlops24-haowei-bucket")]
+        
+        RAW -->|"dataset.py<br/>DatasetManager.load_raw()"| PROC
+        PROC -.->|"data.dvc<br/>dvc push/pull"| DVC_DATA
+    end
+    
+    subgraph FEATURES["🔧 FEATURE ENGINEERING"]
+        direction TB
+        FP_START["🔹 Feature Pipeline Start"]
+        
+        NUMERIC["NumericFeatureSelector<br/>features.py<br/>Selecciona columnas numéricas"]
+        POWER["PowerFeatureTransformer<br/>features.py<br/>Yeo-Johnson transform"]
+        SCALER["FeatureScaler<br/>features.py<br/>RobustScaler (default)"]
+        
+        FP_START --> NUMERIC
+        NUMERIC --> POWER
+        POWER --> SCALER
+        
+        PIPELINE["create_full_pipeline()<br/>features.py<br/>sklearn.pipeline.Pipeline"]
+        SCALER --> PIPELINE
+    end
+    
+    subgraph MODELING["🤖 MODEL TRAINING"]
+        direction TB
+        SKL_PIPE["SklearnMLPipeline<br/>sklearn_pipeline.py<br/>Pipeline end-to-end"]
+        
+        MODEL_CONFIG["ModelConfig<br/>train.py<br/>{name, model_class, hyperparams}"]
+        TRAIN_CONFIG["TrainingConfig<br/>train.py<br/>{cv_folds, scoring, mlflow_uri}"]
+        
+        TRAINER["BaseModelTrainer<br/>train.py<br/>fit(X, y) + LabelEncoder"]
+        
+        MODELS["🎯 Modelos Soportados<br/>━━━━━━━━━━━━━━<br/>RandomForestClassifier<br/>GradientBoostingClassifier<br/>LogisticRegression<br/>SVC"]
+        
+        MODEL_CONFIG --> TRAINER
+        TRAIN_CONFIG --> TRAINER
+        SKL_PIPE --> TRAINER
+        TRAINER --> MODELS
+    end
+    
+    subgraph EXPERIMENTS["🔬 MLFLOW EXPERIMENTS"]
+        direction TB
+        MLFLOW_RUNNER["MLflowRunner<br/>run_mlflow_experiments.py"]
+        
+        EXP_LOOP["Experimentos Loop:<br/>1️⃣ RandomForest<br/>2️⃣ GradientBoosting<br/>3️⃣ LogisticRegression"]
+        
+        METRICS["📊 Metrics Logging<br/>━━━━━━━━━━━━━━<br/>accuracy, precision<br/>recall, f1_score"]
+        
+        ARTIFACTS["📁 Artifacts<br/>━━━━━━━━━━━━━━<br/>confusion_matrix.png<br/>classification_report.txt<br/>model signatures"]
+        
+        MLFLOW_UI[("🌐 MLflow UI<br/>mlruns/<br/>localhost:5001")]
+        
+        MLFLOW_RUNNER --> EXP_LOOP
+        EXP_LOOP --> METRICS
+        EXP_LOOP --> ARTIFACTS
+        METRICS --> MLFLOW_UI
+        ARTIFACTS --> MLFLOW_UI
+    end
+    
+    subgraph VERSIONING["📦 MODEL VERSIONING"]
+        direction TB
+        BASELINE[("⚡ Baseline Models<br/>models/baseline/<br/>random_forest_baseline.pkl<br/>gradient_boosting_baseline.pkl")]
+        
+        OPTIMIZED[("🏆 Optimized Models<br/>models/optimized/<br/>production_model.pkl<br/>80.17% accuracy")]
+        
+        DVC_MODELS[("☁️ DVC Model Registry<br/>models/baseline.dvc<br/>models/optimized.dvc<br/>S3 Storage")]
+        
+        BASELINE -.->|"dvc add + push"| DVC_MODELS
+        OPTIMIZED -.->|"dvc add + push"| DVC_MODELS
+    end
+    
+    subgraph TESTING["🧪 TESTING & VALIDATION"]
+        direction TB
+        TESTS["tests/<br/>━━━━━━━━━━━━━━<br/>test_sklearn_pipeline.py<br/>test_full_integration.py<br/>test_api.py"]
+        
+        VALIDATION["scripts/validation/<br/>━━━━━━━━━━━━━━<br/>validate_sklearn_pipeline.py<br/>validate_dataset.py<br/>validate_features.py"]
+        
+        COOKIECUTTER["monitoring/dashboard/<br/>━━━━━━━━━━━━━━<br/>validate_cookiecutter.py<br/>Streamlit Dashboard<br/>95.2% compliance"]
+    end
+    
+    subgraph PRODUCTION["🚀 PRODUCTION DEPLOYMENT"]
+        direction TB
+        STREAMLIT["🎨 Streamlit App<br/>turkish_music_app/<br/>━━━━━━━━━━━━━━<br/>app.py<br/>Real-time predictions<br/>Audio feature extraction"]
+        
+        API["⚡ FastAPI<br/>app/<br/>━━━━━━━━━━━━━━<br/>main.py<br/>endpoints.py<br/>model_service.py"]
+        
+        DOCKER["🐳 Docker<br/>docker-compose.yml<br/>Containerized deployment"]
+    end
+    
+    %% ============================================
+    %% MAIN FLOW CONNECTIONS
+    %% ============================================
+    
+    PROC -->|"DatasetManager<br/>load_train_test_split()"| FP_START
+    
+    PIPELINE -->|"X_transformed"| SKL_PIPE
+    
+    MODELS -->|"trained model"| MLFLOW_RUNNER
+    
+    MLFLOW_UI -.->|"best model selection"| OPTIMIZED
+    
+    OPTIMIZED -->|"production_model.pkl"| STREAMLIT
+    OPTIMIZED -->|"production_model.pkl"| API
+    
+    API --> DOCKER
+    STREAMLIT --> DOCKER
+    
+    TESTS -.->|"pytest"| MODELING
+    VALIDATION -.->|"checks"| FEATURES
+    COOKIECUTTER -.->|"compliance"| DATA
+    
+    %% ============================================
+    %% STYLING
+    %% ============================================
+    
+    classDef dataStyle fill:#e1f5ff,stroke:#01579b,stroke-width:2px,color:#000
+    classDef featureStyle fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    classDef modelStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
+    classDef mlflowStyle fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px,color:#000
+    classDef versionStyle fill:#fce4ec,stroke:#880e4f,stroke-width:2px,color:#000
+    classDef testStyle fill:#fff9c4,stroke:#f57f17,stroke-width:2px,color:#000
+    classDef prodStyle fill:#ffebee,stroke:#b71c1c,stroke-width:2px,color:#000
+    
+    class RAW,PROC,DVC_DATA dataStyle
+    class FP_START,NUMERIC,POWER,SCALER,PIPELINE featureStyle
+    class SKL_PIPE,MODEL_CONFIG,TRAIN_CONFIG,TRAINER,MODELS modelStyle
+    class MLFLOW_RUNNER,EXP_LOOP,METRICS,ARTIFACTS,MLFLOW_UI mlflowStyle
+    class BASELINE,OPTIMIZED,DVC_MODELS versionStyle
+    class TESTS,VALIDATION,COOKIECUTTER testStyle
+    class STREAMLIT,API,DOCKER prodStyle
