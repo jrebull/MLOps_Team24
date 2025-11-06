@@ -1,54 +1,38 @@
-version: "3.8"
-
 services:
-  minio:
-    image: minio/minio:latest
-    container_name: minio
-    ports:
-      - "9000:9000"  # API
-      - "9001:9001"  # Console
-    volumes:
-      - minio_data:/data
-    environment:
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-    command: server /data --console-address ":9001"
-    restart: unless-stopped
-
   mlflow:
     image: ghcr.io/mlflow/mlflow:latest
     container_name: mlflow
-    depends_on:
-      - minio
     ports:
       - "5000:5000"
+    env_file:
+      - config.env
     environment:
-      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
-      AWS_ACCESS_KEY_ID: ${MINIO_ACCESS_KEY}
-      AWS_SECRET_ACCESS_KEY: ${MINIO_SECRET_KEY}
+      MLFLOW_S3_ENDPOINT_URL: https://s3.amazonaws.com
     command: >
-      mlflow server 
-        --backend-store-uri sqlite:///mlflow.db 
-        --default-artifact-root s3://mlflow/
-        --host 0.0.0.0
+      mlflow server
+      --backend-store-uri sqlite:///mlflow.db
+      --default-artifact-root s3://mlflow-bucket-team24/
+      --host 0.0.0.0
+      --port 5000
     volumes:
-      - ./mlartifacts:/mlartifacts
       - ./mlflow.db:/mlflow.db
     restart: unless-stopped
 
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: app/Dockerfile
     container_name: fastapi_app
     depends_on:
       - mlflow
+    env_file:
+      - config.env
     ports:
       - "8000:8000"
     environment:
       ENV: dev
-      MODEL_PATH: /app/app/models/model_v1.joblib
+      MODEL_PATH: /app/models/model_v1.joblib
       MLFLOW_TRACKING_URI: http://mlflow:5000
     volumes:
-      - ./app/models:/app/app/models
-
-volumes:
-  minio_data:
+      - ./app/models:/app/models
+    restart: unless-stopped
