@@ -20,7 +20,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: app/Dockerfile
+      dockerfile: Dockerfile
     container_name: fastapi_app
     depends_on:
       - mlflow
@@ -30,8 +30,8 @@ services:
       - "8000:8000"
     environment:
       ENV: dev
-      MODEL_PATH: /app/models/model_v1.joblib
+      MODEL_PATH: /app/models/model.joblib
       MLFLOW_TRACKING_URI: http://mlflow:5000
     volumes:
-      - ./app/models:/app/models
+      - .:/app
     restart: unless-stopped

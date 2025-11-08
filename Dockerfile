@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.11
 ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /app
 
@@ -11,5 +11,5 @@ RUN python -m pip install --upgrade pip setuptools wheel && \
     pip install --no-cache-dir -r /app/requirements-prod.txt
 
 COPY . /app
-EXPOSE 8000
-CMD ["uvicorn", "turkish_music_app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+EXPOSE 8000 
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
