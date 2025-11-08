@@ -8,10 +8,8 @@ from app.core.logger import logger
 
 router = APIRouter()
 
-
 def get_model_service() -> ModelService:
     return ModelService()
-
 
 @router.get("/health")
 async def health() -> JSONResponse:
@@ -19,7 +17,6 @@ async def health() -> JSONResponse:
     Endpoint de health check.
     """
     return JSONResponse(content={"status": "ok"})
-
 
 @router.post("/train")
 async def train(
