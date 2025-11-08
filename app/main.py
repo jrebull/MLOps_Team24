@@ -3,7 +3,7 @@ from app.api.endpoints import router as api_router
 from app.core.logger import get_logger
 from app.core.config import settings
 
-logger = get_logger("main")
+logger = get_logger("main") 
 
 app = FastAPI(title=settings.APP_NAME)
 app.include_router(api_router, prefix="/api/v1")
