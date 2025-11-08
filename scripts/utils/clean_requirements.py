@@ -33,7 +33,6 @@ IMPORT_TO_PACKAGE = {
     'tensorflow_metal': 'tensorflow-metal',
 }
 
-
 class RequirementsAnalyzer:
     """Analyze Python imports and generate clean requirements"""
     
