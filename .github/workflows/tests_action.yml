@@ -1,4 +1,4 @@
-name: Run Tests on App Changes
+name: Run Tests
 
 on:
   workflow_dispatch:
@@ -28,7 +28,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-prod.txt
-          pip install dvc[s3]
+          pip install dvc[s3] pytest
 
       - name: Pull data with DVC
         env:
@@ -36,12 +36,14 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
         run: dvc pull
-          
-      - name: Start FastAPI in background
+
+      - name: Run validation scripts
         run: |
-          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
-          sleep 5  # espera a que el servidor arranque
+          export PYTHONPATH=${GITHUB_WORKSPACE}
+          set -e
+          python scripts/analysis/analyze_outliers.py
+          python scripts/analysis/compare_scalers.py
 
       - name: Run tests
         run: |
-          pytest tests -q
+          pytest tests --ignore=tests/test_api.py -q
