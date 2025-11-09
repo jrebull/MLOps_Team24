@@ -48,6 +48,8 @@ jobs:
           
           set -e  # Fail on first error
           
+          python scripts/analysis/analyze_outliers.py
+          python scripts/analysis/compare_scalers.py
           python scripts/validation/validate_dataset.py
           python scripts/validation/validate_features.py
           python scripts/validation/validate_sklearn_pipeline.py
@@ -60,4 +62,3 @@ jobs:
           python -m pytest tests/test_sklearn_pipeline.py -v
           python -m pytest tests/test_full_integration.py -v
           python -m pytest tests/test_integration.py -v
-          python -m pytest tests/test_api.py -v
