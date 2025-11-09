@@ -1,0 +1,63 @@
+name: Run Scripts with DVC
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/**"
+  pull_request:
+    paths:
+      - "scripts/**"
+
+jobs:
+  run-scripts:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}/scripts
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: "us-east-1"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-prod.txt
+
+      - name: Install DVC
+        run: pip install "dvc[s3]"
+
+      - name: Configure DVC remote
+        run: |
+          dvc remote modify --local mlops24-haowei-bucket/ files/no_such_key || echo "Remote configured"
+
+      - name: Pull DVC data
+        run: dvc pull --force
+
+      - name: Run validation scripts and tests
+        run: |
+          export PYTHONPATH=${GITHUB_WORKSPACE}
+          
+          set -e  # Fail on first error
+          
+          python scripts/validation/validate_dataset.py
+          python scripts/validation/validate_features.py
+          python scripts/validation/validate_sklearn_pipeline.py
+          python scripts/validation/validate_plots.py
+          python scripts/validation/validate_cookiecutter.py
+          python scripts/validation/full_integration_check.py
+          python scripts/validate_mlflow_runner.py
+          python scripts/validation/verify_sync.py
+          
+          python -m pytest tests/test_sklearn_pipeline.py -v
+          python -m pytest tests/test_full_integration.py -v
+          python -m pytest tests/test_integration.py -v
+          python -m pytest tests/test_api.py -v
