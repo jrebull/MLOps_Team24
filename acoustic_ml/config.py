@@ -1,33 +1,11 @@
 from pathlib import Path
 
-# Directorios base
-PROJECT_DIR = Path(__file__).resolve().parents[1]
-DATA_DIR = PROJECT_DIR / "data"
-MODELS_DIR = PROJECT_DIR / "models"
-REPORTS_DIR = PROJECT_DIR / "reports"
+TRAIN_PATH = Path("data/processed/X_train.csv")
+PROD_PATH = Path("data/processed/X_prod.csv")
 
-# Subdirectorios de datos
-RAW_DATA_DIR = DATA_DIR / "raw"
-INTERIM_DATA_DIR = DATA_DIR / "interim"
-PROCESSED_DATA_DIR = DATA_DIR / "processed"
-EXTERNAL_DATA_DIR = DATA_DIR / "external"
+REPORTS_DIR = Path("reports")
+FIGURES_DIR = REPORTS_DIR / "figures"
+DRIFT_REPORT_PATH = REPORTS_DIR / "data_drift_report.json"
 
-# Configuración de MLflow
-MLFLOW_TRACKING_URI = "file:///" + str(PROJECT_DIR / "mlruns")
-MLFLOW_EXPERIMENT_NAME = "turkish-music-emotion-recognition"
-
-# Configuración de DVC
-DVC_REMOTE_NAME = "local"
-DVC_REMOTE_URL = str(PROJECT_DIR / "dvcstore")
-
-# Datasets Turcos
-TURKISH_ORIGINAL = "turkis_music_emotion_original.csv"
-TURKISH_MODIFIED = "turkish_music_emotion_modified.csv"
-
-# Seed para reproducibilidad
-RANDOM_STATE = 42
-
-# Nombres de archivos procesados
-CLEANED_FILENAME = "turkish_music_emotion_cleaned.csv"
-NORMALIZED_FILENAME = "turkish_music_emotion_{version}_normalized.csv"
-FEATURES_FILENAME = "turkish_music_emotion_{version}_features.csv"
+# Configuración de test estadístico
+ALPHA = 0.05  # Nivel de significancia para KS test

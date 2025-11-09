@@ -1,5 +1,4 @@
-name: Run Scripts with DVC
-
+name: Run Scripts for validation
 on:
   workflow_dispatch:
   push:

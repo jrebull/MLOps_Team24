@@ -154,7 +154,7 @@ wheel==0.45.1
 yarl==1.22.0
 zc.lockfile==4.0
 # Monitoreo de datos/modelos (pesados)
-evidently==0.7.14
+evidently>=0.2.10
 deepchecks==0.19.1
 
 # Serving / API

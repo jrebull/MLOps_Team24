@@ -1,5 +1,6 @@
 attr==0.3.2
 ConfigParser==7.2.0
+evidently>=0.2.10
 fastapi==0.121.0
 feature_engineering==2.1.4
 HTMLParser==0.0.2
