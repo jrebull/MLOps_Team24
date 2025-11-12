@@ -7,10 +7,10 @@ class Settings(BaseSettings):
     
     APP_NAME: str = "mlops-fastapi"
     ENV: str = "dev"
-    MODEL_PATH: str = "app/models/model.joblib"
+    MODEL_PATH: str = "models/baseline/random_forest_baseline.pkl"
     MLFLOW_TRACKING_URI: str = "http://localhost:5000"
     LOG_LEVEL: str = "INFO"
-    PROJECT_DIR: Path = Path(__file__).resolve().parent.parent
+    PROJECT_DIR: Path = Path(__file__).resolve().parent.parent.parent
     DATA_DIR: Path = PROJECT_DIR / "data"
     MODELS_DIR: Path = PROJECT_DIR / "models"
 
