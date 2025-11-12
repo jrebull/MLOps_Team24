@@ -1,0 +1,68 @@
+{
+  "timestamp": "2025-11-12T08:06:06.668434",
+  "duration_seconds": 0.46455907821655273,
+  "total_tests": 9,
+  "passed": 9,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "FastAPI Root Endpoint",
+      "status": true,
+      "message": "App: mlops-fastapi",
+      "details": {}
+    },
+    {
+      "name": "Health Check (/api/v1/health)",
+      "status": true,
+      "message": "Status: OK",
+      "details": {}
+    },
+    {
+      "name": "API Docs (Swagger)",
+      "status": true,
+      "message": "HTML size: 937 bytes",
+      "details": {}
+    },
+    {
+      "name": "List Models Endpoint",
+      "status": true,
+      "message": "Found 1 model(s): model.joblib",
+      "details": {}
+    },
+    {
+      "name": "Response Format (JSON)",
+      "status": true,
+      "message": "Valid JSON response: {\"status\": \"ok\"}",
+      "details": {}
+    },
+    {
+      "name": "MLflow Server Connectivity",
+      "status": true,
+      "message": "MLflow running on http://127.0.0.1:5001",
+      "details": {}
+    },
+    {
+      "name": "MLflow API Endpoint",
+      "status": true,
+      "message": "MLflow API accessible",
+      "details": {}
+    },
+    {
+      "name": "Schema Validation (Pydantic v2)",
+      "status": true,
+      "message": "Invalid payload correctly rejected (422)",
+      "details": {}
+    },
+    {
+      "name": "Error Handling (404)",
+      "status": true,
+      "message": "Non-existent endpoint returns 404",
+      "details": {}
+    }
+  ],
+  "environment": {
+    "fastapi_url": "http://127.0.0.1:8000",
+    "mlflow_url": "http://127.0.0.1:5001",
+    "api_version": "v1"
+  }
+}
