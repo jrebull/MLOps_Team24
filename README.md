@@ -12,10 +12,11 @@
 
 <!-- Badges de Estado -->
 [![Cookiecutter](https://img.shields.io/badge/cookiecutter-95.2%25-success?logo=cookiecutter&logoColor=white)](#-estructura-del-proyecto)
-[![Tests](https://img.shields.io/badge/tests-passing-success?logo=pytest&logoColor=white)](#-testing-y-validación)
+[![Tests](https://img.shields.io/badge/tests-33%20passing-success?logo=pytest&logoColor=white)](#-testing-unitarias-e-integración)
 [![Code Quality](https://img.shields.io/badge/code-production--ready-brightgreen?logo=python&logoColor=white)](#-arquitectura-del-código)
 [![Accuracy](https://img.shields.io/badge/accuracy-80.17%25-success?logo=tensorflow&logoColor=white)](#-modelo-y-resultados)
-[![Repo Status](https://img.shields.io/badge/repo-phase%202%20complete-success?logo=git&logoColor=white)](#-información-académica)
+[![Docker](https://img.shields.io/badge/docker--ready-blue?logo=docker&logoColor=white)](#-docker--containerización)
+[![Repo Status](https://img.shields.io/badge/repo-phase%203%20production-blue?logo=git&logoColor=white)](#-información-académica)
 
 </div>
 
@@ -32,10 +33,15 @@
 - [Instalación y Configuración](#-instalación-y-configuración)
 - [Uso del Sistema](#-uso-del-sistema)
 - [Scripts Disponibles](#-scripts-disponibles)
-- [API y Deployment](#-api-y-deployment)
+- [Testing & Quality Assurance](#-testing--quality-assurance)
+- [API Serving with FastAPI](#-api-serving-with-fastapi)
+- [Data Drift Detection & Monitoring](#-data-drift-detection--monitoring)
+- [Docker & Containerization](#-docker--containerization)
+- [Reproducibility & Seeds](#-reproducibility--seeds)
+- [Phase 3 Requirements Checklist](#-phase-3-requirements-checklist)
+- [Project Structure](#-project-structure)
 - [Streamlit App - Production Demo](#-streamlit-app---production-demo)
 - [Monitoring y Validación](#-monitoring-y-validación)
-- [Testing](#-testing-y-validación)
 - [Workflows y Contribución](#-workflows-y-contribución)
 - [Equipo](#-equipo-de-desarrollo)
 
@@ -62,12 +68,19 @@ Este repositorio implementa un sistema MLOps completo y profesional para **clasi
 - ☁️ **Cloud storage** en S3 (mlops24-haowei-bucket)
 - 🐳 **Containerización** con Docker Compose
 
-#### Código y Arquitectura
+#### Code y Arquitectura
 - 🏗️ **Módulo Python profesional** (`acoustic_ml`)
 - 🎯 **Pipeline sklearn end-to-end** listo para producción
-- 🧪 **Testing comprehensivo** con validación automatizada
+- 🧪 **Testing comprehensivo** con 33 tests automatizados
 - 🛡️ **Manejo robusto de outliers** y datos
-- 📦 **API REST** con FastAPI (en desarrollo)
+- 🌐 **API REST** con FastAPI y Pydantic schemas
+
+#### Fase 3: Production-Ready Deployment
+- 🐳 **Containerización Docker** con docker-compose
+- 🔍 **Data Drift Detection** con statistical monitoring
+- 📡 **CI/CD Pipelines** automatizados
+- ⚙️ **Health Checks** y monitoring endpoints
+- 🔄 **Reproducibilidad garantizada** con seeds y DVC
 
 #### Monitoring y Validación
 - 📊 **Dashboard Streamlit** para validación Cookiecutter
@@ -85,7 +98,7 @@ Este repositorio implementa un sistema MLOps completo y profesional para **clasi
 - **Curso:** Operaciones de Aprendizaje Automático
 - **Periodo:** Septiembre – Diciembre 2024
 - **Equipo:** N° 24
-- **Fase Actual:** Fase 2 - Completada ✅
+- **Fase Actual:** Fase 3 - Implementación en Producción 🚀
 
 ### 👨‍🏫 Profesores
 
@@ -966,56 +979,709 @@ python tests/test_full_integration.py
 
 ---
 
-## 🌐 API y Deployment
+## 🧪 Testing & Quality Assurance
 
-### FastAPI Application
-
-**Estructura**:
-```
-app/
-├── main.py              <- Entry point
-├── api/
-│   ├── main.py          <- API router
-│   ├── endpoints.py     <- Endpoints
-│   └── schemas.py       <- Pydantic models
-├── core/
-│   ├── config.py        <- Configuración
-│   └── logger.py        <- Logging
-└── services/
-    └── model_service.py <- Modelo service
-```
-
-**Endpoints Planeados**:
-```
-POST /predict          - Predicción single
-POST /predict/batch    - Predicción batch
-GET  /model/info       - Info del modelo
-GET  /health           - Health check
-```
-
-**Status**: En desarrollo (Fase 3)
-
-### Docker Deployment
-
-**Archivo**: `docker-compose.yml`
-
-**Services**:
-- `mlflow`: MLflow tracking server (port 5001)
-- `minio` (planeado): S3-compatible storage
+### Ejecutar Tests
 
 ```bash
-# Iniciar services
-docker-compose up -d
+# Ejecutar todos los tests con output detallado
+pytest tests/ -v
 
-# Ver logs
-docker-compose logs -f
+# Modo quiet (resumen)
+pytest tests/ -q
 
-# Detener
-docker-compose down
+# Tests específicos con traceback corto
+pytest tests/ -v --tb=short
+
+# Con cobertura
+pytest tests/ --cov=acoustic_ml
+```
+
+### Suite de 33 Tests
+
+**Ubicación**: `tests/` (4 módulos principales)
+
+| Módulo | Tipo | Cantidad | Propósito |
+|--------|------|----------|----------|
+| `test_dataset_equivalence.py` | Unitario | 8 tests | Validar DatasetManager, cargas, transformaciones |
+| `test_sklearn_pipeline.py` | Unitario | 7 tests | Pipeline sklearn, features, scalers |
+| `test_full_integration.py` | Integración | 12 tests | End-to-end: data → model → predict |
+| `test_api_endpoints.py` | API | 6 tests | FastAPI endpoints (TestClient, no servidor) |
+
+### Tipos de Tests
+
+**Unitarios (15 tests)**:
+```bash
+pytest tests/test_dataset_equivalence.py -v  # DatasetManager, data loading
+pytest tests/test_sklearn_pipeline.py -v     # Feature engineering, pipeline creation
+```
+
+**Integración (12 tests)**:
+```bash
+pytest tests/test_full_integration.py -v     # Full pipeline: train → predict
+```
+
+**API (6 tests)**:
+```bash
+pytest tests/test_api_endpoints.py -v        # /health, /predict, /train, /models
+```
+
+### Resultado Esperado
+
+```
+tests/test_dataset_equivalence.py::test_load_data PASSED
+tests/test_dataset_equivalence.py::test_dataset_manager PASSED
+tests/test_sklearn_pipeline.py::test_create_pipeline PASSED
+tests/test_sklearn_pipeline.py::test_feature_transform PASSED
+tests/test_full_integration.py::test_train_predict_pipeline PASSED
+tests/test_api_endpoints.py::test_health_check PASSED
+tests/test_api_endpoints.py::test_predict_endpoint PASSED
+
+========================== 33 passed in 2.45s ==========================
+```
+
+### Validación Rápida Post-Cambios
+
+```bash
+# Quick test después de editar código
+make test
+
+# O directamente
+pytest tests/ -q
 ```
 
 ---
 
+## 🌐 API Serving with FastAPI
+
+### Endpoints Disponibles
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| `GET` | `/` | Root endpoint - API status |
+| `GET` | `/api/v1/health` | Health check del sistema |
+| `POST` | `/api/v1/predict` | Predicción single de emoción |
+| `POST` | `/api/v1/train` | Trigger retraining del modelo |
+| `GET` | `/api/v1/models` | Listar modelos disponibles |
+
+### Iniciar Localmente
+
+```bash
+# Opción 1: Uvicorn directo
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Opción 2: Desde app/main.py
+python app/main.py
+
+# Opción 3: Con gunicorn (producción)
+gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker
+```
+
+**Acceso a documentación automática**:
+```
+Swagger UI:  http://localhost:8000/docs
+ReDoc:       http://localhost:8000/redoc
+OpenAPI:     http://localhost:8000/openapi.json
+```
+
+### Ejemplo: POST /api/v1/predict
+
+**Request JSON**:
+```bash
+curl -X POST "http://localhost:8000/api/v1/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "chroma_stft": 0.45,
+    "chroma_stft_std": 0.32,
+    "mfcc_1": 12.5,
+    "mfcc_1_std": 8.3,
+    "mfcc_2": -5.2,
+    "mfcc_2_std": 3.1,
+    "mfcc_3": 2.1,
+    "mfcc_3_std": 1.8,
+    "mfcc_4": 0.9,
+    "mfcc_4_std": 0.7,
+    "mfcc_5": -1.2,
+    "mfcc_5_std": 0.5,
+    "zero_crossing_rate": 0.12,
+    "zero_crossing_rate_std": 0.08
+  }'
+```
+
+**Response JSON**:
+```json
+{
+  "emotion": "Happy",
+  "confidence": 0.87,
+  "probabilities": {
+    "Happy": 0.87,
+    "Angry": 0.08,
+    "Sad": 0.03,
+    "Relax": 0.02
+  },
+  "model_version": "production_model_v2",
+  "timestamp": "2024-11-12T10:30:45.123Z"
+}
+```
+
+### Health Check: GET /api/v1/health
+
+```bash
+curl http://localhost:8000/api/v1/health
+```
+
+**Response**:
+```json
+{
+  "status": "healthy",
+  "model_loaded": true,
+  "s3_connection": true,
+  "mlflow_connection": true,
+  "timestamp": "2024-11-12T10:30:00Z"
+}
+```
+
+### Ubicación del Código
+
+```
+app/
+├── main.py           <- Entry point, lifespan, docs
+├── api/
+│   ├── __init__.py
+│   ├── main.py       <- APIRouter con todos los endpoints
+│   ├── endpoints.py  <- Funciones de cada endpoint
+│   └── schemas.py    <- Pydantic models (request/response)
+├── core/
+│   ├── config.py     <- Configuración API (host, port, etc)
+│   └── logger.py     <- Setup logging
+└── services/
+    └── model_service.py <- Lógica de predicción y modelo
+```
+
+### Schemas Pydantic (Validación Automática)
+
+- `PredictionRequest`: 50+ features acústicos (validados)
+- `PredictionResponse`: Estructura estandardizada respuesta
+- `HealthResponse`: Status checks sistema
+
+```bash
+# Ver schemas JSON schema
+curl http://localhost:8000/openapi.json | grep -A 50 "components"
+```
+
+---
+
+## 🔍 Data Drift Detection & Monitoring
+
+### Ejecutar Drift Detection
+
+```bash
+# Modo normal
+python -m drift.run_drift
+
+# Con parámetros
+python -m drift.run_drift --threshold 0.05 --output reports/drift/
+
+# Modo test (con synthetic drift data)
+python -m drift.run_drift --test-mode
+```
+
+### Qué Detecta
+
+**Statistical Drift** (Evidently):
+- Cambios en distribución de features acústicos
+- Comparación train data vs inference data
+- KL divergence > 0.3 = alerta
+
+**Performance Degradation**:
+- Caída en accuracy > 5% = ⚠️ warning
+- Degradación por clase (precision/recall)
+- Matriz de confusión comparativa
+
+### Thresholds y Alertas
+
+| Métrica | Threshold | Acción |
+|---------|-----------|--------|
+| Accuracy Drop | > 5% | ⚠️ Warning - Review model |
+| Feature Shift | KL divergence > 0.3 | 🔴 Alert - Check data source |
+| Class Imbalance | Ratio > 10:1 | 🔴 Critical - Retrain required |
+
+### Output: drift_report.json
+
+**Ubicación**: `reports/drift/drift_report.json`
+
+```json
+{
+  "timestamp": "2024-11-12T10:30:00Z",
+  "drift_detected": false,
+  "accuracy_drop_percent": -1.11,
+  "features_shifted": 3,
+  "critical_features": [
+    "mfcc_1",
+    "chroma_stft",
+    "zero_crossing_rate"
+  ],
+  "recommendation": "Monitor - No action required",
+  "performance_metrics": {
+    "train_accuracy": 0.8017,
+    "inference_accuracy": 0.7906,
+    "diff": -0.0111,
+    "train_precision": 0.78,
+    "inference_precision": 0.77
+  }
+}
+```
+
+### Demo: Drift Real
+
+**Sin drift**:
+```
+✅ Accuracy: 80.17% → 79.06% (diff: -1.11%)
+✅ Status: HEALTHY
+```
+
+**Con synthetic drift** (`generate_drift_data.py`):
+```
+🔴 Accuracy: 80.17% → 17.28% (diff: -62.89%)
+🔴 Status: CRITICAL - Retrain required
+```
+
+### Archivos y Scripts
+
+```
+drift/
+├── __init__.py
+├── run_drift.py         <- Main execution script
+├── drift_detector.py    <- Statistical analysis (Evidently)
+└── comparators.py       <- Feature comparators
+
+scripts/data/
+└── generate_drift_data.py  <- Genera synthetic drift data para testing
+```
+
+### Generar y Probar Drift
+
+```bash
+# Generar synthetic drift data
+python scripts/data/generate_drift_data.py
+
+# Ejecutar drift detection
+python -m drift.run_drift --test-mode
+
+# Ver reporte
+cat reports/drift/drift_report.json | jq .
+```
+
+---
+
+## 🐳 Docker & Containerization
+
+### Build Imagen
+
+```bash
+# Build imagen básica
+docker build -t mlops-team24:latest .
+
+# Build con tag de versión
+docker build -t mlops-team24:v1.0 -t mlops-team24:latest .
+
+# Verificar imagen
+docker images | grep mlops-team24
+```
+
+### Run Local (Standalone FastAPI)
+
+```bash
+# Run simple
+docker run -p 8000:8000 mlops-team24:latest
+
+# Con mount de código (desarrollo)
+docker run -it -p 8000:8000 \
+  -v $(pwd):/app \
+  mlops-team24:latest /bin/bash
+
+# Con variables de entorno
+docker run -p 8000:8000 \
+  -e AWS_ACCESS_KEY_ID=$AWS_KEY \
+  -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET \
+  mlops-team24:latest
+```
+
+**Verificar que funciona**:
+```bash
+curl http://localhost:8000/api/v1/health
+```
+
+### Docker Compose Stack
+
+**Archivo**: `docker-compose.yml`
+
+```bash
+# Iniciar todo el stack
+docker compose up
+
+# Modo detached (background)
+docker compose up -d
+
+# Ver logs
+docker compose logs -f api
+
+# Ver status
+docker compose ps
+
+# Detener todo
+docker compose down
+
+# Limpiar volúmenes (reset total)
+docker compose down -v
+```
+
+**Services que se levantan**:
+
+| Service | Puerto | Descripción |
+|---------|--------|-------------|
+| `api` | `8000` | FastAPI application (uvicorn) |
+| `mlflow` | `5001` | MLflow tracking server |
+| `minio` | `9000` | S3-compatible storage (opcional) |
+
+**Acceso**:
+```
+FastAPI Docs:  http://127.0.0.1:8000/docs
+MLflow UI:     http://127.0.0.1:5001
+MinIO:         http://127.0.0.1:9000
+```
+
+### Configuración: config.env
+
+**⚠️ IMPORTANTE**: `config.env` NO está versionado (`.gitignore`)
+
+```bash
+# 1. Copiar template
+cp config.env.example config.env
+
+# 2. Llenar con credenciales reales
+cat config.env
+```
+
+**Contenido de config.env**:
+```env
+# AWS S3
+AWS_ACCESS_KEY_ID=tu_access_key_aqui
+AWS_SECRET_ACCESS_KEY=tu_secret_key_aqui
+AWS_REGION=us-east-1
+AWS_S3_BUCKET=mlops24-haowei-bucket
+
+# MLflow
+MLFLOW_BACKEND_STORE_URI=sqlite:///mlflow.db
+MLFLOW_DEFAULT_ARTIFACT_ROOT=s3://mlops24-haowei-bucket/mlflow
+
+# DVC
+DVC_REMOTE_URL=s3://mlops24-haowei-bucket/dvc-storage
+```
+
+### Dockerfile
+
+```dockerfile
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar requirements
+COPY requirements-prod.txt .
+
+# Instalar Python deps
+RUN pip install --no-cache-dir -r requirements-prod.txt
+
+# Copiar código
+COPY . .
+
+# Exponer puerto
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD python -c "import requests; requests.get('http://localhost:8000/api/v1/health', timeout=5)"
+
+# Comando por defecto
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+### Backend Storage
+
+**Desarrollo** (docker-compose):
+- SQLite: `mlflow.db` (local)
+- Artifacts: Directorio `mlflow_artifacts/`
+
+**Producción**:
+- Backend: PostgreSQL o RDS
+- Artifacts: AWS S3 (`mlops24-haowei-bucket`)
+
+---
+
+## 🔄 Reproducibility & Seeds
+
+### Seeds Configurados
+
+**Archivo**: `acoustic_ml/__init__.py` y `acoustic_ml/config.py`
+
+```python
+import numpy as np
+from sklearn.utils import check_random_state
+
+RANDOM_SEED = 42
+np.random.seed(RANDOM_SEED)
+
+# En sklearn pipelines
+RandomForestClassifier(random_state=RANDOM_SEED)
+train_test_split(X, y, random_state=RANDOM_SEED)
+```
+
+**Todos los modelos usan**:
+- `random_seed=42`
+- `numpy seed=42`
+- `sklearn seed=42`
+- `pytorch seed=42` (si aplica)
+
+### Requirements Fijado
+
+**Archivo**: `requirements-prod.txt` (pip freeze)
+
+```
+scikit-learn==1.3.2
+pandas==2.1.3
+numpy==1.24.3
+mlflow==2.10.0
+fastapi==0.104.1
+uvicorn==0.24.0
+pydantic==2.4.2
+```
+
+**Generar nuevo freeze**:
+```bash
+pip freeze > requirements-prod.txt
+```
+
+### DVC Data Versioning
+
+**Versionado**:
+- ✅ `data/processed/` → `data.dvc`
+- ✅ `models/optimized/` → `models/optimized.dvc`
+- ✅ Tracked en S3: `mlops24-haowei-bucket`
+
+**Pull datos antes de ejecutar**:
+```bash
+dvc pull
+```
+
+### Reproducir Pipeline Completo
+
+```bash
+# Opción 1: Pull datos + Drift validation
+dvc pull && python -m drift.run_drift
+
+# Opción 2: Full train + predict pipeline
+dvc pull && python acoustic_ml/modeling/train.py
+
+# Opción 3: Verificar sincronización
+make verify-sync && pytest tests/ -q
+```
+
+### Validar Reproducibilidad
+
+```bash
+# 1. Ejecutar pipeline en máquina A
+dvc pull
+python acoustic_ml/modeling/train.py
+# → Genera modelo con accuracy 80.17%
+
+# 2. Ejecutar pipeline en máquina B (mismo código)
+dvc pull
+python acoustic_ml/modeling/train.py
+# → DEBE generar exactamente el mismo modelo con accuracy 80.17%
+
+# 3. Verificar hashes
+md5sum models/optimized/production_model.pkl
+# Deben coincidir entre máquinas
+```
+
+### Checklist Reproducibilidad
+
+- ✅ Seeds configurados (numpy, sklearn, random)
+- ✅ Requirements fijado con pip freeze
+- ✅ DVC data versioning activo
+- ✅ Docker containerización
+- ✅ 33 tests pasando
+- ✅ Git history limpio (conventional commits)
+- ✅ Pipeline determinístico end-to-end
+
+---
+
+## ✅ Phase 3 Requirements Checklist
+
+**Todos los requisitos de Fase 3 implementados y validados**:
+
+| Requisito | Implementación | Status |
+|-----------|---|--------|
+| **1. Pruebas Unitarias/Integración** | 33 tests (pytest) en `tests/` - Unitarios, Integración, API, Full Pipeline | ✅ COMPLETO |
+| **2. FastAPI Serving** | 5 endpoints en `app/` - /health, /predict, /train, /models, / | ✅ COMPLETO |
+| **3. Reproducibilidad** | Seeds, requirements-prod.txt, DVC, Docker - dvc pull && python -m drift.run_drift | ✅ COMPLETO |
+| **4. Docker Containerización** | docker-compose.yml con FastAPI + MLflow - docker compose up | ✅ COMPLETO |
+| **5. Data Drift Detection** | Evidently + statistical monitoring - python -m drift.run_drift | ✅ COMPLETO |
+
+### Verificación Rápida
+
+```bash
+# 1. Tests
+pytest tests/ -q  # ✅ 33 passed
+
+# 2. API
+uvicorn app.main:app --reload
+curl http://localhost:8000/api/v1/health  # ✅ healthy
+
+# 3. Reproducibilidad
+dvc pull && python -m drift.run_drift  # ✅ consistent results
+
+# 4. Docker
+docker compose up -d  # ✅ all services running
+
+# 5. Drift
+python -m drift.run_drift --test-mode  # ✅ drift_report.json generated
+```
+
+---
+
+## 🗂️ Project Structure
+
+**Estructura completa orientada a Fase 3**:
+
+```
+MLOps_Team24/
+│
+├── 📄 Configuración (Raíz)
+│   ├── README.md                    ← Este archivo
+│   ├── Makefile                     ← Comandos: make test, make train, etc
+│   ├── requirements-prod.txt        ← Dependencies fijadas (pip freeze)
+│   ├── requirements-dev.txt         ← Dev dependencies (pytest, etc)
+│   ├── pyproject.toml               ← Proyecto Python config
+│   ├── params.yaml                  ← Parámetros DVC pipeline
+│   ├── dvc.yaml                     ← Pipeline stages
+│   ├── docker-compose.yml           ← FastAPI + MLflow + MinIO stack
+│   ├── Dockerfile                   ← Container image
+│   ├── config.env.example           ← Template variables (AWS, MLflow)
+│   ├── .gitignore                   ← config.env, .env, datos, modelos
+│   └── .dvc/                        ← DVC configuración
+│
+├── 📦 acoustic_ml/                  ← Módulo Python principal
+│   ├── __init__.py
+│   ├── config.py                    ← Global config (RANDOM_SEED=42)
+│   ├── dataset.py                   ← DatasetManager (Singleton)
+│   ├── features.py                  ← Feature engineering
+│   ├── plots.py                     ← Visualizaciones
+│   └── modeling/
+│       ├── train.py                 ← Training logic
+│       ├── predict.py               ← Inference
+│       ├── evaluate.py              ← Metrics
+│       ├── pipeline.py              ← MLOps pipeline
+│       └── sklearn_pipeline.py      ← Production pipeline
+│
+├── 🌐 app/                          ← FastAPI Application
+│   ├── main.py                      ← Entry point (uvicorn)
+│   ├── api/
+│   │   ├── main.py                  ← APIRouter endpoints
+│   │   ├── endpoints.py             ← Endpoint functions
+│   │   └── schemas.py               ← Pydantic models
+│   ├── core/
+│   │   ├── config.py                ← API config
+│   │   └── logger.py                ← Logging setup
+│   └── services/
+│       └── model_service.py         ← Model predictions
+│
+├── 🔍 drift/                        ← Drift Detection System
+│   ├── __init__.py
+│   ├── run_drift.py                 ← Main drift detection
+│   ├── drift_detector.py            ← Evidently analysis
+│   └── comparators.py               ← Feature comparators
+│
+├── 📊 data/                         ← Datos (versionados DVC)
+│   ├── raw/                         ← Datos originales
+│   ├── interim/                     ← Transformaciones intermedias
+│   ├── processed/                   ← Datos finales
+│   │   ├── turkish_music_emotion_v2_cleaned_full.csv (400+ filas)
+│   │   ├── X_train.csv, X_test.csv
+│   │   └── y_train.csv, y_test.csv
+│   ├── data.dvc                     ← DVC tracking
+│   └── .gitignore                   ← Ignorar archivos grandes
+│
+├── 💾 models/                       ← Modelos (versionados)
+│   ├── optimized/
+│   │   ├── production_model.pkl     ← Modelo actual (80.17%)
+│   │   └── production_model_metadata.json
+│   └── optimized.dvc                ← DVC tracking
+│
+├── 📈 mlflow_artifacts/             ← MLflow experiments
+│   ├── exp_01_Random_Forest_Current_Best/
+│   ├── experiments_summary.csv
+│   └── experiments_report.txt
+│
+├── 📓 notebooks/                    ← Jupyter notebooks
+│   ├── 1.0-team-eda-turkish-music.ipynb
+│   ├── 2.0-team-preprocessing.ipynb
+│   ├── 3.0-team-modeling-evaluation.ipynb
+│   └── archive/
+│
+├── 📈 reports/                      ← Análisis y reportes
+│   ├── figures/                     ← Visualizaciones
+│   │   ├── confusion_matrices_top3.png
+│   │   ├── final_confusion_matrix.png
+│   │   └── *.png
+│   ├── drift/                       ← Drift reports
+│   │   └── drift_report.json        ← Salida drift detection
+│   └── metrics.json
+│
+├── 🧪 tests/                        ← Test Suite (33 tests)
+│   ├── test_dataset_equivalence.py  ← Dataset tests
+│   ├── test_sklearn_pipeline.py     ← Pipeline tests
+│   ├── test_full_integration.py     ← Integration tests
+│   ├── test_api_endpoints.py        ← API tests (TestClient)
+│   ├── validate_cookiecutter.py     ← Structure validation
+│   ├── validate_dataset.py
+│   ├── validate_features.py
+│   └── validate_plots.py
+│
+├── 📚 scripts/                      ← Scripts automatizados
+│   ├── training/
+│   │   ├── train_baseline.py
+│   │   └── run_mlflow_experiments.py
+│   ├── analysis/
+│   │   ├── analyze_outliers.py
+│   │   └── compare_scalers.py
+│   ├── validation/
+│   │   └── verify_sync.py
+│   └── data/
+│       └── generate_drift_data.py   ← Synthetic drift generation
+│
+├── 📊 monitoring/                   ← Monitoring & Dashboards
+│   ├── dashboard/
+│   │   └── streamlit_dashboard.py   ← Cookiecutter validation dashboard
+│   └── README.md
+│
+└── 📚 references/                   ← Documentación externa
+    ├── Diccionario_Variables_Musica_Turca.xlsx
+    ├── Fase1_Equipo24.pdf
+    ├── Fase2_Equipo24.pdf
+    └── Team24_Machine_Learning_Canvas.pdf
+```
+
+**Cookiecutter Data Science Compliance**: ✅ 95.2%
+
+**Referencia**: [Cookiecutter Data Science](https://drivendata.github.io/cookiecutter-data-science/)
+
+---
 ## 🎵 Streamlit App - Production Demo
 
 ### 🌐 Aplicación Web Desplegada
@@ -1388,57 +2054,6 @@ python scripts/validation/verify_sync.py
 ✅ Environment: Consistent
 ```
 
----
-
-## 🧪 Testing y Validación
-
-### Test Suite
-
-**Directorio**: `tests/`
-
-```bash
-# Ejecutar todos los tests
-make test
-
-# Tests específicos
-python tests/test_dataset_equivalence.py
-python tests/test_sklearn_pipeline.py
-python tests/test_full_integration.py
-```
-
-### Tests Disponibles
-
-| Test | Propósito |
-|------|-----------|
-| `test_dataset_equivalence.py` | Validar equivalencia entre datasets |
-| `test_ml_pipeline.py` | Test pipeline MLOps completo |
-| `test_sklearn_pipeline.py` | Test pipeline sklearn |
-| `test_full_integration.py` | Integration tests end-to-end |
-| `validate_cookiecutter.py` | Validar estructura Cookiecutter |
-| `validate_dataset.py` | Validar módulo dataset |
-| `validate_features.py` | Validar módulo features |
-| `validate_plots.py` | Validar módulo plots |
-
-### Validación de Módulos
-
-```bash
-# Dataset
-python tests/validate_dataset.py
-
-# Features
-python tests/validate_features.py
-
-# Plots
-python tests/validate_plots.py
-```
-
-### CI/CD (Planeado)
-
-- GitHub Actions para tests automáticos
-- Pre-commit hooks para linting
-- Automated Cookiecutter validation
-
----
 
 ## 🔄 Workflows y Contribución
 
@@ -1622,7 +2237,7 @@ Antes de aprobar PR:
 
 ---
 
-*Última actualización: Noviembre 2024 - Phase 2 Production Demo*
+*Última actualización: Noviembre 2024 - Phase 3 Production Deployment*
 
 **Estructura basada en**: [Cookiecutter Data Science](https://drivendata.github.io/cookiecutter-data-science/)
 
