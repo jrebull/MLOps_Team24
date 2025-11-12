@@ -1,16 +1,18 @@
 services:
   mlflow:
-    image: ghcr.io/mlflow/mlflow:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.mlflow
     container_name: mlflow
     ports:
       - "5001:5000"
     env_file:
       - config.env
-    environment:
-      MLFLOW_S3_ENDPOINT_URL: https://s3.amazonaws.com
+    volumes:
+      - mlflow_data:/mlflow
     command: >
       mlflow server
-      --backend-store-uri s3://mlops24-haowei-bucket/mlruns
+      --backend-store-uri sqlite:////mlflow/mlflow.db
       --default-artifact-root s3://mlops24-haowei-bucket/artifacts
       --host 0.0.0.0
       --port 5000
@@ -38,3 +40,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+volumes:
+  mlflow_data:
