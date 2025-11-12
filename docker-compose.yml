@@ -33,6 +33,8 @@ services:
       ENV: production
       MODEL_PATH: /app/models/model.joblib
       MLFLOW_TRACKING_URI: http://mlflow:5000
+    volumes:
+      - ./app/models:/app/models
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
