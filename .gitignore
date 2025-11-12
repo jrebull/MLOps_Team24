@@ -134,3 +134,4 @@ mlflow_artifacts/
 fix_*.sh
 acoustic_ml/dataset_old_backup_*.py
 config.env
+config.env
