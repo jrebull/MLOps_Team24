@@ -10,11 +10,10 @@ services:
       MLFLOW_S3_ENDPOINT_URL: https://s3.amazonaws.com
     command: >
       mlflow server
-      --default-artifact-root s3://mlflow-bucket-team24/
+      --backend-store-uri s3://mlops24-haowei-bucket/mlruns
+      --default-artifact-root s3://mlops24-haowei-bucket/artifacts
       --host 0.0.0.0
       --port 5000
-    volumes:
-      - ./mlruns:/mlruns
     restart: unless-stopped
 
   web:
@@ -29,9 +28,13 @@ services:
     ports:
       - "8000:8000"
     environment:
-      ENV: dev
+      ENV: production
       MODEL_PATH: /app/models/model.joblib
       MLFLOW_TRACKING_URI: http://mlflow:5000
-    volumes:
-      - .:/app
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
