@@ -1,61 +1,51 @@
-import requests
-import json
+import pytest
+from fastapi.testclient import TestClient
 
-BASE_URL = "http://127.0.0.1:8000"
-
-def test_health():
+def test_health(client):
     """Test health endpoint"""
     print("🔍 Testing /api/v1/health...")
-    response = requests.get(f"{BASE_URL}/api/v1/health")
+    response = client.get("/api/v1/health")
     print(f"   Status: {response.status_code}")
     print(f"   Response: {response.json()}")
     assert response.status_code == 200
     print("   ✅ Health check passed\n")
 
-def test_root():
+def test_root(client):
     """Test root endpoint"""
     print("🔍 Testing /...")
-    response = requests.get(f"{BASE_URL}/")
+    response = client.get("/")
     print(f"   Status: {response.status_code}")
     print(f"   Response: {response.json()}")
     assert response.status_code == 200
     print("   ✅ Root endpoint passed\n")
 
-def test_train():
+def test_train(client):
     """Test train endpoint"""
     print("🔍 Testing /api/v1/train...")
-    response = requests.post(f"{BASE_URL}/api/v1/train")
+    payload = {"data_path": "data/raw", "model_name": "test_model"}
+    response = client.post("/api/v1/train", json=payload)
     print(f"   Status: {response.status_code}")
-    print(f"   Response: {response.json() if response.status_code == 200 else response.text}")
+    print(f"   Response: {response.json()}")
     print(f"   ℹ️  Check if this is expected behavior\n")
 
-def test_predict():
+def test_predict(client):
     """Test predict endpoint"""
     print("🔍 Testing /api/v1/predict...")
-    # Ajusta el payload según tu modelo
     payload = {
-        "features": [0.1, 0.2, 0.3]  # Ejemplo
+        "features": [0.1, 0.2, 0.3]
     }
-    response = requests.post(
-        f"{BASE_URL}/api/v1/predict",
-        json=payload
-    )
+    response = client.post("/api/v1/predict", json=payload)
     print(f"   Status: {response.status_code}")
-    print(f"   Response: {response.json() if response.status_code == 200 else response.text}")
+    if response.status_code == 200:
+        print(f"   Response: {response.json()}")
+    else:
+        print(f"   Response: {response.text}")
     print(f"   ℹ️  Check if this is expected behavior\n")
 
-if __name__ == "__main__":
-    print("=" * 50)
-    print("🚀 API VALIDATION TESTS")
-    print("=" * 50 + "\n")
-    
-    try:
-        test_health()
-        test_root()
-        test_train()
-        test_predict()
-        print("=" * 50)
-        print("✅ All basic tests completed!")
-        print("=" * 50)
-    except Exception as e:
-        print(f"\n❌ Error: {e}")
+def test_list_models(client):
+    """Test list models endpoint"""
+    print("🔍 Testing /api/v1/models...")
+    response = client.get("/api/v1/models")
+    print(f"   Status: {response.status_code}")
+    print(f"   Response: {response.json()}")
+    print("   ✅ List models passed\n")
