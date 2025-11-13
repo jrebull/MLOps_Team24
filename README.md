@@ -2416,7 +2416,7 @@ Antes de aprobar PR:
 
 
 
-## 📊 Data Drift Detection Dashboard
+## 📊 Data Drift Detection Dashboard (Streamlit Cloud) (Streamlit Cloud)
 
 **Dashboard en Vivo:**
 🔗 [Turkish Drift MLOps - Streamlit Cloud](https://turskishdriftmlops.streamlit.app)
