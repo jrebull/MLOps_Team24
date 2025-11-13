@@ -1,8 +1,8 @@
 {
-  "timestamp": "2025-11-12T20:00:38.255214",
-  "duration_seconds": 0.6277461051940918,
-  "total_tests": 9,
-  "passed": 9,
+  "timestamp": "2025-11-13T10:37:05.316799",
+  "duration_seconds": 0.6159219741821289,
+  "total_tests": 12,
+  "passed": 12,
   "failed": 0,
   "tests": [
     {
@@ -21,6 +21,12 @@
       "name": "API Docs (Swagger)",
       "status": true,
       "message": "HTML size: 937 bytes",
+      "details": {}
+    },
+    {
+      "name": "Predict Endpoint",
+      "status": true,
+      "message": "Prediction: 0, Probs: 4 classes",
       "details": {}
     },
     {
@@ -57,6 +63,18 @@
       "name": "Error Handling (404)",
       "status": true,
       "message": "Non-existent endpoint returns 404",
+      "details": {}
+    },
+    {
+      "name": "Model Loading",
+      "status": true,
+      "message": "Model successfully loaded and accessible",
+      "details": {}
+    },
+    {
+      "name": "Concurrent Request Handling",
+      "status": true,
+      "message": "All 3 sequential requests succeeded",
       "details": {}
     }
   ],

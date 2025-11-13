@@ -139,15 +139,9 @@ def test_api_docs() -> bool:
 def test_predict_endpoint() -> bool:
     """Test: Predict endpoint con datos reales"""
     try:
-        # Datos de test: 21 features como en el pipeline
+        # Datos de test: 50 features como en el modelo entrenado
         test_features = {
-            "features": [
-                0.5, 0.6, 0.7, 0.4, 0.3,  # 5 features
-                0.2, 0.8, 0.5, 0.6, 0.7,  # 5 features
-                0.4, 0.3, 0.2, 0.8, 0.5,  # 5 features
-                0.6, 0.7, 0.4, 0.3, 0.2,  # 5 features
-                0.8                         # 1 feature = 21 total
-            ]
+            "features": [0.5] * 50  # 50 features esperados por RandomForestClassifier
         }
         
         response = requests.post(
@@ -301,7 +295,7 @@ def test_concurrent_requests() -> bool:
     """Test: Manejo de requests concurrentes"""
     try:
         test_features = {
-            "features": [0.5] * 21  # 21 features
+            "features": [0.5] * 50  # 50 features
         }
         
         # Hacer 3 requests secuenciales rápidos
@@ -331,7 +325,7 @@ def test_model_loading() -> bool:
     """Test: Modelo cargado correctamente"""
     try:
         # Si predict funciona, el modelo está cargado
-        test_features = {"features": [0.5] * 21}
+        test_features = {"features": [0.5] * 50}
         response = requests.post(f"{API_V1}/predict", json=test_features, timeout=10)
         
         if response.status_code == 200:
