@@ -2487,3 +2487,97 @@ Antes de aprobar PR:
 **Estructura basada en**: [Cookiecutter Data Science](https://drivendata.github.io/cookiecutter-data-science/)
 
 </div>
+
+---
+
+## 📊 Data Drift Detection Dashboard
+
+**Dashboard en Vivo:**
+🔗 [Turkish Drift MLOps - Streamlit Cloud](https://turskishdriftmlops.streamlit.app)
+
+### 🎯 Descripción
+
+Dashboard interactivo para monitoreo de Data Drift en el modelo de reconocimiento de emociones en música turca. Implementado con Streamlit + Plotly con paleta de colores profesional.
+
+### 📱 Secciones del Dashboard
+
+#### 1️⃣ **Resumen Ejecutivo** (Executive Summary)
+- **Métrica Baseline:** Valor de referencia de predicción promedio
+- **Mayor Impacto:** Escenario con mayor % de drift detectado
+- **Escenarios Críticos:** Conteo de escenarios que requieren atención
+
+**Visualizaciones:**
+- Gráfico de cambio de media de predicciones por escenario
+- Distribución de clases de emoción (Angry 😠, Happy 😊, Relax 😌, Sad 😢)
+- Tabla de recomendaciones por escenario
+- Alertas contextuales (INFO, WARNING, CRITICAL)
+
+#### 2️⃣ **Análisis Detallado** (Detailed Analysis)
+Selecciona un escenario individual para inspeccionar:
+- **Métricas por escenario:** Total muestras, media de predicción, clases únicas, timestamp
+- **Distribución de emociones:** Gráfico de barras con porcentajes
+- **Histograma de predicciones:** Frecuencia de cada clase predicha
+
+#### 3️⃣ **Comparación de Escenarios** (Scenario Comparison)
+Comparación lado a lado de todos los escenarios:
+- Baseline (sin drift)
+- Mean Shift (+30% en todas las medias)
+- Variance Change (×1.5 varianza)
+- Combined Drift (Mean +20% + Var ×1.3 + outliers)
+
+**Tabla resumen** con media de predicción y total de muestras.
+
+#### 4️⃣ **Metadatos** (Metadata)
+- **Información del entrenamiento:** Muestras, features, fecha generación, ruta datos
+- **Escenarios de drift:** Descripción, impacto, causa de cada escenario
+- **Visualización JSON crudo:** Para debugging y validación
+
+### 🎨 Paleta de Colores
+Diseño profesional con colores teal/verde vividos para máxima legibilidad en light y dark mode:
+- Primary: `#17A2A2` (Teal vivido)
+- Background: `#F0FFFE` (Blanco suave)
+- Surface: `#B3E5E1` (Tarjetas verde pastel)
+
+### 🔧 Stack Tecnológico
+- **Framework:** Streamlit 1.32.0
+- **Visualización:** Plotly 5.18.0
+- **Data:** Pandas 2.1.3, NumPy 1.24.4
+- **Deployment:** Streamlit Cloud
+
+### 📂 Estructura
+```
+drift/
+├── drift_streamlit_dashboard.py    # Código principal
+├── requirements.txt                # Dependencias
+├── drift_baseline.json
+├── drift_mean_shift.json
+├── drift_variance_change.json
+├── drift_combined_drift.json
+├── drift_executive_summary.json
+└── drift_scenarios_metadata.json
+```
+
+### ⚡ Interpretación de Resultados
+
+| Impacto | Rango | Acción |
+|---------|-------|--------|
+| LOW | < 1% | Monitor |
+| MEDIUM | 1-3% | Investigate |
+| HIGH | 3-5% | Investigate |
+| CRITICAL | > 5% | Retrain Model |
+
+### 🚀 Ejecutar Localmente
+```bash
+cd drift/
+bash run_dashboard.sh
+```
+
+Abrirá en `http://localhost:8501`
+
+### 📊 Hallazgos Clave
+- ✅ **Mean Shift Robusto (0% impacto):** El modelo es resiliente a desplazamientos sistemáticos
+- ⚠️ **Variance Change Vulnerable (3.37% impacto):** Necesita atención a cambios de ruido
+- 🔴 **Combined Drift Crítico (4.33% impacto):** Requiere re-entrenamiento
+
+---
+
