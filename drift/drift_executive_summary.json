@@ -1,0 +1,24 @@
+{
+  "title": "\ud83d\udd25 Executive Summary: Data Drift Analysis",
+  "baseline_prediction_mean": 1.475177304964539,
+  "scenarios": {
+    "mean_shift": {
+      "mean_prediction": 1.475177304964539,
+      "change_percent": 0.0,
+      "impact_level": "LOW - No impact detected",
+      "recommendation": "Monitor"
+    },
+    "variance_change": {
+      "mean_prediction": 1.524822695035461,
+      "change_percent": 3.37,
+      "impact_level": "HIGH - Significant drift",
+      "recommendation": "Investigate"
+    },
+    "combined_drift": {
+      "mean_prediction": 1.5390070921985815,
+      "change_percent": 4.33,
+      "impact_level": "HIGH - Significant drift",
+      "recommendation": "Investigate"
+    }
+  }
+}

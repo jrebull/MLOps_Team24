@@ -1,0 +1,30 @@
+{
+  "data_drift": {
+    "status": "completed",
+    "report_path": "reports/drift/drift_report.json",
+    "message": "Data drift detected in production data"
+  },
+  "performance_drift": {
+    "baseline_accuracy": 0.8016528925619835,
+    "production_accuracy": 0.2975206611570248,
+    "accuracy_drop": 0.5041322314049587,
+    "accuracy_drop_pct": 62.88659793814433,
+    "degradation_threshold": 0.05,
+    "is_degraded": true
+  },
+  "alerts": [
+    {
+      "type": "DATA_DRIFT",
+      "severity": "WARNING",
+      "message": "Statistical drift detected in production data",
+      "recommendation": "Review feature distributions and consider retraining"
+    },
+    {
+      "type": "PERFORMANCE_DRIFT",
+      "severity": "CRITICAL",
+      "accuracy_drop_pct": 62.88659793814433,
+      "message": "Accuracy degraded by 62.89%",
+      "recommendation": "Trigger model retraining pipeline immediately"
+    }
+  ]
+}

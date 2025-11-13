@@ -1,0 +1,32 @@
+{
+  "generated_at": "2025-11-13T10:54:19.684280",
+  "training_data": {
+    "path": "data/processed/X_train.csv",
+    "shape": [
+      282,
+      50
+    ],
+    "rows": 282,
+    "columns": 50
+  },
+  "scenarios": {
+    "mean_shift": {
+      "description": "Mean Shift: +30% desplazamiento en todas las medias",
+      "impact": "Alto - Cambio sistem\u00e1tico en todas las features",
+      "cause": "Posible cambio en equipamiento o condiciones de captura",
+      "samples": 282
+    },
+    "variance_change": {
+      "description": "Variance Change: Aumento de varianza \u00d71.5",
+      "impact": "Medio-Alto - Mayor ruido en features",
+      "cause": "Mayor variabilidad en condiciones de captura",
+      "samples": 282
+    },
+    "combined_drift": {
+      "description": "Combined Drift: Mean +20% + Var \u00d71.3 + 14 outliers",
+      "impact": "Cr\u00edtico - Cambio multi-dimensional",
+      "cause": "Degradaci\u00f3n significativa en equipamiento/condiciones",
+      "samples": 282
+    }
+  }
+}
