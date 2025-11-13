@@ -135,3 +135,4 @@ fix_*.sh
 acoustic_ml/dataset_old_backup_*.py
 config.env
 config.env
+scripts/log_to_arize.py
