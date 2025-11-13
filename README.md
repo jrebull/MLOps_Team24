@@ -37,6 +37,7 @@
 - [API Serving with FastAPI](#-api-serving-with-fastapi)
 - [Data Drift Detection & Monitoring](#-data-drift-detection--monitoring)
 - [Docker & Containerization](#-docker--containerization)
+- [Publicación en DockerHub](#-publicación-en-dockerhub)
 - [Reproducibility & Seeds](#-reproducibility--seeds)
 - [Phase 3 Requirements Checklist](#-phase-3-requirements-checklist)
 - [Project Structure](#-project-structure)
@@ -1420,6 +1421,250 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 **Producción**:
 - Backend: PostgreSQL o RDS
 - Artifacts: AWS S3 (`mlops24-haowei-bucket`)
+
+---
+
+## 🚀 Publicación en DockerHub
+
+### ¿Qué es DockerHub y por qué se publica?
+
+**DockerHub** es el registro central de imágenes Docker. Al publicar nuestra imagen aquí, permite que:
+
+- ✅ Cualquier persona descargue y ejecute el modelo sin necesidad de compilar
+- ✅ El equipo acceda a versiones consistentes desde cualquier máquina
+- ✅ CI/CD pipelines descarguen automáticamente la versión correcta
+- ✅ Usuarios ejecuten el servicio con un simple comando: `docker run javirebull/ml-service:v3.0.0`
+- ✅ Se cree un historial de versiones documentadas
+
+**Imagen**: `javirebull/ml-service:v3.0.0`
+
+### 1. Autenticación en DockerHub
+
+Primero, loguéate en DockerHub desde tu máquina:
+
+```bash
+# Login interactivo
+docker login
+
+# Te pedirá:
+# Username: javirebull
+# Password: (tu token o contraseña de DockerHub)
+```
+
+Para mayor seguridad, es recomendable usar **Personal Access Tokens** en lugar de contraseña:
+
+```bash
+# En DockerHub: Account Settings → Security → New Access Token
+# Copia el token y úsalo aquí
+docker login --username javirebull --password-stdin <<< "tu_personal_access_token"
+```
+
+**Verificar que estás loguado**:
+```bash
+cat ~/.docker/config.json  # Verá la autenticación almacenada
+```
+
+### 2. Etiquetar la Imagen (Tag)
+
+Antes de publicar, debes etiquetar la imagen local con el nombre correcto:
+
+```bash
+# Primero, construir la imagen (si no existe)
+docker build -t mlops-team24:latest .
+
+# Etiquetar para DockerHub
+# Formato: docker tag <imagen_local> <usuario_dockerhub>/<nombre_repo>:<version>
+docker tag mlops-team24:latest javirebull/ml-service:v3.0.0
+
+# También etiquetar como latest
+docker tag mlops-team24:latest javirebull/ml-service:latest
+
+# Verificar tags
+docker images | grep ml-service
+```
+
+**Esperado**:
+```
+REPOSITORY                 TAG       IMAGE ID       CREATED        SIZE
+javirebull/ml-service      v3.0.0    abc123def456   5 minutes ago  1.2GB
+javirebull/ml-service      latest    abc123def456   5 minutes ago  1.2GB
+mlops-team24               latest    abc123def456   5 minutes ago  1.2GB
+```
+
+### 3. Publicar la Imagen (Push)
+
+Ahora sube la imagen a DockerHub:
+
+```bash
+# Push versión específica
+docker push javirebull/ml-service:v3.0.0
+
+# Push tag latest
+docker push javirebull/ml-service:latest
+
+# Verificar progreso
+# Verás: Pushing [==================================================>]
+```
+
+**Durante el push, verás algo como**:
+```
+The push refers to repository [docker.io/javirebull/ml-service]
+a1b2c3d4e5f6: Pushed
+7g8h9i0j1k2l: Pushed
+v3.0.0: digest: sha256:abc123... size: 4587
+latest: digest: sha256:abc123... size: 4587
+```
+
+### 4. Verificar en DockerHub
+
+Después del push, verifica que la imagen está disponible:
+
+```bash
+# Opción 1: Desde línea de comandos
+docker pull javirebull/ml-service:v3.0.0
+
+# Debería decir: Status: Downloaded newer image
+
+# Opción 2: En navegador (recomendado)
+# Visita: https://hub.docker.com/r/javirebull/ml-service
+# Verás:
+# - Tags disponibles: v3.0.0, latest
+# - Size de la imagen
+# - Pull count
+# - Fecha de última actualización
+```
+
+### 5. Descargar y Ejecutar desde Cualquier Máquina
+
+Una vez publicada, cualquiera puede ejecutar el modelo con un solo comando:
+
+```bash
+# Descargar y ejecutar la imagen v3.0.0
+docker run -p 8000:8000 javirebull/ml-service:v3.0.0
+
+# Con variables de entorno (si es necesario)
+docker run -p 8000:8000 \
+  -e AWS_ACCESS_KEY_ID=$AWS_KEY \
+  -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET \
+  javirebull/ml-service:v3.0.0
+
+# Con datos persistentes
+docker run -p 8000:8000 \
+  -v $(pwd)/data:/app/data \
+  javirebull/ml-service:v3.0.0
+
+# Con nombre personalizado
+docker run -p 8000:8000 \
+  --name ml-service-prod \
+  javirebull/ml-service:v3.0.0
+```
+
+**Verificar que está funcionando**:
+```bash
+# En otra terminal
+curl http://localhost:8000/api/v1/health
+
+# Respuesta esperada
+# {"status": "healthy", "timestamp": "2024-11-12T..."}
+```
+
+### 6. Workflow Completo (Copy-Paste Ready)
+
+Para publicar una nueva versión, sigue este flujo completo:
+
+```bash
+# ========== PASO 1: Build ==========
+# Asegúrate de que los cambios están en main
+git status  # working tree clean
+
+# Construir imagen
+docker build -t mlops-team24:latest .
+
+# ========== PASO 2: Tag ==========
+# Etiquetar para DockerHub
+docker tag mlops-team24:latest javirebull/ml-service:v3.0.0
+docker tag mlops-team24:latest javirebull/ml-service:latest
+
+# Verificar
+docker images | grep ml-service
+
+# ========== PASO 3: Login ==========
+# Loguete en DockerHub (si no está loguado)
+docker login
+
+# ========== PASO 4: Push ==========
+# Publicar ambas tags
+docker push javirebull/ml-service:v3.0.0
+docker push javirebull/ml-service:latest
+
+# Esperar a que termine (puede tomar 2-5 minutos)
+
+# ========== PASO 5: Verificar ==========
+# Test: Descargar imagen fresca
+docker rmi javirebull/ml-service:v3.0.0  # Elimina local
+docker pull javirebull/ml-service:v3.0.0  # Descarga desde Hub
+
+# Ejecutar test
+docker run -p 8000:8000 javirebull/ml-service:v3.0.0 &
+sleep 3
+curl http://localhost:8000/api/v1/health
+```
+
+### 7. Notas sobre Autenticación y Usuario
+
+⚠️ **IMPORTANTE - Usuario Correcto**:
+
+| Campo | Valor |
+|-------|-------|
+| **Docker Hub Username** | `javirebull` |
+| **Repository** | `javirebull/ml-service` |
+| **Full Image** | `javirebull/ml-service:v3.0.0` |
+| **Access** | Público (cualquiera puede descargar) |
+
+**Verificar credenciales**:
+```bash
+# Ver usuario actualmente loguado
+cat ~/.docker/config.json | grep -A2 "docker.io"
+
+# Si cambio de usuario, hacer logout
+docker logout
+
+# Luego login con el usuario correcto
+docker login --username javirebull
+```
+
+**Si tienes errores de autenticación**:
+```bash
+# Error: "denied: requested access to the resource is denied"
+# Solución:
+docker logout
+docker login --username javirebull  # Con espacios, no flags
+# Ingresa token/contraseña cuando se pida
+```
+
+### Versioning Strategy
+
+Recomendación de tags para futuras versiones:
+
+```bash
+# Versión patch (bug fixes)
+docker tag mlops-team24:latest javirebull/ml-service:v3.0.1
+
+# Versión minor (nuevas features)
+docker tag mlops-team24:latest javirebull/ml-service:v3.1.0
+
+# Versión major (cambios significativos)
+docker tag mlops-team24:latest javirebull/ml-service:v4.0.0
+
+# Siempre actualizar latest
+docker tag mlops-team24:latest javirebull/ml-service:latest
+
+# Push todas
+docker push javirebull/ml-service:v3.0.1
+docker push javirebull/ml-service:v3.1.0
+docker push javirebull/ml-service:v4.0.0
+docker push javirebull/ml-service:latest
+```
 
 ---
 
