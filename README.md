@@ -45,7 +45,7 @@
 - [Monitoring y Validación](#-monitoring-y-validación)
 - [Workflows y Contribución](#-workflows-y-contribución)
 - [Equipo](#-equipo-de-desarrollo)
-
+- [Data Drift Detection Dashboard (Streamlit Cloud)](#-data-drift-detection-dashboard-streamlit-cloud)
 ---
 
 ## 🎯 Sobre el Proyecto
@@ -2414,81 +2414,7 @@ Antes de aprobar PR:
 - [ ] Código sigue estándares del proyecto
 - [ ] Commit messages son claros
 
----
 
-## 👥 Equipo de Desarrollo
-
-<div align="center">
-
-<table style="width:100%; border:none;">
-  <tr>
-    <td align="center" style="border:none; padding:20px 10px;">
-      <img src="https://iili.io/Kw90kmB.png" alt="David Cruz Beltrán" width="160" style="border-radius: 50%; border: 5px solid #667eea; box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);"/>
-      <h3>David Cruz Beltrán</h3>
-      <img src="https://img.shields.io/badge/ID-A01360416-667eea?style=for-the-badge" alt="Matrícula"/>
-      <p><strong>🔧 Software Engineer</strong><br/>
-      <em>Pipeline Architecture & Code Quality</em></p>
-    </td>
-    <td align="center" style="border:none; padding:20px 10px;">
-      <img src="https://iili.io/KuvsGKx.png" alt="Javier Augusto Rebull Saucedo" width="160" style="border-radius: 50%; border: 5px solid #764ba2; box-shadow: 0 8px 16px rgba(118, 75, 162, 0.4);"/>
-      <h3>Javier Augusto Rebull Saucedo</h3>
-      <img src="https://img.shields.io/badge/ID-A01795838-764ba2?style=for-the-badge" alt="Matrícula"/>
-      <p><strong>⚙️ SRE / Data Engineer</strong><br/>
-      <em>DevOps, Infrastructure & Data Versioning</em></p>
-    </td>
-    <td align="center" style="border:none; padding:20px 10px;">
-      <img src="https://iili.io/Kw91d74.png" alt="Sandra Luz Cervantes Espinoza" width="160" style="border-radius: 50%; border: 5px solid #f093fb; box-shadow: 0 8px 16px rgba(240, 147, 251, 0.4);"/>
-      <h3>Sandra Luz Cervantes Espinoza</h3>
-      <img src="https://img.shields.io/badge/ID-A01796937-f093fb?style=for-the-badge" alt="Matrícula"/>
-      <p><strong>🤖 ML Engineer / Data Scientist</strong><br/>
-      <em>Model Development & Experimentation</em></p>
-    </td>
-  </tr>
-</table>
-
-</div>
-
----
-
-## 📚 Recursos Adicionales
-
-### Documentación
-
-- [Cookiecutter Data Science](https://drivendata.github.io/cookiecutter-data-science/)
-- [DVC Documentation](https://dvc.org/doc)
-- [MLflow Documentation](https://mlflow.org/docs/latest/index.html)
-- [Scikit-learn Pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html)
-
-### Referencias del Proyecto
-
-- `references/Diccionario_Variables_Musica_Turca.xlsx`: Diccionario de variables
-- `references/Fase 1_Equipo24.pdf`: Entrega Fase 1
-- `references/Fase 2_Equipo24.pdf`: Entrega Fase 2
-- `references/Team24_Machine Learning Canvas v1.0.pdf`: ML Canvas
-
----
-
-<div align="center">
-
-**⭐ Si este proyecto te resulta útil, considera darle una estrella ⭐**
-
----
-
-**Desarrollado con ❤️ por MLOps Team 24**
-
-🏗️ **Arquitectura Profesional** | 🧪 **Testing Comprehensivo** | 🎯 **Production-Ready**
-
-📊 **95.2% Cookiecutter Compliance** | ☁️ **Cloud-Native** | 🔄 **Fully Reproducible**
-
----
-
-*Última actualización: Noviembre 2024 - Phase 3 Production Deployment*
-
-**Estructura basada en**: [Cookiecutter Data Science](https://drivendata.github.io/cookiecutter-data-science/)
-
-</div>
-
----
 
 ## 📊 Data Drift Detection Dashboard
 
@@ -2580,4 +2506,81 @@ Abrirá en `http://localhost:8501`
 - 🔴 **Combined Drift Crítico (4.33% impacto):** Requiere re-entrenamiento
 
 ---
+
+---
+
+## 👥 Equipo de Desarrollo
+
+<div align="center">
+
+<table style="width:100%; border:none;">
+  <tr>
+    <td align="center" style="border:none; padding:20px 10px;">
+      <img src="https://iili.io/Kw90kmB.png" alt="David Cruz Beltrán" width="160" style="border-radius: 50%; border: 5px solid #667eea; box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);"/>
+      <h3>David Cruz Beltrán</h3>
+      <img src="https://img.shields.io/badge/ID-A01360416-667eea?style=for-the-badge" alt="Matrícula"/>
+      <p><strong>🔧 Software Engineer</strong><br/>
+      <em>Pipeline Architecture & Code Quality</em></p>
+    </td>
+    <td align="center" style="border:none; padding:20px 10px;">
+      <img src="https://iili.io/KuvsGKx.png" alt="Javier Augusto Rebull Saucedo" width="160" style="border-radius: 50%; border: 5px solid #764ba2; box-shadow: 0 8px 16px rgba(118, 75, 162, 0.4);"/>
+      <h3>Javier Augusto Rebull Saucedo</h3>
+      <img src="https://img.shields.io/badge/ID-A01795838-764ba2?style=for-the-badge" alt="Matrícula"/>
+      <p><strong>⚙️ SRE / Data Engineer</strong><br/>
+      <em>DevOps, Infrastructure & Data Versioning</em></p>
+    </td>
+    <td align="center" style="border:none; padding:20px 10px;">
+      <img src="https://iili.io/Kw91d74.png" alt="Sandra Luz Cervantes Espinoza" width="160" style="border-radius: 50%; border: 5px solid #f093fb; box-shadow: 0 8px 16px rgba(240, 147, 251, 0.4);"/>
+      <h3>Sandra Luz Cervantes Espinoza</h3>
+      <img src="https://img.shields.io/badge/ID-A01796937-f093fb?style=for-the-badge" alt="Matrícula"/>
+      <p><strong>🤖 ML Engineer / Data Scientist</strong><br/>
+      <em>Model Development & Experimentation</em></p>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+---
+
+## 📚 Recursos Adicionales
+
+### Documentación
+
+- [Cookiecutter Data Science](https://drivendata.github.io/cookiecutter-data-science/)
+- [DVC Documentation](https://dvc.org/doc)
+- [MLflow Documentation](https://mlflow.org/docs/latest/index.html)
+- [Scikit-learn Pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html)
+
+### Referencias del Proyecto
+
+- `references/Diccionario_Variables_Musica_Turca.xlsx`: Diccionario de variables
+- `references/Fase 1_Equipo24.pdf`: Entrega Fase 1
+- `references/Fase 2_Equipo24.pdf`: Entrega Fase 2
+- `references/Team24_Machine Learning Canvas v1.0.pdf`: ML Canvas
+
+---
+
+<div align="center">
+
+**⭐ Si este proyecto te resulta útil, considera darle una estrella ⭐**
+
+---
+
+**Desarrollado con ❤️ por MLOps Team 24**
+
+🏗️ **Arquitectura Profesional** | 🧪 **Testing Comprehensivo** | 🎯 **Production-Ready**
+
+📊 **95.2% Cookiecutter Compliance** | ☁️ **Cloud-Native** | 🔄 **Fully Reproducible**
+
+---
+
+*Última actualización: Noviembre 2024 - Phase 3 Production Deployment*
+
+**Estructura basada en**: [Cookiecutter Data Science](https://drivendata.github.io/cookiecutter-data-science/)
+
+</div>
+
+---
+
 
