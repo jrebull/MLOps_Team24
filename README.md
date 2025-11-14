@@ -44,8 +44,10 @@
 - [Streamlit App - Production Demo](#-streamlit-app---production-demo)
 - [Monitoring y Validación](#-monitoring-y-validación)
 - [Workflows y Contribución](#-workflows-y-contribución)
-- [Equipo](#-equipo-de-desarrollo)
 - [Data Drift Detection Dashboard (Streamlit Cloud)](#-data-drift-detection-dashboard-streamlit-cloud)
+- [Monitoreo y Observabilidad con Arize](#-monitoreo-y-observabilidad-con-arize)
+- [Equipo](#-equipo-de-desarrollo)
+
 ---
 
 ## 🎯 Sobre el Proyecto
@@ -2506,6 +2508,74 @@ Abrirá en `http://localhost:8501`
 - 🔴 **Combined Drift Crítico (4.33% impacto):** Requiere re-entrenamiento
 
 ---
+
+
+## 📈 Monitoreo y Observabilidad con Arize
+
+**Arize** es una plataforma de monitoreo de ML que permite detectar degradación de desempeño, 
+data drift y anomalías en modelos en producción en tiempo real. En el proyecto Turkish Music Emotion 
+Recognition, implementamos Arize para mantener visibilidad continua de la precisión del modelo, 
+detectar cambios en distribuciones de datos y alertar automáticamente sobre desviaciones críticas.
+
+---
+
+### 1. Dashboard de Rendimiento (Performance)
+
+El modelo en producción alcanza una **precisión del 63.8%**, indicando desempeño **mediocre** comparado 
+con el baseline de entrenamiento (80.17%). El análisis detallado revela la causa raíz: **sesgo severo 
+en predicciones** que afecta críticamente ciertas emociones.
+
+**Hallazgos Clave:**
+
+- 🔴 **Over-predicción de "Angry 😠":** El modelo tiende a clasificar la mayoría de muestras como "Angry" 
+  incluso cuando la emoción real es diferente, indicando un fuerte sesgo hacia esta clase.
+
+- 🔴 **Sub-predicción de "Sad 😢" (CRÍTICO):** El modelo **casi nunca predice "Sad"**, a pesar de que 
+  este es la emoción más prevalente en datos de producción. Esta desconexión entre predicciones (modelo) 
+  y realidad (data) es la principal fuente de degradación.
+
+- ⚠️ **Distribución Desequilibrada:** La matriz de confusión muestra que las otras emociones (Happy, Relax) 
+  también se confunden frecuentemente con Angry.
+
+**Recomendación:** Investigar cambios en el audio pipeline, considerar rebalanceo de clases en re-entrenamiento 
+o ajuste de thresholds de decisión.
+
+---
+
+### 2. Dashboard de Deriva (Drift)
+
+El sesgo observado en predicciones causa directamente **Prediction Drift (Derivación de Predicciones)** significativa. 
+Arize detecta esta anomalía comparando la distribución actual de predicciones contra la línea base de entrenamiento.
+
+**Hallazgos Clave:**
+
+- 📊 **Distribution Comparison:** La comparación visual muestra:
+  - **Barra Azul (Producción Actual):** Fuerte concentración en Angry con bajísima frecuencia de Sad
+  - **Barra Morada (Baseline):** Distribución más equilibrada entre las 4 emociones
+  - **Conclusión:** Las distribuciones son dramáticamente diferentes, confirmando drift severo
+
+- 📈 **Population Stability Index (PSI) Elevado:** El PSI es un indicador de 0-10 donde valores > 0.25 
+  indican drift significativo. En nuestro caso, **PSI supera el umbral de alerta**, señalando que el 
+  modelo ya no se comporta como durante el entrenamiento.
+
+- 🚨 **Impacto Operacional:** Este drift no es simplemente estadístico; afecta directamente la 
+  satisfacción del usuario y confiabilidad del sistema.
+
+**Recomendación:** Disparar pipeline de retrain inmediatamente con datos recientes de producción. 
+Considerar monitoreo en tiempo real con alertas automáticas si PSI > 0.25.
+
+---
+
+### 🔗 Acceso a Dashboards
+
+- **Performance Dashboard:** [Enlace privado a Arize]
+- **Drift Dashboard:** [Enlace privado a Arize]
+
+**Próximos Pasos:**
+1. ✅ Completar retrain del modelo con datos balanceados
+2. ✅ A/B testing: modelo viejo vs nuevo en producción
+3. ✅ Configurar alertas automáticas de PSI y precisión
+4. ✅ Implementar monitoreo continuo post-deploy
 
 ---
 
