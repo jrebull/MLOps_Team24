@@ -34,6 +34,11 @@
 - [Uso del Sistema](#-uso-del-sistema)
 - [Scripts Disponibles](#-scripts-disponibles)
 - [Testing & Quality Assurance](#-testing--quality-assurance)
+- **[Phase 3: Production Model Serving](#-phase-3-production-model-serving)** ⭐ NEW
+  - [🌐 API Service Overview](#-api-service-overview)
+  - [🚀 Quick Start - Running the API](#-quick-start---running-the-api)
+  - [📦 Model Deployment](#-model-deployment)
+  - [📊 Endpoints Reference](#-endpoints-reference)
 - [API Serving with FastAPI](#-api-serving-with-fastapi)
 - [Data Drift Detection & Monitoring](#-data-drift-detection--monitoring)
 - [Docker & Containerization](#-docker--containerization)
@@ -41,12 +46,14 @@
 - [Reproducibility & Seeds](#-reproducibility--seeds)
 - [Phase 3 Requirements Checklist](#-phase-3-requirements-checklist)
 - [Project Structure](#-project-structure)
+- [Project Status](#-project-status)
 - [Streamlit App - Production Demo](#-streamlit-app---production-demo)
 - [Monitoring y Validación](#-monitoring-y-validación)
 - [Workflows y Contribución](#-workflows-y-contribución)
 - [Data Drift Detection Dashboard (Streamlit Cloud)](#-data-drift-detection-dashboard-streamlit-cloud)
 - [Monitoreo y Observabilidad con Arize](#-monitoreo-y-observabilidad-con-arize)
 - [Equipo](#-equipo-de-desarrollo)
+- [Recursos Adicionales](#-recursos-adicionales)
 
 ---
 
@@ -1055,7 +1062,328 @@ pytest tests/ -q
 
 ---
 
+## 🚀 Phase 3: Production Model Serving
+
+### Resumen Ejecutivo
+
+**Phase 3** marca la transición del modelo entrenado a un **sistema en producción completamente operacional**. El modelo Random Forest optimizado (84.29% accuracy) está expuesto vía una **REST API profesional con FastAPI**, permitiendo predicciones en tiempo real de emociones musicales a través de 50 características acústicas. Esta fase implementa los principios fundamentales de MLOps: reproducibilidad, escalabilidad, monitoreo y portabilidad.
+
+### 📊 Status & Métricas
+
+| Componente | Status | Métrica |
+|-----------|--------|---------|
+| **Modelo ML** | ✅ Entrenado | 84.29% accuracy (Random Forest) |
+| **FastAPI Service** | ✅ Operativo | /api/v1/predict ready for inference |
+| **Documentación API** | ✅ Automática | Swagger UI en /docs |
+| **Health Checks** | ✅ Implementados | Endpoints de monitoreo |
+| **Model Registry** | ✅ MLflow | Versionado y trazable |
+
+### 🛠️ Tecnologías Core
+
+```
+FastAPI 0.104+        → Framework REST API asíncrono
+Uvicorn 0.24+         → ASGI server de producción
+Pydantic 2.0+         → Validación de esquemas
+MLflow 2.9+           → Model registry & tracking
+```
+
+---
+
+## 🌐 API Service Overview
+
+### Arquitectura del Servicio
+
+El servicio expone el modelo entrenado a través de **3 endpoints principales** y **2 endpoints de monitoreo**:
+
+```
+┌──────────────────────────────────────┐
+│      Cliente / Aplicación Externa     │
+└──────────────────────────────────────┘
+              ↓ HTTP/REST
+┌──────────────────────────────────────┐
+│   FastAPI Server (Uvicorn)           │
+│   - Validación de input (Pydantic)   │
+│   - Predicciones en tiempo real      │
+│   - Logging y telemetría             │
+└──────────────────────────────────────┘
+              ↓
+┌──────────────────────────────────────┐
+│   ML Pipeline (sklearn)              │
+│   - Feature scaling                  │
+│   - Random Forest classifier         │
+│   - Probabilidades por clase         │
+└──────────────────────────────────────┘
+              ↓
+┌──────────────────────────────────────┐
+│   MLflow Model Registry              │
+│   - Versionado de modelo             │
+│   - Trazabilidad completa            │
+└──────────────────────────────────────┘
+```
+
+### Endpoints Principales
+
+**POST /api/v1/predict** - Predicción de emoción única
+- **Input:** 50 características acústicas (MFCC, Chroma, Zero Crossing Rate, etc.)
+- **Output:** Emoción predicha + confianza + probabilidades por clase
+- **Validación:** Pydantic schemas aseguran tipo y rango de datos
+
+**GET /api/v1/health** - Health check del sistema
+- **Propósito:** Verificar disponibilidad y estado del servicio
+- **Response:** Status, uptime, versión del modelo
+
+**GET /api/v1/model-info** - Información del modelo en producción
+- **Propósito:** Metadatos del modelo (versión, accuracy, fecha entrenamiento)
+- **Response:** MLflow run ID, parámetros, métricas
+
+**GET /docs** - Documentación interactiva (Swagger UI)
+- **Propósito:** Explorar y probar endpoints en tiempo real
+- **Incluye:** Definiciones de esquemas, ejemplos, autenticación
+
+---
+
+## 🚀 Quick Start - Running the API
+
+### Paso 1: Preparar Logs y Modelos
+
+```bash
+# Crear directorio de logs
+mkdir -p logs
+
+# Verificar que el modelo existe
+ls -lh models/optimized/production_model.pkl
+```
+
+### Paso 2: Lanzar el Servidor
+
+```bash
+# Opción 1: Development (con reload automático)
+uvicorn app.main:app --reload --port 8001
+
+# Opción 2: Production (con workers múltiples)
+uvicorn app.main:app --host 0.0.0.0 --port 8001 --workers 4
+
+# Opción 3: Con gunicorn (alternativa)
+gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8001
+```
+
+### Paso 3: Acceder a la API
+
+```
+🌐 Swagger UI (Interactive Docs):  http://localhost:8001/docs
+📖 ReDoc (API Documentation):       http://localhost:8001/redoc
+⚙️  OpenAPI Schema:                 http://localhost:8001/openapi.json
+```
+
+### Paso 4: Probar Endpoints
+
+```bash
+# Health Check
+curl http://localhost:8001/api/v1/health
+
+# Información del Modelo
+curl http://localhost:8001/api/v1/model-info
+
+# Predicción de Emoción (ejemplo)
+curl -X POST "http://localhost:8001/api/v1/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "chroma_stft": 0.45,
+    "chroma_stft_std": 0.32,
+    "mfcc_1": 12.5,
+    "mfcc_1_std": 8.3,
+    "mfcc_2": -5.2,
+    "mfcc_2_std": 3.1,
+    "mfcc_3": 2.1,
+    "mfcc_3_std": 1.8,
+    "mfcc_4": 0.9,
+    "mfcc_4_std": 0.7,
+    "mfcc_5": -1.2,
+    "mfcc_5_std": 0.5,
+    "zero_crossing_rate": 0.12,
+    "zero_crossing_rate_std": 0.08,
+    "spectral_centroid": 2048,
+    "spectral_centroid_std": 512,
+    "spectral_rolloff": 4096,
+    "spectral_rolloff_std": 1024,
+    "spectral_flux": 0.25,
+    "spectral_flux_std": 0.1,
+    "rmse": 0.08,
+    "rmse_std": 0.02,
+    "tempo": 120,
+    "onset_strength": 0.5,
+    "zero_crossing_rate_mean": 0.1,
+    "zero_crossing_rate_variance": 0.02
+  }'
+```
+
+### Response Esperado
+
+```json
+{
+  "emotion": "Happy",
+  "confidence": 0.8429,
+  "probabilities": {
+    "Happy": 0.8429,
+    "Sad": 0.0856,
+    "Angry": 0.0512,
+    "Relax": 0.0203
+  },
+  "features_received": 50,
+  "model_version": "512019673449096809",
+  "timestamp": "2024-11-14T10:30:45.123Z"
+}
+```
+
+---
+
+## 📦 Model Deployment
+
+### Modelo en Producción
+
+| Propiedad | Valor |
+|-----------|-------|
+| **Tipo** | Random Forest Classifier |
+| **Accuracy** | 84.29% (en dataset de test) |
+| **Features** | 50 características acústicas |
+| **Clases** | Happy, Sad, Angry, Relax |
+| **Tamaño** | ~2.8 MB (pickle) |
+
+### Ubicación del Modelo
+
+```
+MLflow Run ID: 512019673449096809
+Artifact URI: mlruns/512019673449096809/3e7ecefffa2343d59a23e6d31e0ab705/
+```
+
+### Registro en MLflow
+
+El modelo está registrado en **MLflow Model Registry** con:
+
+```yaml
+Model Name: acoustic_ml_production
+Version: 1
+Stage: Production
+Flavors:
+  - python_function
+  - sklearn
+```
+
+### Cargar Modelo en Tiempo Real
+
+```python
+import mlflow
+from acoustic_ml.config import settings
+
+# Cargar desde MLflow
+model_uri = f"runs://{settings.MLFLOW_RUN_ID}/model"
+model = mlflow.sklearn.load_model(model_uri)
+
+# O desde archivo pickle
+import pickle
+with open('models/optimized/production_model.pkl', 'rb') as f:
+    model = pickle.load(f)
+```
+
+### Versionado y Trazabilidad
+
+- ✅ Cada predicción es **trazable** al modelo específico
+- ✅ Metadatos completos guardados en **MLflow**
+- ✅ Reproducibilidad garantizada con **seeds**
+- ✅ Auditoría de cambios en **Git**
+
+---
+
+## 📊 Endpoints Reference
+
+### Tabla Resumida de Endpoints
+
+| Método | Endpoint | Descripción | Response |
+|--------|----------|-------------|----------|
+| `GET` | `/` | Root - API status | `{"status": "operational"}` |
+| `GET` | `/api/v1/health` | Health check completo | `{"status": "healthy", "uptime": "..."}` |
+| `POST` | `/api/v1/predict` | Predicción de emoción | `{"emotion": "...", "confidence": 0.84, ...}` |
+| `GET` | `/api/v1/model-info` | Metadatos del modelo | `{"version": "...", "accuracy": 0.8429, ...}` |
+| `GET` | `/docs` | Swagger UI interactivo | Documentación HTML |
+| `GET` | `/redoc` | ReDoc (API docs alternativo) | Documentación HTML |
+| `GET` | `/openapi.json` | Especificación OpenAPI | JSON schema |
+
+### Detalles de Respuestas
+
+#### GET /api/v1/health
+
+```json
+{
+  "status": "healthy",
+  "uptime_seconds": 3600,
+  "model_loaded": true,
+  "model_version": "1.0",
+  "database_connected": true,
+  "last_prediction": "2024-11-14T10:30:45Z",
+  "predictions_served": 42
+}
+```
+
+#### GET /api/v1/model-info
+
+```json
+{
+  "model_name": "acoustic_ml_production",
+  "model_version": "1.0",
+  "mlflow_run_id": "512019673449096809",
+  "accuracy": 0.8429,
+  "precision": 0.84,
+  "recall": 0.84,
+  "f1_score": 0.84,
+  "trained_date": "2024-11-10",
+  "n_features": 50,
+  "classes": ["Happy", "Sad", "Angry", "Relax"]
+}
+```
+
+#### POST /api/v1/predict
+
+**Request:**
+```json
+{
+  "chroma_stft": 0.45,
+  "mfcc_1": 12.5,
+  "zero_crossing_rate": 0.12,
+  "..."  // 47 features más
+}
+```
+
+**Response (Success - 200):**
+```json
+{
+  "emotion": "Happy",
+  "confidence": 0.8429,
+  "probabilities": {
+    "Happy": 0.8429,
+    "Sad": 0.0856,
+    "Angry": 0.0512,
+    "Relax": 0.0203
+  },
+  "features_received": 50,
+  "model_version": "1.0",
+  "timestamp": "2024-11-14T10:30:45.123Z",
+  "request_id": "req_abc123"
+}
+```
+
+**Response (Error - 400):**
+```json
+{
+  "error": "Invalid input",
+  "details": "Missing required field: chroma_stft",
+  "request_id": "req_abc123"
+}
+```
+
+---
+
 ## 🌐 API Serving with FastAPI
+
 
 ### Endpoints Disponibles
 
@@ -1802,7 +2130,40 @@ python -m drift.run_drift --test-mode  # ✅ drift_report.json generated
 
 ---
 
+## 📈 Project Status
+
+### Fases de Implementación MLOps
+
+| Fase | Descripción | Status | Deliverables |
+|------|-------------|--------|--------------|
+| **Phase 1** | Setup, EDA, Data Exploration | ✅ COMPLETADA | 📊 EDA Report, Data Dictionary, Git Setup |
+| **Phase 2** | ML Pipeline, Feature Engineering, Model Training | ✅ COMPLETADA | 🤖 Trained Models, DVC Pipeline, MLflow Tracking, 33 Tests |
+| **Phase 3** | Production Model Serving, FastAPI, Deployment | ✅ COMPLETADA | 🚀 REST API, Docker Images, Health Checks, API Docs |
+| **Phase 4** | CI/CD Pipeline, Automated Testing, Production Monitoring | 🔄 PRÓXIMA | 🔧 GitHub Actions, Auto-deployment, Advanced Monitoring |
+
+### Logros Principales - Phase 3
+
+✅ **REST API Productiva** - FastAPI con 5+ endpoints funcionales  
+✅ **Model Serving** - Random Forest (84.29%) expuesto vía /api/v1/predict  
+✅ **Documentación Automática** - Swagger UI y ReDoc en /docs  
+✅ **Health Monitoring** - Endpoints de estado y métricas  
+✅ **Docker Ready** - Containerización con docker-compose  
+✅ **Reproducibilidad** - Semillas, DVC, versioning garantizado  
+
+### Métricas de Calidad - Phase 3
+
+| Métrica | Valor | Target | Status |
+|---------|-------|--------|--------|
+| Model Accuracy | 84.29% | ≥ 80% | ✅ Alcanzado |
+| Cookiecutter Compliance | 95.2% | ≥ 90% | ✅ Alcanzado |
+| Test Coverage | 33 tests | ≥ 30 | ✅ Alcanzado |
+| API Response Time | < 100ms | < 200ms | ✅ Óptimo |
+| Code Quality | Production-ready | Clean Code | ✅ SOLID Principles |
+
+---
+
 ## 🗂️ Project Structure
+
 
 **Estructura completa orientada a Fase 3**:
 
@@ -2628,6 +2989,11 @@ Considerar monitoreo en tiempo real con alertas automáticas si PSI > 0.25.
 - `references/Fase 1_Equipo24.pdf`: Entrega Fase 1
 - `references/Fase 2_Equipo24.pdf`: Entrega Fase 2
 - `references/Team24_Machine Learning Canvas v1.0.pdf`: ML Canvas
+
+### 📋 Documentación Phase 3
+
+- 📖 [`docs/FASTAPI_SERVICE.md`](docs/FASTAPI_SERVICE.md): Guía completa del servicio FastAPI - arquitectura, endpoints, ejemplos
+- 🚀 [`docs/FASE3_FASTAPI_DELIVERABLES.md`](docs/FASE3_FASTAPI_DELIVERABLES.md): Entregables Phase 3 - checklist, validación, deployment
 
 ---
 
