@@ -1,0 +1,484 @@
+.
+|-- acoustic_ml
+|   |-- __init__.py
+|   |-- config.py
+|   |-- dataset.py
+|   |-- dataset.py.backup
+|   |-- features.py
+|   |-- inference.py
+|   |-- modeling
+|   |   |-- __init__.py
+|   |   |-- evaluate.py
+|   |   |-- evaluate.py.backup
+|   |   |-- pipeline.py
+|   |   |-- predict_legacy.py
+|   |   |-- predict.py
+|   |   |-- predict.py.backup
+|   |   |-- sklearn_pipeline.py
+|   |   |-- sklearn_pipeline.py.backup.clean
+|   |   |-- train_legacy.py
+|   |   |-- train.py
+|   |   `-- train.py.backup
+|   |-- plots.py
+|   `-- training
+|       |-- run_mlflow_experiments.py
+|       `-- run_mlflow_experiments.py.backup
+|-- app
+|   |-- __init__.py
+|   |-- api
+|   |   |-- __init__.py
+|   |   |-- endpoints.py
+|   |   `-- schemas.py
+|   |-- core
+|   |   |-- __init__.py
+|   |   |-- config.py
+|   |   `-- logger.py
+|   |-- main.py
+|   |-- modeling
+|   |   |-- __init__.py
+|   |   |-- data_loader.py
+|   |   |-- ml_pipeline.py
+|   |   |-- preprocessor.py
+|   |   |-- trainer.py
+|   |   `-- utils.py
+|   |-- models
+|   |   `-- model.joblib
+|   `-- services
+|       |-- __init__.py
+|       `-- model_service.py
+|-- config.env
+|-- config.env.example
+|-- data
+|   |-- external
+|   |-- interim
+|   |-- processed
+|   |   |-- data_drift_prod.csv
+|   |   |-- eda_report.txt
+|   |   |-- split_metadata.json
+|   |   |-- turkish_music_emotion_cleaned.csv
+|   |   |-- turkish_music_emotion_v1_original.csv
+|   |   |-- turkish_music_emotion_v2_cleaned_aligned.csv
+|   |   |-- turkish_music_emotion_v2_cleaned_full.csv
+|   |   |-- turkish_music_emotion_v2_ENHANCED.csv
+|   |   |-- turkish_music_emotion_v2_transformed.csv
+|   |   |-- v2_cleaned_full.csv
+|   |   |-- X_test.csv
+|   |   |-- X_train.csv
+|   |   |-- y_test.csv
+|   |   `-- y_train.csv
+|   `-- raw
+|       |-- turkis_music_emotion_original.csv
+|       `-- turkish_music_emotion_modified.csv
+|-- data.dvc
+|-- docker-compose.yml
+|-- Dockerfile
+|-- Dockerfile.mlflow
+|-- docs
+|   |-- api_endpoints.md
+|   |-- deployment_guide.md
+|   |-- ml_pipeline.md
+|   |-- mlops_pipeline_diagram.mermaid
+|   |-- references.md
+|   `-- setup_guide.md
+|-- drift
+|   |-- __init__.py
+|   |-- detect_drift.py
+|   |-- drift_baseline_full.json
+|   |-- drift_baseline.json
+|   |-- drift_combined_drift_full.json
+|   |-- drift_combined_drift.json
+|   |-- drift_config.py
+|   |-- drift_executive_summary.json
+|   |-- drift_mean_shift_full.json
+|   |-- drift_mean_shift.json
+|   |-- drift_report_baseline.json
+|   |-- drift_report.json
+|   |-- drift_scenarios_metadata.json
+|   |-- drift_streamlit_dashboard.py
+|   |-- drift_variance_change_full.json
+|   |-- drift_variance_change.json
+|   |-- generate_drift_data.py
+|   |-- generate_executive_summary.py
+|   |-- report_drift.py
+|   |-- requirements-dashboard.txt
+|   |-- requirements.txt
+|   |-- run_dashboard.sh
+|   `-- run_drift.py
+|-- dvc.lock
+|-- dvc.yaml
+|-- dvcstore
+|   `-- files
+|       `-- md5
+|-- Makefile
+|-- MakefileGitOK
+|-- mlartifacts
+|   `-- 288635096223926413
+|       |-- 32f98c2bebaa4bb4b35289b6a0e87db8
+|       |-- 8595dbbeca234fde86b990cd03604029
+|       |-- ade7edb130d3480cb0a9c13e183c9743
+|       |-- d29e04a8266f436386b7da9924e573c6
+|       |-- db095e380a9c4b72b0259c78e9642d17
+|       `-- models
+|-- mlflow_artifacts
+|   |-- 1_RandomForest
+|   |   `-- confusion_matrix.png
+|   |-- 2_GradientBoosting
+|   |   `-- confusion_matrix.png
+|   |-- 3_LogisticRegression
+|   |   `-- confusion_matrix.png
+|   |-- exp_01_Random_Forest_Current_Best
+|   |   |-- classification_report.txt
+|   |   |-- confusion_matrix.png
+|   |   `-- metrics_summary.txt
+|   |-- exp_02_Random_Forest_Deep
+|   |   |-- classification_report.txt
+|   |   |-- confusion_matrix.png
+|   |   `-- metrics_summary.txt
+|   |-- exp_03_Random_Forest_Simple
+|   |   |-- classification_report.txt
+|   |   |-- confusion_matrix.png
+|   |   `-- metrics_summary.txt
+|   |-- exp_04_Gradient_Boosting
+|   |   |-- classification_report.txt
+|   |   |-- confusion_matrix.png
+|   |   `-- metrics_summary.txt
+|   |-- exp_05_Gradient_Boosting_Conservative
+|   |   |-- classification_report.txt
+|   |   |-- confusion_matrix.png
+|   |   `-- metrics_summary.txt
+|   |-- exp_06_Logistic_Regression_Baseline
+|   |   |-- classification_report.txt
+|   |   |-- confusion_matrix.png
+|   |   `-- metrics_summary.txt
+|   |-- exp_07_SVM_RBF
+|   |   |-- classification_report.txt
+|   |   |-- confusion_matrix.png
+|   |   `-- metrics_summary.txt
+|   |-- experiment_run_20251025_012504.log
+|   |-- experiments_report.txt
+|   |-- experiments_summary.csv
+|   `-- summary.csv
+|-- mlruns
+|   |-- 0
+|   |   `-- meta.yaml
+|   |-- 288635096223926413
+|   |   |-- 1cf9819f37954194a500b2df2bdb7e50
+|   |   |-- 21ecec35088942af81341714c9468335
+|   |   |-- 32f98c2bebaa4bb4b35289b6a0e87db8
+|   |   |-- 744ff46d06dd477db9b3c1dc7b3eb5f0
+|   |   |-- 7fb98c4ebc8d4af4b694ba088395cc26
+|   |   |-- 8595dbbeca234fde86b990cd03604029
+|   |   |-- 86ad3b5146c54575b9a4bb1207b8af25
+|   |   |-- 95d126529f114719a2674e57ec1780c3
+|   |   |-- ade7edb130d3480cb0a9c13e183c9743
+|   |   |-- af8b988861fb4fe8ae87aef599437288
+|   |   |-- b53d84d1a1c04222901f03bd27790646
+|   |   |-- b654ab5b708c4a67b7dd9827d64a33f0
+|   |   |-- c8573a54f5cb43c1948ec14bc09356f3
+|   |   |-- d29e04a8266f436386b7da9924e573c6
+|   |   |-- d3c5bff1fe8b4810a63fbe19e83f533a
+|   |   |-- d686afa45dba4e1ea2203e7516cf8b57
+|   |   |-- db095e380a9c4b72b0259c78e9642d17
+|   |   |-- db21578fca9341eba627a82cb68a320c
+|   |   |-- e5ba9358ad8546858bd903d863956b6f
+|   |   |-- e5bafe0424b044868cde735bdd0f7eeb
+|   |   |-- fcf5ed579930474db000b013c92a0891
+|   |   |-- meta.yaml
+|   |   |-- models
+|   |   `-- tags
+|   |-- 509343221675659109
+|   |   |-- dfe31bbfa3da4d9dbc5d10b594e6b22a
+|   |   `-- meta.yaml
+|   |-- 512019673449096809
+|   |   |-- 0137897a63fc4468b34c8d89071b08a4
+|   |   |-- 0480a3f296754b2daee681690901b124
+|   |   |-- 06526fd36ce34ea68720646f06d76517
+|   |   |-- 081506c5db7f46e8a91e7386336d2cf3
+|   |   |-- 0b958603eace44b69e68810733f0edcb
+|   |   |-- 12c002c220654e6d9c368ad3e44f4233
+|   |   |-- 1578ecdbff074e42ad6d39f60fda5404
+|   |   |-- 1850280e40af49b0a1856e7d6662ad5d
+|   |   |-- 1c729da4e3b54833a85ff6124ae7591e
+|   |   |-- 1e5c2bf4c1be4a90962b7f783c7c45f6
+|   |   |-- 1f11564b89404a9287f7b014aaea02e8
+|   |   |-- 2299557680654cd8a54494f7985f746a
+|   |   |-- 22c68d53c2be4ebc8bf5b29135fbb8a2
+|   |   |-- 2b25fa0f569244edb15134725d91ad59
+|   |   |-- 2c1d53c4a4bd4e39aea9e3b107fba204
+|   |   |-- 2ddeb6a2102a4265b8c0d3e3ab2565f2
+|   |   |-- 2f11c95c8b1740ed9ba2037c96629424
+|   |   |-- 32a1b803d0cc4bd3a1deaa8789680650
+|   |   |-- 347dd0d7d3f04f44b50cb43ca92cfb61
+|   |   |-- 34fa5f189ccf4796b90b7d3fcbe4345c
+|   |   |-- 35e4621f56d441d2977f59f01c201ad4
+|   |   |-- 36a75a75b0bf471f80df19cefacb92d6
+|   |   |-- 3e7ecefffa2343d59a23e6d31e0ab705
+|   |   |-- 48c18877d97c4428810a9db8e9f07a10
+|   |   |-- 4b2f54ba46ed4e1d8500da915cf05ceb
+|   |   |-- 4b691f22f1b344e0bf807a7dc6e31187
+|   |   |-- 4c2d423502c04f0da6adfc03fd647f32
+|   |   |-- 4fb822ec1c514b8f8b4ff6746d4bd8cf
+|   |   |-- 5116635881ed4fc988d25c0ad4e0b5f2
+|   |   |-- 52b6a25670cb444f87f51c603a4d7b7b
+|   |   |-- 53f462b3b0dd4540a111469c5ed3f6a7
+|   |   |-- 5df1e121b448426dad59257001b35aa3
+|   |   |-- 65baa169f07f4e328af6171bca16772b
+|   |   |-- 6714a3457ca04429b4aba0185d22937f
+|   |   |-- 694fbe7c61a04f80bdcd966f3f62a885
+|   |   |-- 6e12fdecc3c7428cba76cea3569a3663
+|   |   |-- 6ee76d00e8194c08b20ee58ca8f9819f
+|   |   |-- 6fc21c3082d4436e80ae85cbd05e7b29
+|   |   |-- 70662e86d755405bae43daede8827279
+|   |   |-- 720cad0513b445f0a02fbc15150e6417
+|   |   |-- 7745c23b6a1d4be7ac26651035540f10
+|   |   |-- 777ce0266ff349729eb2396447e0ebc6
+|   |   |-- 7bba71e6d13e48299ecb820951d621be
+|   |   |-- 7c28993fba894d4aaab4427abe649746
+|   |   |-- 892d614b6c0e48aca9b90cade4100d84
+|   |   |-- 897a092995ed4b4e87a610a3f4ab1840
+|   |   |-- 8e50c5ce0f794d3298cc0c67c469f4a2
+|   |   |-- 8ea129a1fef4456f84d5bc6d37ce0e70
+|   |   |-- 8f8507c7c4104fb9a929616a3736419b
+|   |   |-- 94329611a5eb45a5a26da837bed4982d
+|   |   |-- 9cdce854a71d4dc685152974c92b3c8a
+|   |   |-- 9ce0538b7df94765bc5769a9ff4f37de
+|   |   |-- a789ad9eafbe4ad99a207a88dadb2548
+|   |   |-- b74940adb02f4fe59c259711a24aa4a5
+|   |   |-- bc5fcda9056d4246a3d17cf826edf347
+|   |   |-- c4afbdc76ec04f19b3bba7550158bd44
+|   |   |-- c55a6cc1a2e64f19aa2e2d9133cf8a5e
+|   |   |-- c870a9d8154c416c8721ae6a5f360dc2
+|   |   |-- c95b2d6a605b49998d6c2fa3bd95c408
+|   |   |-- cdd8fb520fb747f3b8797636707254b7
+|   |   |-- ce9b0e073ce640a09c5598b181fed5f5
+|   |   |-- cfd9d9f565974f7798319dea5cff4f2e
+|   |   |-- cfec6f4b045f49f0bfc0737aef5ea420
+|   |   |-- d14243b8a7d94b379dafa63231cb12c8
+|   |   |-- d7d97297d2854e4ea4d2a4d2900fcf1f
+|   |   |-- d947619b68a640a1a2aaedb566628473
+|   |   |-- e4116acddde74025b17cef4dc7140bb8
+|   |   |-- ea185611ba9a4bc9897d198f522ba46e
+|   |   |-- eb05c7698f12499b86ed35ca6efc15a7
+|   |   |-- f05fbba5e8ea479984f706a43cff639e
+|   |   |-- f221808021e048829bb71419ff7b28f2
+|   |   |-- f921a122afca411c855c06a775d8f431
+|   |   |-- f9caa5bfc11141869adc1ff7fbb730f9
+|   |   |-- fdf91892703544be9275fe7b9ac6aff2
+|   |   |-- meta.yaml
+|   |   |-- models
+|   |   `-- tags
+|   |-- 514274039667393628
+|   |   |-- 479f95cea436479b85eec30bea7d2f92
+|   |   |-- meta.yaml
+|   |   `-- tags
+|   `-- models
+|-- models
+|   |-- baseline
+|   |   |-- gradient_boosting_baseline.pkl
+|   |   |-- random_forest_baseline.pkl
+|   |   `-- xgboost_baseline.pkl
+|   |-- baseline_model.pkl
+|   |-- baseline.dvc
+|   |-- optimized
+|   |   |-- best_model_20251011_174942.pkl
+|   |   |-- best_model_20251011_175140.pkl
+|   |   |-- best_model_20251011_180420.pkl
+|   |   |-- best_model_20251017_142746.pkl
+|   |   |-- experiment_20251028_040727_metadata.json
+|   |   |-- experiment_20251028_040727.pkl
+|   |   |-- model_metadata_20251011_175140.json
+|   |   |-- model_metadata_20251011_180420.json
+|   |   |-- model_metadata_20251017_142746.json
+|   |   |-- production_model_metadata.json
+|   |   |-- production_model.pkl
+|   |   `-- rf_raw_84pct.pkl
+|   |-- optimized.dvc
+|   `-- test_model.pkl
+|-- monitoring
+|   |-- dashboard
+|   |   |-- requirements_dashboard.txt
+|   |   |-- requirements.txt
+|   |   |-- streamlit_dashboard.py
+|   |   `-- validate_cookiecutter.py
+|   `-- README.md
+|-- notebooks
+|   |-- 1.0-team-eda-turkish-music.ipynb
+|   |-- 1.1-team-dataset-comparison.ipynb
+|   |-- 2.0-team-preprocessing.ipynb
+|   `-- 3.0-team-modeling-evaluation.ipynb
+|-- params.yaml
+|-- pyproject.toml
+|-- quick_diagnostics.py
+|-- README_INDEX.md
+|-- README.md
+|-- references
+|   |-- Diccionario_Variables_Musica_Turca.xlsx
+|   |-- Fase 01 MNA MLOps Team 24 Octubre 2025.mp4
+|   |-- Fase 1_Equipo24.pdf
+|   |-- Fase 2_Equipo24.pdf
+|   |-- Introducción a la optimización Inteligente.pdf
+|   |-- Referencias_APA.xlsx
+|   `-- Team24_Machine Learning Canvas v1.0.pdf
+|-- reports
+|   |-- baseline_model_evaluation
+|   |   |-- classification_report.txt
+|   |   |-- confusion_matrix.png
+|   |   `-- metrics.json
+|   |-- baseline_results.csv
+|   |-- drift
+|   |   |-- drift_baseline_full.json
+|   |   |-- drift_baseline_report.html
+|   |   |-- drift_baseline_test.html
+|   |   |-- drift_baseline.json
+|   |   |-- drift_combined_drift_full.json
+|   |   |-- drift_combined_drift_report.html
+|   |   |-- drift_combined_drift.json
+|   |   |-- drift_executive_summary.json
+|   |   |-- drift_mean_shift_full.json
+|   |   |-- drift_mean_shift_report.html
+|   |   |-- drift_mean_shift.json
+|   |   |-- drift_report_baseline.json
+|   |   |-- drift_report.json
+|   |   |-- drift_scenarios_metadata.json
+|   |   |-- drift_variance_change_full.json
+|   |   |-- drift_variance_change_report.html
+|   |   `-- drift_variance_change.json
+|   |-- figures
+|   |   |-- baseline_comparison.png
+|   |   |-- confusion_matrices_top3.png
+|   |   |-- final_confusion_matrix.png
+|   |   |-- outlier_analysis_report.txt
+|   |   |-- outlier_analysis.png
+|   |   |-- outlier_boxplots.png
+|   |   |-- plot_boxplots_Fluctuation_Mean.png
+|   |   |-- plot_boxplots_Lowenergy_Mean.png
+|   |   |-- plot_boxplots_MFCC_Mean_1.png
+|   |   |-- plot_boxplots_RMSenergy_Mean.png
+|   |   |-- plot_boxplots_Tempo_Mean.png
+|   |   |-- plot_class_distribution.png
+|   |   |-- plot_correlations.png
+|   |   |-- plot_densities_Fluctuation_Mean.png
+|   |   |-- plot_densities_Lowenergy_Mean.png
+|   |   |-- plot_densities_MFCC_Mean_1.png
+|   |   |-- plot_densities_RMSenergy_Mean.png
+|   |   |-- plot_densities_Tempo_Mean.png
+|   |   |-- plot_histograms.png
+|   |   |-- roc_curves.png
+|   |   `-- scaler_comparison_results.txt
+|   |-- final_model_evaluation.json
+|   |-- hyperparameter_search_results.csv
+|   |-- metrics.json
+|   |-- modeling_report.txt
+|   |-- test_model_evaluation
+|   `-- turkish_dataset_comparison_report.txt
+|-- requirements-prod.txt
+|-- requirements.txt
+|-- run_smoke_tests.sh
+|-- scripts
+|   |-- analysis
+|   |   |-- __init__.py
+|   |   |-- analyze_outliers.py
+|   |   |-- compare_scalers.py
+|   |   |-- README.md
+|   |   `-- run_full_analysis.py
+|   |-- demo
+|   |   |-- test_pipeline_quick.py
+|   |   |-- validate_sklearn_pipeline_demo.py
+|   |   `-- verify_environment.py
+|   |-- diagnosis
+|   |   |-- validate_environment.py
+|   |   `-- validate_final.py
+|   |-- log_to_arize.py
+|   |-- pipelines
+|   |   `-- ml_pipeline.py
+|   |-- retrain_with_enhanced_features.py
+|   |-- retrain_with_raw_features.py
+|   |-- save_model_manual.py
+|   |-- temp
+|   |   |-- add_model_logging.py
+|   |   |-- cleanup_smart.py
+|   |   |-- enable_mlflow_sklearn.py
+|   |   |-- fix_final_warning.py
+|   |   |-- fix_mlflow_warnings.py
+|   |   |-- hispanizar_modeling.py
+|   |   |-- mlflow_version_backup.txt
+|   |   |-- suppress_mlflow_warning.py
+|   |   |-- suppress_warning_strong.py
+|   |   |-- test_clean_mlflow.py
+|   |   |-- test_mlflow_integration.py
+|   |   |-- test_model_artifacts.py
+|   |   |-- test_refactored_pipeline.py
+|   |   |-- update_to_robust_scaler.py
+|   |   |-- upgrade_mlflow_safe.py
+|   |   `-- validate_post_cleanup.py
+|   |-- train_new_experiment.py
+|   |-- training
+|   |   |-- run_mlflow_experiments.py
+|   |   |-- run_mlflow_experiments.py.backup
+|   |   `-- train_baseline.py
+|   |-- utils
+|   |   `-- clean_requirements.py
+|   |-- validate_corrections.py
+|   |-- validate_mlflow_runner.py
+|   `-- validation
+|       |-- __init__.py
+|       |-- full_integration_check.py
+|       |-- full_integration_check.py.backup
+|       |-- README.md
+|       |-- validate_cookiecutter.py
+|       |-- validate_dataset.py
+|       |-- validate_features.py
+|       |-- validate_plots.py
+|       |-- validate_sklearn_pipeline.py
+|       |-- verify_sync.py
+|       `-- verify_sync.py.backup
+|-- smoke_test_report.json
+|-- SMOKE_TESTS_SETUP.md
+|-- smoke_tests.py
+|-- tests
+|   |-- conftest.py
+|   |-- obsolete
+|   |-- README.md
+|   |-- test_api.py
+|   |-- test_full_integration.py
+|   |-- test_full_integration.py.backup
+|   |-- test_integration.py
+|   |-- test_integration.py.backup
+|   |-- test_plots.py
+|   `-- test_sklearn_pipeline.py
+|-- tree_output.txt
+`-- turkish_music_app
+    |-- app.py
+    |-- app.py.ANTES_DE_RESTAURAR
+    |-- app.py.backup
+    |-- app.py.backup2
+    |-- app.py.bak
+    |-- app.py.bak2
+    |-- assets
+    |   |-- logo.png
+    |   `-- sample_audio
+    |-- config.py
+    |-- config.py.backup
+    |-- data
+    |   `-- precomputed_features.json
+    |-- mlruns
+    |   `-- 0
+    |-- models
+    |   |-- baseline_model.pkl
+    |   |-- production_model.pkl
+    |   |-- README.md
+    |   `-- rf_best.pkl
+    |-- README.md
+    |-- requirements.txt
+    `-- utils
+        |-- __init__.py
+        |-- audio_feature_extractor.py
+        |-- model_loader.py
+        |-- model_loader.py.backup
+        |-- predictions.py
+        |-- predictions.py.ANTES_DE_RESTAURAR
+        |-- predictions.py.backup
+        |-- scaler_params.pkl
+        `-- visualizations.py
+
+179 directories, 303 files
