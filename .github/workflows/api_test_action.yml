@@ -9,37 +9,37 @@ on:
     paths:
       - "app/**"
       - "tests/test_api.py"
-  workflow_dispatch:
+  workflow_dispatch:   
 
 jobs:
   test-api:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e .
           pip install -r requirements-prod.txt
           pip install pytest
-      
+        
       - name: Start FastAPI in background
         run: |
           uvicorn app.main:app --host 0.0.0.0 --port 8000 &
           echo $! > uvicorn.pid
           sleep 5
-      
+
       - name: Run tests
         run: pytest tests/test_api.py -q
-      
+
       - name: Stop FastAPI
         run: |
           kill $(cat uvicorn.pid) || true
