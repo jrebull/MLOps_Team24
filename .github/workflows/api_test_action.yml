@@ -24,8 +24,10 @@ jobs:
         with:
           python-version: "3.11"
       
-      - name: Create logs directory
-        run: mkdir -p logs
+      - name: Create required directories
+        run: |
+          mkdir -p logs
+          mkdir -p models/baseline
       
       - name: Install dependencies
         run: |
@@ -33,6 +35,17 @@ jobs:
           pip install -e .
           pip install -r requirements-prod.txt
           pip install pytest
+      
+      - name: Create dummy model for health check
+        run: |
+          python -c "
+          import pickle
+          from sklearn.ensemble import RandomForestClassifier
+          model = RandomForestClassifier(n_estimators=10, random_state=42)
+          with open('models/baseline/random_forest_baseline.pkl', 'wb') as f:
+              pickle.dump(model, f)
+          print('✅ Dummy model created')
+          "
       
       - name: Run tests with TestClient
         run: |
