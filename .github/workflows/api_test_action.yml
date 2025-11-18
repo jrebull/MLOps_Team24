@@ -34,29 +34,7 @@ jobs:
           pip install -r requirements-prod.txt
           pip install pytest
       
-      - name: Start FastAPI in background
+      - name: Run tests with TestClient
         run: |
           export PYTHONPATH=$PYTHONPATH:$(pwd)
-          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
-          echo $! > uvicorn.pid
-          sleep 10
-      
-      - name: Wait for API to be ready
-        run: |
-          for i in {1..30}; do
-            if curl -f http://localhost:8000/api/v1/health; then
-              echo "API is ready!"
-              break
-            fi
-            echo "Waiting for API... ($i/30)"
-            sleep 2
-          done
-      
-      - name: Run tests
-        run: |
-          export PYTHONPATH=$PYTHONPATH:$(pwd)
-          pytest tests/test_api.py -q
-      
-      - name: Stop FastAPI
-        run: |
-          kill $(cat uvicorn.pid) || true
+          pytest tests/test_api.py -v
