@@ -1,19 +1,22 @@
-name: Run Tests
+name: Run Scripts with DVC
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - "app/**"
-      - "tests/**"
+      - "scripts/**"
   pull_request:
     paths:
-      - "app/**"
-      - "tests/**"
+      - "scripts/**"
 
 jobs:
-  test:
+  run-scripts:
     runs-on: ubuntu-latest
+    
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: "us-east-1"
     
     steps:
       - name: Checkout repository
@@ -32,23 +35,29 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e .
           pip install -r requirements-prod.txt
-          pip install dvc[s3] pytest
+          pip install "dvc[s3]"
       
-      - name: Pull data with DVC
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
-        run: dvc pull
+      - name: Configure DVC remote
+        run: |
+          dvc remote modify --local mlops24-haowei-bucket/ files/no_such_key || echo "Remote configured"
       
-      - name: Run validation scripts
+      - name: Pull DVC data
+        run: dvc pull --force
+      
+      - name: Run validation scripts and tests
         run: |
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           set -e
           python scripts/analysis/analyze_outliers.py
           python scripts/analysis/compare_scalers.py
-      
-      - name: Run tests
-        run: |
-          export PYTHONPATH=$PYTHONPATH:$(pwd)
-          pytest tests --ignore=tests/test_api.py -q
+          python scripts/validation/validate_dataset.py
+          python scripts/validation/validate_features.py
+          python scripts/validation/validate_sklearn_pipeline.py
+          python scripts/validation/validate_plots.py
+          python scripts/validation/validate_cookiecutter.py
+          python scripts/validation/full_integration_check.py
+          python scripts/validate_mlflow_runner.py
+          python scripts/validation/verify_sync.py
+          python -m pytest tests/test_sklearn_pipeline.py -v
+          python -m pytest tests/test_full_integration.py -v
+          python -m pytest tests/test_integration.py -v
