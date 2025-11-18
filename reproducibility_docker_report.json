@@ -1,0 +1,41 @@
+{
+  "validation_timestamp": "2025-11-17T22:37:54.336313",
+  "test_name": "Docker Reproducibility Validation",
+  "api_endpoint": "http://localhost:8000/api/v1",
+  "num_examples": 5,
+  "num_executions": 3,
+  "reproducibility_test": "PASSED",
+  "all_predictions_identical": true,
+  "configuration": {
+    "environment": "Docker container (FastAPI + scikit-learn)",
+    "random_state": 42,
+    "model_type": "RandomForestClassifier",
+    "dependencies_fixed": true,
+    "sklearn_version": "1.7.2",
+    "python_version": "3.12",
+    "data_versioning": "DVC + S3"
+  },
+  "predictions_detail": {
+    "execution_1": [
+      null,
+      2,
+      null,
+      3,
+      3
+    ],
+    "execution_2": [
+      null,
+      2,
+      null,
+      3,
+      3
+    ],
+    "execution_3": [
+      null,
+      2,
+      null,
+      3,
+      3
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "experiment_name": "turkish-music-emotion-recognition",
+  "run_id": "081506c5db7f46e8a91e7386336d2cf3",
+  "timestamp": "2025-11-17T22:21:16.348615",
+  "metrics": {
+    "test_accuracy": 0.8429752066115702,
+    "train_accuracy": 1.0,
+    "n_samples_train": 282,
+    "n_samples_test": 121,
+    "n_features": 50
+  },
+  "params": {
+    "random_state": "42",
+    "model": "RandomForest"
+  },
+  "reproducibility_config": {
+    "random_state": 42,
+    "numpy_seed": 42,
+    "sklearn_version": "1.7.2",
+    "python_version": "3.12"
+  }
+}

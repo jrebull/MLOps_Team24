@@ -147,25 +147,24 @@ types-python-dateutil==2.9.0.20250822
 typing-inspection==0.4.2
 typing_extensions==4.15.0
 vine==5.1.0
-
-
 wheel==0.45.1
-
 yarl==1.22.0
 zc.lockfile==4.0
-# Monitoreo de datos/modelos (pesados)
-evidently>=0.2.10
+
+# Monitoreo - FIJADAS
+evidently==0.4.30
 deepchecks==0.19.1
 
 # Serving / API
 fastapi==0.118.0
+uvicorn==0.32.1
 
-# ONNX (solo si vas a exportar/inferir ONNX)
+# ONNX
 onnxruntime==1.23.0
 
-# Testing
-pytest>=7.4.0
-pytest-cov>=4.1.0
+# Testing - FIJADAS
+pytest==8.3.3
+pytest-cov==6.0.0
 
-# MLflow para experiment tracking
-mlflow>=2.8.0
+# MLflow - FIJADO
+mlflow==2.17.2
